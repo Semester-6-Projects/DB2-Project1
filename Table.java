@@ -1,10 +1,10 @@
 import java.io.*;
 import java.util.ArrayList;
 import java.util.Hashtable;
-
+import java.io.Serializable;
 import com.opencsv.CSVWriter;
 
-public class Table {
+public class Table implements Serializable{
     private String TableName;
     private String ClusteringKeyColumn;
     private int pageCount = 0;
@@ -24,10 +24,10 @@ public class Table {
             String xtrimmed = x[0].trim();
             if (xtrimmed.equals(strClusteringKeyColumn)) {
                 String[] y = {strTableName, xtrimmed, x[1], "True", "null", "null"};
-                writeDataLineByLine("C:/Users/DELL/Desktop/metafileSample.csv", y);
+                writeDataLineByLine("resources/metaFile.csv", y);
             } else {
                 String[] y = {strTableName, xtrimmed, x[1], "False", "null", "null"};
-                writeDataLineByLine("C:/Users/DELL/Desktop/metafileSample.csv", y);
+                writeDataLineByLine("resources/metaFile.csv", y);
             }
         }
     }
@@ -45,8 +45,28 @@ public class Table {
     }
 
 
+     private int getMax(){
+        int x;
+        try{
+            FileReader fr=new FileReader("resources/DBApp.config");
+            BufferedReader br=new BufferedReader(fr);
+            String z = br.readLine();
+            String [] y = z.split("=");
+            z = y[1].trim();
+            x = Integer.parseInt(z);
+            br.close();
+            fr.close();
+        } catch (FileNotFoundException e) {
+            throw new RuntimeException(e);
+        } catch (IOException e) {
+            throw new RuntimeException(e);
+        }
+         return x;
+     }
+
     public void addData(Tuple data) {
-        if (Pages.size() == 0 || Pages.getLast().tupleSize() == 200) {
+         int max = getMax();
+        if (Pages.size() == 0 || Pages.getLast().tupleSize() == max) {
             //make 200 max config
             pageCount++;
             String pageName = TableName + pageCount + ".bin";
@@ -174,21 +194,22 @@ public class Table {
         Table t= new Table(strTableName,"id",htblColNameType);
 
 
-        ArrayList<Object> tupleData= new ArrayList<Object>();
-        tupleData.add("Ahmed");
-        tupleData.add("20");
-        tupleData.add("Zamalek");
-        Tuple data = new Tuple(tupleData);
-
-        ArrayList<Object> tupleData2= new ArrayList<Object>();
-        tupleData2.add("Ahmed2");
-        tupleData2.add("202");
-        tupleData2.add("Zamalek2");
-        Tuple data2 = new Tuple(tupleData2);
-
-        //Page p = new Page(strTableName,pageNo,data);
-        t.addData(data);
-        t.addData(data2);
+//        ArrayList<Object> tupleData= new ArrayList<Object>();
+//        tupleData.add("Ahmed");
+//        tupleData.add("20");
+//        tupleData.add("Zamalek");
+//        Tuple data = new Tuple(tupleData);
+//
+//        ArrayList<Object> tupleData2= new ArrayList<Object>();
+//        tupleData2.add("Ahmed2");
+//        tupleData2.add("202");
+//        tupleData2.add("Zamalek2");
+//        Tuple data2 = new Tuple(tupleData2);
+//
+//        //Page p = new Page(strTableName,pageNo,data);
+//        t.addData(data);
+//        t.addData(data2);
+//        System.out.print(t.getMax());
 
 
 
