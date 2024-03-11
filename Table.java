@@ -38,7 +38,7 @@ public class Table implements Serializable{
     }
 
 
-    public static void writeDataLineByLine(String filePath, String[] hash) {
+    private static void writeDataLineByLine(String filePath, String[] hash) {
         try {
             FileWriter outputfile = new FileWriter(filePath, true);
             CSVWriter writer = new CSVWriter(outputfile);

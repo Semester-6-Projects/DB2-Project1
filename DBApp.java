@@ -1,10 +1,10 @@
-
+import com.opencsv.CSVReader;
+import com.opencsv.exceptions.CsvValidationException;
 
 import java.io.*;
 import java.util.Iterator;
 import java.util.Hashtable;
 import java.util.Vector;
-
 
 public class DBApp {
  private Vector<String> tableNames = new Vector<String>();
@@ -20,13 +20,6 @@ public class DBApp {
 
 	}
 
-
-	// following method creates one table only
-	// strClusteringKeyColumn is the name of the column that will be the primary
-	// key and the clustering column as well. The data type of that column will
-	// be passed in htblColNameType
-	// htblColNameValue will have the column name as key and the data
-	// type as value
 	public void createTable(String strTableName,
 							String strClusteringKeyColumn,
 							Hashtable<String,String> htblColNameType) throws DBAppException{
@@ -108,7 +101,81 @@ public class DBApp {
 	public void insertIntoTable(String strTableName,
 								Hashtable<String,Object>  htblColNameValue) throws DBAppException{
 
+		if(!(tableNames.contains(strTableName))) {
+			throw new DBAppException("table doesn't exist");
+		}
+
+		String hash = htblColNameValue.toString();
+		String hash2 = hash.substring(1, hash.length() - 1);
+		String[] hash3 = hash2.split(",");
+
+
+		for (int i = hash3.length - 1; i >= 0; i--) {
+			String[] x = hash3[i].split("=");
+			String columnName = x[0].trim();
+			String columnValue = x[1].trim();
+			if(checkValueMF(columnName,columnValue, strTableName)){
+				//hn3ml tuple
+			}
+			else{
+				throw new DBAppException("Column " + columnName + " doesn't exist");
+			}
+
+
+		}
 		//throw new DBAppException("not implemented yet");
+	}
+
+
+	private boolean checkValueMF(String columnName, String columnValue, String tableName)throws DBAppException {
+		try {
+			FileReader fr = new FileReader("resources/metaFile.csv");
+			BufferedReader br = new BufferedReader(fr);
+			String z = br.readLine();
+
+			while (z != null) {
+				String[] mfile = z.split(",");
+				String a = mfile[0].substring(1,mfile[0].length()-1).trim();
+				String b = mfile[1].substring(1,mfile[1].length()-1).trim();
+				String c = mfile[2].substring(1,mfile[2].length()-1).trim();
+                if (a.equals(tableName) && b.equals(columnName)) {
+					if (c.equalsIgnoreCase("java.lang.Integer")) {
+						try {
+							int x = Integer.parseInt(columnValue);
+							br.close();
+							fr.close();
+							return true;
+						} catch (Exception e) {
+							throw new DBAppException("mismatch data type, for column '" + columnName
+									+ "' should be java.lang.Integer");
+						}
+					} else if (c.equalsIgnoreCase("java.lang.Double")) {
+						try {
+							Double d = Double.parseDouble(columnValue);
+							br.close();
+							fr.close();
+							return true;
+						} catch (Exception e) {
+							throw new DBAppException("mismatch data type, for column '" + columnName
+									+ "' should be java.lang.Double");
+						}
+					} else if (c.equalsIgnoreCase("java.lang.String")) {
+						br.close();
+						fr.close();
+						return true;
+					}
+				}
+				z = br.readLine();
+			}
+
+			br.close();
+			fr.close();
+		} catch (FileNotFoundException e) {
+			throw new RuntimeException(e);
+		} catch (IOException e) {
+			throw new RuntimeException(e);
+		}
+		return false;
 	}
 
 
@@ -159,30 +226,30 @@ public class DBApp {
 			htblColNameValue.put("name", new String("Ahmed Noor" ) );
 			htblColNameValue.put("gpa", Double.valueOf( 0.95 ) );
 			dbApp.insertIntoTable( strTableName , htblColNameValue );
-
-			htblColNameValue.clear( );
-			htblColNameValue.put("id", Integer.valueOf( 453455 ));
-			htblColNameValue.put("name", new String("Ahmed Noor" ) );
-			htblColNameValue.put("gpa", Double.valueOf( 0.95 ) );
-			dbApp.insertIntoTable( strTableName , htblColNameValue );
-
-			htblColNameValue.clear( );
-			htblColNameValue.put("id", Integer.valueOf( 5674567 ));
-			htblColNameValue.put("name", new String("Dalia Noor" ) );
-			htblColNameValue.put("gpa", Double.valueOf( 1.25 ) );
-			dbApp.insertIntoTable( strTableName , htblColNameValue );
-
-			htblColNameValue.clear( );
-			htblColNameValue.put("id", Integer.valueOf( 23498 ));
-			htblColNameValue.put("name", new String("John Noor" ) );
-			htblColNameValue.put("gpa", Double.valueOf( 1.5 ) );
-			dbApp.insertIntoTable( strTableName , htblColNameValue );
-
-			htblColNameValue.clear( );
-			htblColNameValue.put("id", Integer.valueOf( 78452 ));
-			htblColNameValue.put("name", new String("Zaky Noor" ) );
-			htblColNameValue.put("gpa", Double.valueOf( 0.88 ) );
-			dbApp.insertIntoTable( strTableName , htblColNameValue );
+//
+//			htblColNameValue.clear( );
+//			htblColNameValue.put("id", new String("Ahmed Noor" ) );
+//			htblColNameValue.put("name", new String("Ahmed Noor" ) );
+//			htblColNameValue.put("gpa", Double.valueOf( 0.95 ) );
+//			dbApp.insertIntoTable( strTableName , htblColNameValue );
+//
+//			htblColNameValue.clear( );
+//			htblColNameValue.put("id", Integer.valueOf( 5674567 ));
+//			htblColNameValue.put("name", new String("Dalia Noor" ) );
+//			htblColNameValue.put("gpa", new String("Ahmed Noor" ) );
+//			dbApp.insertIntoTable( strTableName , htblColNameValue );
+//
+//			htblColNameValue.clear( );
+//			htblColNameValue.put("id", Integer.valueOf( 23498 ));
+//			htblColNameValue.put("name", Integer.valueOf( 23498 ) );
+//			htblColNameValue.put("gpa", Double.valueOf( 1.5 ) );
+//			dbApp.insertIntoTable( strTableName , htblColNameValue );
+//
+//			htblColNameValue.clear( );
+//			htblColNameValue.put("id", Integer.valueOf( 78452 ));
+//			htblColNameValue.put("name", new String("Zaky Noor" ) );
+//			htblColNameValue.put("gpa", Double.valueOf( 0.88 ) );
+//			dbApp.insertIntoTable( strTableName , htblColNameValue );
 
 
 //			SQLTerm[] arrSQLTerms;
