@@ -1,14 +1,15 @@
 import java.io.*;
-import java.util.ArrayList;
 import java.util.Hashtable;
 import java.io.Serializable;
+import java.util.Vector;
+
 import com.opencsv.CSVWriter;
 
 public class Table implements Serializable{
-    private String TableName;
+    private String TableName="";
     private String ClusteringKeyColumn;
     private int pageCount = 0;
-    private ArrayList<Page> Pages = new ArrayList<Page>();
+    private Vector<Page> Pages = new Vector<Page>();
 
     public Table(String strTableName,
                  String strClusteringKeyColumn,
@@ -30,6 +31,10 @@ public class Table implements Serializable{
                 writeDataLineByLine("resources/metaFile.csv", y);
             }
         }
+    }
+
+    public String getTableName(){
+        return this.TableName;
     }
 
 
@@ -66,37 +71,41 @@ public class Table implements Serializable{
 
     public void addData(Tuple data) {
          int max = getMax();
-        if (Pages.size() == 0 || Pages.getLast().tupleSize() == max) {
+        if ((Pages.size() == 0) || (Pages.getLast().tupleSize() == max)) {
             //make 200 max config
             pageCount++;
             String pageName = TableName + pageCount + ".bin";
             Page p = new Page(pageName,data);
             Pages.add(p);
-            ObjectOutputStream os = null;
-            try {
-                FileOutputStream fileOS = new FileOutputStream(pageName);
-                os = new ObjectOutputStream(fileOS);
-                os.writeObject(p);
-
-            } catch (FileNotFoundException e) {
-                e.printStackTrace();
-            } catch (IOException e) {
-                e.printStackTrace();
-            } finally {
-                try {
-                    os.close();
-                } catch (IOException e) {
-                    // TODO Auto-generated catch block
-                    e.printStackTrace();
-                }
-            }
+            serializePageCreate(p,data);
         }
         else{
              deserializePage(Pages.getLast());
              serializePageAdd(Pages.getLast(), data);
-
         }
+    }
 
+
+    private void serializePageCreate(Page p, Tuple data){
+        ObjectOutputStream os = null;
+        String pageName = p.getPageName();
+        try {
+            FileOutputStream fileOS = new FileOutputStream(pageName);
+            os = new ObjectOutputStream(fileOS);
+            os.writeObject(p);
+
+        } catch (FileNotFoundException e) {
+            e.printStackTrace();
+        } catch (IOException e) {
+            e.printStackTrace();
+        } finally {
+            try {
+                os.close();
+            } catch (IOException e) {
+                // TODO Auto-generated catch block
+                e.printStackTrace();
+            }
+        }
     }
 
 

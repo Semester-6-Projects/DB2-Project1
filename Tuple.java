@@ -1,11 +1,10 @@
 import java.io.Serializable;
-import java.util.ArrayList;
-import java.io.Serializable;
+import java.util.Vector;
 
 public class Tuple implements Serializable {
-    private ArrayList<Object> data= new ArrayList<Object>();
+    private Vector<Object> data= new Vector<Object>();
 
-    public Tuple(ArrayList<Object> data){
+    public Tuple(Vector<Object> data){
         this.data=data;
     }
 

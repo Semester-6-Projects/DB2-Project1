@@ -1,14 +1,15 @@
 
 
+import java.io.*;
 import java.util.Iterator;
 import java.util.Hashtable;
+import java.util.Vector;
 
 
 public class DBApp {
-
+ private Vector<String> tableNames = new Vector<String>();
 
 	public DBApp() {
-
 	}
 
 	// this does whatever initialization you would like
@@ -30,7 +31,66 @@ public class DBApp {
 							String strClusteringKeyColumn,
 							Hashtable<String,String> htblColNameType) throws DBAppException{
 
-		throw new DBAppException("not implemented yet");
+		 if(!(tableNames.contains(strTableName))) {
+			 Table t = new Table(strTableName, strClusteringKeyColumn, htblColNameType);
+			 tableNames.add(strTableName);
+			 serializeTableCreate(t);
+			 return;
+		 }
+		 else{
+			 throw new DBAppException("table already exists");
+		 }
+
+		//throw new DBAppException("not implemented yet");
+	}
+
+
+	private void serializeTableCreate(Table t){
+		String tableFileName = t.getTableName() + ".bin";
+		ObjectOutputStream os = null;
+		try {
+			FileOutputStream fileOS = new FileOutputStream(tableFileName);
+			os = new ObjectOutputStream(fileOS);
+			os.writeObject(t);
+
+		} catch (FileNotFoundException e) {
+			e.printStackTrace();
+		} catch (IOException e) {
+			e.printStackTrace();
+		} finally {
+			try {
+				os.close();
+			} catch (IOException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
+		}
+
+
+	}
+
+	private void deserializeTable(Table t){
+		String pageName = t.getTableName() + ".bin";
+		ObjectInputStream in= null;
+		try{
+			FileInputStream fileIn = new FileInputStream(pageName);
+			in = new ObjectInputStream(fileIn);
+			in.readObject();
+
+		} catch (IOException i) {
+			i.printStackTrace();
+		} catch (ClassNotFoundException c) {
+			c.printStackTrace();
+		}
+		finally {
+			try {
+				in.close();
+			} catch (IOException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
+		}
+
 	}
 
 
@@ -39,7 +99,7 @@ public class DBApp {
 							String   strColName,
 							String   strIndexName) throws DBAppException{
 
-		throw new DBAppException("not implemented yet");
+		//throw new DBAppException("not implemented yet");
 	}
 
 
@@ -48,7 +108,7 @@ public class DBApp {
 	public void insertIntoTable(String strTableName,
 								Hashtable<String,Object>  htblColNameValue) throws DBAppException{
 
-		throw new DBAppException("not implemented yet");
+		//throw new DBAppException("not implemented yet");
 	}
 
 
@@ -60,7 +120,7 @@ public class DBApp {
 							String strClusteringKeyValue,
 							Hashtable<String,Object> htblColNameValue   )  throws DBAppException{
 
-		throw new DBAppException("not implemented yet");
+		//throw new DBAppException("not implemented yet");
 	}
 
 
@@ -71,7 +131,7 @@ public class DBApp {
 	public void deleteFromTable(String strTableName,
 								Hashtable<String,Object> htblColNameValue) throws DBAppException{
 
-		throw new DBAppException("not implemented yet");
+		//throw new DBAppException("not implemented yet");
 	}
 
 
@@ -95,52 +155,52 @@ public class DBApp {
 			dbApp.createIndex( strTableName, "gpa", "gpaIndex" );
 
 			Hashtable htblColNameValue = new Hashtable( );
-			htblColNameValue.put("id", new Integer( 2343432 ));
+			htblColNameValue.put("id", Integer.valueOf( 2343432 ));
 			htblColNameValue.put("name", new String("Ahmed Noor" ) );
-			htblColNameValue.put("gpa", new Double( 0.95 ) );
+			htblColNameValue.put("gpa", Double.valueOf( 0.95 ) );
 			dbApp.insertIntoTable( strTableName , htblColNameValue );
 
 			htblColNameValue.clear( );
-			htblColNameValue.put("id", new Integer( 453455 ));
+			htblColNameValue.put("id", Integer.valueOf( 453455 ));
 			htblColNameValue.put("name", new String("Ahmed Noor" ) );
-			htblColNameValue.put("gpa", new Double( 0.95 ) );
+			htblColNameValue.put("gpa", Double.valueOf( 0.95 ) );
 			dbApp.insertIntoTable( strTableName , htblColNameValue );
 
 			htblColNameValue.clear( );
-			htblColNameValue.put("id", new Integer( 5674567 ));
+			htblColNameValue.put("id", Integer.valueOf( 5674567 ));
 			htblColNameValue.put("name", new String("Dalia Noor" ) );
-			htblColNameValue.put("gpa", new Double( 1.25 ) );
+			htblColNameValue.put("gpa", Double.valueOf( 1.25 ) );
 			dbApp.insertIntoTable( strTableName , htblColNameValue );
 
 			htblColNameValue.clear( );
-			htblColNameValue.put("id", new Integer( 23498 ));
+			htblColNameValue.put("id", Integer.valueOf( 23498 ));
 			htblColNameValue.put("name", new String("John Noor" ) );
-			htblColNameValue.put("gpa", new Double( 1.5 ) );
+			htblColNameValue.put("gpa", Double.valueOf( 1.5 ) );
 			dbApp.insertIntoTable( strTableName , htblColNameValue );
 
 			htblColNameValue.clear( );
-			htblColNameValue.put("id", new Integer( 78452 ));
+			htblColNameValue.put("id", Integer.valueOf( 78452 ));
 			htblColNameValue.put("name", new String("Zaky Noor" ) );
-			htblColNameValue.put("gpa", new Double( 0.88 ) );
+			htblColNameValue.put("gpa", Double.valueOf( 0.88 ) );
 			dbApp.insertIntoTable( strTableName , htblColNameValue );
 
 
-			SQLTerm[] arrSQLTerms;
-			arrSQLTerms = new SQLTerm[2];
-			arrSQLTerms[0]._strTableName =  "Student";
-			arrSQLTerms[0]._strColumnName=  "name";
-			arrSQLTerms[0]._strOperator  =  "=";
-			arrSQLTerms[0]._objValue     =  "John Noor";
-
-			arrSQLTerms[1]._strTableName =  "Student";
-			arrSQLTerms[1]._strColumnName=  "gpa";
-			arrSQLTerms[1]._strOperator  =  "=";
-			arrSQLTerms[1]._objValue     =  new Double( 1.5 );
-
-			String[]strarrOperators = new String[1];
-			strarrOperators[0] = "OR";
-			// select * from Student where name = "John Noor" or gpa = 1.5;
-			Iterator resultSet = dbApp.selectFromTable(arrSQLTerms , strarrOperators);
+//			SQLTerm[] arrSQLTerms;
+//			arrSQLTerms = new SQLTerm[2];
+//			arrSQLTerms[0]._strTableName =  "Student";
+//			arrSQLTerms[0]._strColumnName=  "name";
+//			arrSQLTerms[0]._strOperator  =  "=";
+//			arrSQLTerms[0]._objValue     =  "John Noor";
+//
+//			arrSQLTerms[1]._strTableName =  "Student";
+//			arrSQLTerms[1]._strColumnName=  "gpa";
+//			arrSQLTerms[1]._strOperator  =  "=";
+//			arrSQLTerms[1]._objValue     =  Double.valueOf( 1.5 );
+//
+//			String[]strarrOperators = new String[1];
+//			strarrOperators[0] = "OR";
+//			// select * from Student where name = "John Noor" or gpa = 1.5;
+//			Iterator resultSet = dbApp.selectFromTable(arrSQLTerms , strarrOperators);
 		}
 		catch(Exception exp){
 			exp.printStackTrace( );

@@ -1,11 +1,8 @@
-import java.io.*;
-import java.util.ArrayList;
 import java.util.Vector;
 import java.io.Serializable;
 public class Page implements Serializable{
     private String pageName="";
     private Vector<Tuple> tuples = new Vector<Tuple>();
-
 
     public Page(String pageName, Tuple data){
             this.pageName = pageName;
@@ -39,8 +36,5 @@ public class Page implements Serializable{
         }
         x = x + tuples.get(tuples.size()-1);
         return x;
-    }
-    public static void main(String[] args){
-
     }
 }
