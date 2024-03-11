@@ -160,9 +160,15 @@ public class DBApp {
 									+ "' should be java.lang.Double");
 						}
 					} else if (c.equalsIgnoreCase("java.lang.String")) {
-						br.close();
-						fr.close();
-						return true;
+							for(int i = 0; i<columnValue.length(); i++){
+								if(((char) (columnValue.charAt(i)) >= '0') && ((char) (columnValue.charAt(i)) <= '9')){
+									throw new DBAppException("mismatch data type, for column '" + columnName
+											+ "' should be java.lang.String");
+								}
+                            }
+							br.close();
+							fr.close();
+							return true;
 					}
 				}
 				z = br.readLine();
@@ -211,45 +217,45 @@ public class DBApp {
 	public static void main(String[] args) {
 
 	try{
-			String strTableName = "Student";
-			DBApp	dbApp = new DBApp( );
+		String strTableName = "Student";
+		DBApp	dbApp = new DBApp( );
 
-			Hashtable htblColNameType = new Hashtable( );
-			htblColNameType.put("id", "java.lang.Integer");
-			htblColNameType.put("name", "java.lang.String");
-			htblColNameType.put("gpa", "java.lang.double");
-			dbApp.createTable( strTableName, "id", htblColNameType );
-			dbApp.createIndex( strTableName, "gpa", "gpaIndex" );
+		Hashtable htblColNameType = new Hashtable( );
+		htblColNameType.put("id", "java.lang.Integer");
+		htblColNameType.put("name", "java.lang.String");
+		htblColNameType.put("gpa", "java.lang.double");
+		dbApp.createTable( strTableName, "id", htblColNameType );
+		dbApp.createIndex( strTableName, "gpa", "gpaIndex" );
 
-			Hashtable htblColNameValue = new Hashtable( );
-			htblColNameValue.put("id", Integer.valueOf( 2343432 ));
-			htblColNameValue.put("name", new String("Ahmed Noor" ) );
-			htblColNameValue.put("gpa", Double.valueOf( 0.95 ) );
-			dbApp.insertIntoTable( strTableName , htblColNameValue );
-//
-//			htblColNameValue.clear( );
-//			htblColNameValue.put("id", new String("Ahmed Noor" ) );
-//			htblColNameValue.put("name", new String("Ahmed Noor" ) );
-//			htblColNameValue.put("gpa", Double.valueOf( 0.95 ) );
-//			dbApp.insertIntoTable( strTableName , htblColNameValue );
-//
-//			htblColNameValue.clear( );
-//			htblColNameValue.put("id", Integer.valueOf( 5674567 ));
-//			htblColNameValue.put("name", new String("Dalia Noor" ) );
-//			htblColNameValue.put("gpa", new String("Ahmed Noor" ) );
-//			dbApp.insertIntoTable( strTableName , htblColNameValue );
-//
-//			htblColNameValue.clear( );
-//			htblColNameValue.put("id", Integer.valueOf( 23498 ));
-//			htblColNameValue.put("name", Integer.valueOf( 23498 ) );
-//			htblColNameValue.put("gpa", Double.valueOf( 1.5 ) );
-//			dbApp.insertIntoTable( strTableName , htblColNameValue );
-//
-//			htblColNameValue.clear( );
-//			htblColNameValue.put("id", Integer.valueOf( 78452 ));
-//			htblColNameValue.put("name", new String("Zaky Noor" ) );
-//			htblColNameValue.put("gpa", Double.valueOf( 0.88 ) );
-//			dbApp.insertIntoTable( strTableName , htblColNameValue );
+		Hashtable htblColNameValue = new Hashtable( );
+		htblColNameValue.put("id", Integer.valueOf( 2343432 ));
+		htblColNameValue.put("name", new String("Ahmed Noor" ) );
+		htblColNameValue.put("gpa", Double.valueOf( 0.95 ) );
+		dbApp.insertIntoTable( strTableName , htblColNameValue );
+
+		htblColNameValue.clear( );
+		htblColNameValue.put("id", Integer.valueOf( 453455 ));
+		htblColNameValue.put("name", new String("Ahmed Noor" ) );
+		htblColNameValue.put("gpa", Double.valueOf( 0.95 ) );
+		dbApp.insertIntoTable( strTableName , htblColNameValue );
+
+		htblColNameValue.clear( );
+		htblColNameValue.put("id", Integer.valueOf( 5674567 ));
+		htblColNameValue.put("name", new String("Dalia Noor" ) );
+		htblColNameValue.put("gpa", Double.valueOf( 1.25 ) );
+		dbApp.insertIntoTable( strTableName , htblColNameValue );
+
+		htblColNameValue.clear( );
+		htblColNameValue.put("id", Integer.valueOf( 23498 ));
+		htblColNameValue.put("name", new String("John Noor" ) );
+		htblColNameValue.put("gpa", Double.valueOf( 1.5 ) );
+		dbApp.insertIntoTable( strTableName , htblColNameValue );
+
+		htblColNameValue.clear( );
+		htblColNameValue.put("id", Integer.valueOf( 78452 ));
+		htblColNameValue.put("name", new String("Zaky Noor" ) );
+		htblColNameValue.put("gpa", Double.valueOf( 0.88 ) );
+		dbApp.insertIntoTable( strTableName , htblColNameValue );
 
 
 //			SQLTerm[] arrSQLTerms;
