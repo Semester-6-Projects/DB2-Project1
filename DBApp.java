@@ -1,6 +1,5 @@
 import com.opencsv.CSVReader;
 import com.opencsv.exceptions.CsvValidationException;
-
 import java.io.*;
 import java.util.Iterator;
 import java.util.Hashtable;
@@ -15,20 +14,36 @@ public class DBApp {
 	// this does whatever initialization you would like
 	// or leave it empty if there is no code you want to
 	// execute at application startup
-	public void init( ){
-
-
+	public void init( ) {
+		FileReader fr = null;
+		try {
+		fr = new FileReader("resources/metaFile.csv");
+		BufferedReader br = new BufferedReader(fr);
+		String z = br.readLine();
+		while (z != null) {
+			String[] mfile = z.split(",");
+			String a = mfile[0].substring(1, mfile[0].length() - 1).trim();
+			if (!(tableNames.contains(a))){
+				tableNames.add(a);
+			}
+			z = br.readLine();
+		}
+			br.close();
+			fr.close();
+	    } catch (FileNotFoundException e) {
+			throw new RuntimeException(e);
+		} catch (IOException e) {
+			throw new RuntimeException(e);
+		}
 	}
 
 	public void createTable(String strTableName,
 							String strClusteringKeyColumn,
 							Hashtable<String,String> htblColNameType) throws DBAppException{
-
 		 if(!(tableNames.contains(strTableName))) {
 			 Table t = new Table(strTableName, strClusteringKeyColumn, htblColNameType);
 			 tableNames.add(strTableName);
-			 serializeTableCreate(t);
-			 return;
+			 serializeTable(t);
 		 }
 		 else{
 			 throw new DBAppException("table already exists");
@@ -38,19 +53,22 @@ public class DBApp {
 	}
 
 
-	private void serializeTableCreate(Table t){
-		String tableFileName = t.getTableName() + ".bin";
-		ObjectOutputStream os = null;
-		try {
-			FileOutputStream fileOS = new FileOutputStream(tableFileName);
+	private void serializeTable(Table t) {
+		String fileName = t.getTableName() + ".bin";
+		File file = new File(fileName);
+		ObjectOutputStream os= null;
+		try{
+			FileOutputStream fileOS= new FileOutputStream(file,true);
 			os = new ObjectOutputStream(fileOS);
 			os.writeObject(t);
-
-		} catch (FileNotFoundException e) {
+		}
+		catch(FileNotFoundException e){
 			e.printStackTrace();
-		} catch (IOException e) {
+		}
+		catch (IOException e) {
 			e.printStackTrace();
-		} finally {
+		}
+		finally{
 			try {
 				os.close();
 			} catch (IOException e) {
@@ -58,17 +76,16 @@ public class DBApp {
 				e.printStackTrace();
 			}
 		}
-
-
 	}
 
-	private void deserializeTable(Table t){
-		String pageName = t.getTableName() + ".bin";
+	private Table deserializeTable(String tableName){
+        Table t =  new Table();
+		String fileName = tableName + ".bin";
 		ObjectInputStream in= null;
 		try{
-			FileInputStream fileIn = new FileInputStream(pageName);
+			FileInputStream fileIn = new FileInputStream(fileName);
 			in = new ObjectInputStream(fileIn);
-			in.readObject();
+			t = (Table) in.readObject();
 
 		} catch (IOException i) {
 			i.printStackTrace();
@@ -83,7 +100,7 @@ public class DBApp {
 				e.printStackTrace();
 			}
 		}
-
+        return t;
 	}
 
 
@@ -96,35 +113,39 @@ public class DBApp {
 	}
 
 
-	// following method inserts one row only.
-	// htblColNameValue must include a value for the primary key
+
+	// left to do: 1) check size of hashtable with number of columns i have in meta file
+	//             2) check order of inserted data
 	public void insertIntoTable(String strTableName,
 								Hashtable<String,Object>  htblColNameValue) throws DBAppException{
 
 		if(!(tableNames.contains(strTableName))) {
 			throw new DBAppException("table doesn't exist");
 		}
-
+		Vector<Object> data = new Vector<Object>();
+		Table t = new Table();
 		String hash = htblColNameValue.toString();
 		String hash2 = hash.substring(1, hash.length() - 1);
 		String[] hash3 = hash2.split(",");
-
-
 		for (int i = hash3.length - 1; i >= 0; i--) {
 			String[] x = hash3[i].split("=");
 			String columnName = x[0].trim();
 			String columnValue = x[1].trim();
 			if(checkValueMF(columnName,columnValue, strTableName)){
-				//hn3ml tuple
+				t = deserializeTable(strTableName);
+				data.add(columnValue);
 			}
 			else{
 				throw new DBAppException("Column " + columnName + " doesn't exist");
 			}
-
-
 		}
+		Tuple t2 = new Tuple(data);
+		t.addData(t2);
+		serializeTable(t);
 		//throw new DBAppException("not implemented yet");
 	}
+
+
 
 
 	private boolean checkValueMF(String columnName, String columnValue, String tableName)throws DBAppException {
@@ -219,6 +240,7 @@ public class DBApp {
 	try{
 		String strTableName = "Student";
 		DBApp	dbApp = new DBApp( );
+		dbApp.init();
 
 		Hashtable htblColNameType = new Hashtable( );
 		htblColNameType.put("id", "java.lang.Integer");

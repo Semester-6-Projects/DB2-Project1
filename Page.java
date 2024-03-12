@@ -4,6 +4,10 @@ public class Page implements Serializable{
     private String pageName="";
     private Vector<Tuple> tuples = new Vector<Tuple>();
 
+    public Page(){
+
+    }
+
     public Page(String pageName, Tuple data){
             this.pageName = pageName;
             tuples.add(data);

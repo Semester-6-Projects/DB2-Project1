@@ -9,7 +9,11 @@ public class Table implements Serializable{
     private String TableName="";
     private String ClusteringKeyColumn;
     private int pageCount = 0;
-    private Vector<Page> Pages = new Vector<Page>();
+    private Vector<String> Pages = new Vector<String>();
+
+    public Table(){
+
+    }
 
     public Table(String strTableName,
                  String strClusteringKeyColumn,
@@ -17,7 +21,6 @@ public class Table implements Serializable{
         this.TableName = strTableName;
         this.ClusteringKeyColumn = strClusteringKeyColumn;
         String hash = htblColNameType.toString();
-
         String hash2 = hash.substring(1, hash.length() - 1);
         String[] hash3 = hash2.split(",");
         for (int i = hash3.length - 1; i >= 0; i--) {
@@ -49,7 +52,6 @@ public class Table implements Serializable{
         }
     }
 
-
      private int getMax(){
         int x;
         try{
@@ -70,53 +72,37 @@ public class Table implements Serializable{
      }
 
     public void addData(Tuple data) {
-         int max = getMax();
-        if ((Pages.size() == 0) || (Pages.getLast().tupleSize() == max)) {
-            //make 200 max config
+        int max = getMax();
+        if ((Pages.size() == 0)) {
             pageCount++;
-            String pageName = TableName + pageCount + ".bin";
-            Page p = new Page(pageName,data);
-            Pages.add(p);
-            serializePageCreate(p,data);
-        }
-        else{
-             deserializePage(Pages.getLast());
-             serializePageAdd(Pages.getLast(), data);
-        }
-    }
-
-
-    private void serializePageCreate(Page p, Tuple data){
-        ObjectOutputStream os = null;
-        String pageName = p.getPageName();
-        try {
-            FileOutputStream fileOS = new FileOutputStream(pageName);
-            os = new ObjectOutputStream(fileOS);
-            os.writeObject(p);
-
-        } catch (FileNotFoundException e) {
-            e.printStackTrace();
-        } catch (IOException e) {
-            e.printStackTrace();
-        } finally {
-            try {
-                os.close();
-            } catch (IOException e) {
-                // TODO Auto-generated catch block
-                e.printStackTrace();
+            String pageName = TableName + pageCount;
+            Page p = new Page(pageName, data);
+            Pages.add(p.getPageName());
+            serializePage(p);
+        } else {
+            Page j = deserializePage(Pages.getLast());
+            if ((j.tupleSize() == max)) {
+                pageCount++;
+                String pageName = TableName + pageCount;
+                Page p = new Page(pageName, data);
+                Pages.add(p.getPageName());
+                serializePage(p);
+            } else {
+                 j.addData(data);
             }
+            serializePage(j);
         }
     }
 
 
-    private void serializePageAdd(Page p, Tuple data) {
-        String pageName = p.getPageName();
+    private void serializePage(Page p) {
+        String pageName = p.getPageName() + ".bin";
         File file = new File(pageName);
         ObjectOutputStream os= null;
         try{
             FileOutputStream fileOS= new FileOutputStream(file,true);
             os = new ObjectOutputStream(fileOS);
-            p.addData(data);
+            //p.addData(data);
             os.writeObject(p);
         }
         catch(FileNotFoundException e){
@@ -135,13 +121,14 @@ public class Table implements Serializable{
         }
     }
 
-    private void deserializePage(Page p){
-        String pageName = p.getPageName();
+    private Page deserializePage(String pageName){
+        Page p = new Page();
+        String fileName = pageName + ".bin";
         ObjectInputStream in= null;
         try{
-            FileInputStream fileIn = new FileInputStream(pageName);
+            FileInputStream fileIn = new FileInputStream(fileName);
             in = new ObjectInputStream(fileIn);
-            in.readObject();
+            p = (Page) in.readObject();
 
         } catch (IOException i) {
             i.printStackTrace();
@@ -156,77 +143,6 @@ public class Table implements Serializable{
                 e.printStackTrace();
             }
         }
-    }
-
-    private void serializePageDelete(Page p, Tuple data) {
-        String pageName = p.getPageName();
-        File file = new File(pageName);
-        ObjectOutputStream os= null;
-        try{
-            FileOutputStream fileOS= new FileOutputStream(file,true);
-            os = new ObjectOutputStream(fileOS);
-            p.removeData(data);
-            os.writeObject(p);
-        }
-        catch(FileNotFoundException e){
-            e.printStackTrace();
-        }
-        catch (IOException e) {
-            e.printStackTrace();
-        }
-        finally{
-            try {
-                os.close();
-            } catch (IOException e) {
-                // TODO Auto-generated catch block
-                e.printStackTrace();
-            }
-        }
-    }
-
-
-//    public Tuple createTuple(Hashtable<String,Object> h){
-//     //to be done
-//
-//    }
-
-
-
-    public static void main(String[] args) {
-        String strTableName = "Student";
-
-        Hashtable htblColNameType = new Hashtable();
-        htblColNameType.put("id", "java.lang.Integer");
-        htblColNameType.put("name", "java.lang.String");
-        htblColNameType.put("gpa", "java.lang.double");
-
-        Table t= new Table(strTableName,"id",htblColNameType);
-
-
-//        ArrayList<Object> tupleData= new ArrayList<Object>();
-//        tupleData.add("Ahmed");
-//        tupleData.add("20");
-//        tupleData.add("Zamalek");
-//        Tuple data = new Tuple(tupleData);
-//
-//        ArrayList<Object> tupleData2= new ArrayList<Object>();
-//        tupleData2.add("Ahmed2");
-//        tupleData2.add("202");
-//        tupleData2.add("Zamalek2");
-//        Tuple data2 = new Tuple(tupleData2);
-//
-//        //Page p = new Page(strTableName,pageNo,data);
-//        t.addData(data);
-//        t.addData(data2);
-//        System.out.print(t.getMax());
-
-
-
-
-        //System.out.print(data.compareTo(data));
-        // p.ReadData(data2);
-        //System.out.print(p.ReadData().toString());
-        //System.out.print(p.toString());
-
+        return p;
     }
 }
