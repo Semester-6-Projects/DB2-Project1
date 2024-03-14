@@ -12,7 +12,6 @@ public class Table implements Serializable{
     private Vector<String> Pages = new Vector<String>();
 
     public Table(){
-
     }
 
     public Table(String strTableName,
