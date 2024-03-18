@@ -10,6 +10,7 @@ public class Table implements Serializable{
     private String ClusteringKeyColumn;
     private int pageCount = 0;
     private Vector<String> Pages = new Vector<String>();
+    private Vector<String> colOrder = new Vector<String>();
 
     public Table(){
 
@@ -26,6 +27,7 @@ public class Table implements Serializable{
         for (int i = hash3.length - 1; i >= 0; i--) {
             String[] x = hash3[i].split("=");
             String xtrimmed = x[0].trim();
+            colOrder.add(xtrimmed);
             if (xtrimmed.equals(strClusteringKeyColumn)) {
                 String[] y = {strTableName, xtrimmed, x[1], "True", "null", "null"};
                 writeDataLineByLine("resources/metaFile.csv", y);
@@ -40,6 +42,9 @@ public class Table implements Serializable{
         return this.TableName;
     }
 
+    public Vector<String> getColOrder(){
+        return this.colOrder;
+    }
 
     private static void writeDataLineByLine(String filePath, String[] hash) {
         try {

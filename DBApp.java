@@ -113,17 +113,14 @@ public class DBApp {
 	}
 
 
-
-	// left to do: 1) check size of hashtable with number of columns i have in meta file
-	//             2) check order of inserted data
 	public void insertIntoTable(String strTableName,
 								Hashtable<String,Object>  htblColNameValue) throws DBAppException{
-
 		if(!(tableNames.contains(strTableName))) {
 			throw new DBAppException("table doesn't exist");
 		}
-		Vector<Object> data = new Vector<Object>();
 		Table t = new Table();
+		Vector<Object> dataValue = new Vector<Object>();
+		Vector<Object> dataName = new Vector<Object>();
 		String hash = htblColNameValue.toString();
 		String hash2 = hash.substring(1, hash.length() - 1);
 		String[] hash3 = hash2.split(",");
@@ -133,19 +130,29 @@ public class DBApp {
 			String columnValue = x[1].trim();
 			if(checkValueMF(columnName,columnValue, strTableName)){
 				t = deserializeTable(strTableName);
-				data.add(columnValue);
+				dataName.add(columnName);
+				dataValue.add(columnValue);
 			}
 			else{
+				serializeTable(t);
 				throw new DBAppException("Column " + columnName + " doesn't exist");
 			}
 		}
-		Tuple t2 = new Tuple(data);
+		if(t.getColOrder().size() != htblColNameValue.size()){
+			serializeTable(t);
+			throw new DBAppException("Incorrect number of insertions");
+		}
+		for(int j = 0; j <dataName.size(); j++){
+			if(! (dataName.get(j).equals(t.getColOrder().get(j)))){
+				serializeTable(t);
+				throw new DBAppException("Incorrect order of insertions");
+			}
+		}
+		Tuple t2 = new Tuple(dataValue);
 		t.addData(t2);
 		serializeTable(t);
 		//throw new DBAppException("not implemented yet");
 	}
-
-
 
 
 	private boolean checkValueMF(String columnName, String columnValue, String tableName)throws DBAppException {
@@ -204,6 +211,9 @@ public class DBApp {
 		}
 		return false;
 	}
+
+
+
 
 
 	// following method updates one row only
