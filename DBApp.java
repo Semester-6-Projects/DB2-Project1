@@ -83,6 +83,7 @@ public class DBApp {
     public void init() {
         FileReader fr = null;
         try {
+            createMetaDataFile();
             fr = new FileReader("resources/metaFile.csv");
             BufferedReader br = new BufferedReader(fr);
             String z = br.readLine();
@@ -103,6 +104,15 @@ public class DBApp {
         }
     }
 
+    private void createMetaDataFile() {
+        try {
+            FileWriter outfile = new FileWriter("resources/metaFile.csv", true);
+            CSVWriter writer = new CSVWriter(outfile);
+            writer.close();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+    }
 
     public void createTable(String strTableName,
                             String strClusteringKeyColumn,
