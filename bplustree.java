@@ -7,6 +7,42 @@ public class bplustree {
 	InternalNode root;
 	LeafNode firstLeaf;
 
+	private static HashMap<String, Integer> stringToEncodedMap = new HashMap<>();
+	private static HashMap<Integer, String> encodedToStringMap = new HashMap<>();
+
+
+
+	public static int encodeStringToHash(String input) {
+		StringBuilder encodedString = new StringBuilder();
+		for (int i = 0; i < input.length(); i++) {
+			encodedString.append((int) input.charAt(i)); // Append ASCII value of each character
+		}
+		int hashedValue = encodedString.toString().hashCode();
+		stringToEncodedMap.put(input, hashedValue);
+		encodedToStringMap.put(hashedValue, input);
+		return hashedValue;
+	}
+
+
+	public static String decodeHashToString(int input) {
+		return encodedToStringMap.get(input);
+	}
+
+
+	public static int getHashedValue(String input) {
+		return stringToEncodedMap.get(input);
+	}
+
+
+	public static String encodeDoubleToString(double input) {
+		return Double.toString(input);
+	}
+
+
+	public static double decodeStringToDouble(String input) {
+		return Double.parseDouble(input);
+	}
+
 	/*~~~~~~~~~~~~~~~~ HELPER FUNCTIONS ~~~~~~~~~~~~~~~~*/
 
 	/**
