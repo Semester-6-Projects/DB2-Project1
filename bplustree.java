@@ -433,8 +433,8 @@ public class bplustree {
 
 					// Borrow: First, check the left sibling, then the right sibling
 					if (ln.leftSibling != null &&
-						ln.leftSibling.parent == ln.parent &&
-						ln.leftSibling.isLendable()) {
+							ln.leftSibling.parent == ln.parent &&
+							ln.leftSibling.isLendable()) {
 
 						sibling = ln.leftSibling;
 						DictionaryPair borrowedDP = sibling.dictionary[sibling.numPairs - 1];
@@ -452,8 +452,8 @@ public class bplustree {
 						}
 
 					} else if (ln.rightSibling != null &&
-							   ln.rightSibling.parent == ln.parent &&
-							   ln.rightSibling.isLendable()) {
+							ln.rightSibling.parent == ln.parent &&
+							ln.rightSibling.isLendable()) {
 
 						sibling = ln.rightSibling;
 						DictionaryPair borrowedDP = sibling.dictionary[0];
@@ -474,8 +474,8 @@ public class bplustree {
 
 					// Merge: First, check the left sibling, then the right sibling
 					else if (ln.leftSibling != null &&
-							 ln.leftSibling.parent == ln.parent &&
-							 ln.leftSibling.isMergeable()) {
+							ln.leftSibling.parent == ln.parent &&
+							ln.leftSibling.isMergeable()) {
 
 						sibling = ln.leftSibling;
 						int pointerIndex = findIndexOfPointer(parent.childPointers, ln);
@@ -493,8 +493,8 @@ public class bplustree {
 						}
 
 					} else if (ln.rightSibling != null &&
-							   ln.rightSibling.parent == ln.parent &&
-							   ln.rightSibling.isMergeable()) {
+							ln.rightSibling.parent == ln.parent &&
+							ln.rightSibling.isMergeable()) {
 
 						sibling = ln.rightSibling;
 						int pointerIndex = findIndexOfPointer(parent.childPointers, ln);
@@ -554,7 +554,7 @@ public class bplustree {
 
 			// Find leaf node to insert into
 			LeafNode ln = (this.root == null) ? this.firstLeaf :
-												findLeafNode(key);
+					findLeafNode(key);
 
 			// Insert into leaf node fails if node becomes overfull
 			if (!ln.insert(new DictionaryPair(key, value))) {
@@ -1085,8 +1085,8 @@ public class bplustree {
 						// Perform search (across a range) operation
 						if (tokens.length == 3) {
 							ArrayList<Double> values = bpt.search(
-											Integer.parseInt(tokens[1]),
-											Integer.parseInt(tokens[2]));
+									Integer.parseInt(tokens[1]),
+									Integer.parseInt(tokens[2]));
 
 							// Record search result as a String
 							if (values.size() != 0) {
@@ -1105,7 +1105,7 @@ public class bplustree {
 							   null, then the key could not be found */
 							Double value = bpt.search(Integer.parseInt(tokens[1]));
 							result = (value == null) ? "Null" :
-														Double.toString(value);
+									Double.toString(value);
 						}
 
 						// Output search result in .txt file
