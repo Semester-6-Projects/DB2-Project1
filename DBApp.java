@@ -303,7 +303,86 @@ public class DBApp {
     public Iterator selectFromTable(SQLTerm[] arrSQLTerms,
                                     String[] strarrOperators) throws DBAppException {
 
+        // Array of Iterators to hold the results of the multiple select operations
+        // Each index in the array corresponds to a select operation.
+        Vector<Iterator> iterators = new Vector<Iterator>();
+
+        // Iterate through the SQLTerms array and select the relevant data.
+        for (SQLTerm arrSQLTerm : arrSQLTerms) {
+            // Initialize the iterator for the current select operation.
+            Iterator<Tuple> results = null;
+            // Check if the table exists in the database.
+            if (!(tableNames.contains(arrSQLTerm._strTableName))) {
+                throw new DBAppException("table doesn't exist");
+            }
+
+            // Deserialize the table.
+            Table t = deserializeTable(arrSQLTerm._strTableName);
+
+            // TODO: Check if the column exists in the metafile.
+            // Currently checks if the column exists in the table.
+            if (!(t.getColOrder().contains(arrSQLTerm._strColumnName))) {
+                throw new DBAppException("Column " + arrSQLTerm._strColumnName + " doesn't exist");
+            }
+
+            // Get table data
+            Vector<Tuple> tuples = t.getAllData();
+
+            // Perform the select operation linearly.
+            Iterator<Tuple> it = tuples.iterator();
+            while (it.hasNext()) {
+                Tuple tuple = it.next();
+
+                // Get the relevant Value from the tuple
+                // TODO: Check if the column exists in the metafile.
+                // TODO: Check the column data type and cast the value accordingly.
+                // TODO:
+                Object value = tuple.getData().get(t.getColOrder().indexOf(arrSQLTerm._strColumnName));
+
+                switch (arrSQLTerm._strOperator) {
+                    case "=" -> {
+                        if (arrSQLTerm._objValue.equals(value)) {
+                            results = it;
+                        }
+                    }
+                    case "!=" -> {
+                        if (!arrSQLTerm._objValue.equals(value)) {
+                            results = it;
+                        }
+                    }
+                    case ">" -> {
+                        if ((int) arrSQLTerm._objValue < (double) value) {
+                            results = it;
+                        }
+                    }
+                    case "<" -> {
+                        if ((double) arrSQLTerm._objValue > (double) value) {
+                            results = it;
+                        }
+                    }
+                    case ">=" -> {
+                        if ((double) arrSQLTerm._objValue <= (double) value) {
+                            results = it;
+                        }
+                    }
+                    case "<=" -> {
+                        if ((double) arrSQLTerm._objValue >= (double) value) {
+                            results = it;
+                        }
+                    }
+                }
+            }
+            // Add the iterator to the array of iterators.
+            iterators.add(results);
+
+
+        }
+
+        // Perform the strarr operation on the iterators.
+
+
         return null;
     }
+
 
 }
