@@ -5,14 +5,14 @@ import java.util.Vector;
 
 import com.opencsv.CSVWriter;
 
-public class Table implements Serializable{
-    private String TableName="";
+public class Table implements Serializable {
+    private String TableName = "";
     private String ClusteringKeyColumn;
     private int pageCount = 0;
     private Vector<String> Pages = new Vector<String>();
     private Vector<String> colOrder = new Vector<String>();
 
-    public Table(){
+    public Table() {
 
     }
 
@@ -38,14 +38,6 @@ public class Table implements Serializable{
         }
     }
 
-    public String getTableName(){
-        return this.TableName;
-    }
-
-    public Vector<String> getColOrder(){
-        return this.colOrder;
-    }
-
     private static void writeDataLineByLine(String filePath, String[] hash) {
         try {
             FileWriter outputfile = new FileWriter(filePath, true);
@@ -57,13 +49,21 @@ public class Table implements Serializable{
         }
     }
 
-     private int getMax(){
+    public String getTableName() {
+        return this.TableName;
+    }
+
+    public Vector<String> getColOrder() {
+        return this.colOrder;
+    }
+
+    private int getMax() {
         int x;
-        try{
-            FileReader fr=new FileReader("resources/DBApp.config");
-            BufferedReader br=new BufferedReader(fr);
+        try {
+            FileReader fr = new FileReader("resources/DBApp.config");
+            BufferedReader br = new BufferedReader(fr);
             String z = br.readLine();
-            String [] y = z.split("=");
+            String[] y = z.split("=");
             z = y[1].trim();
             x = Integer.parseInt(z);
             br.close();
@@ -73,8 +73,8 @@ public class Table implements Serializable{
         } catch (IOException e) {
             throw new RuntimeException(e);
         }
-         return x;
-     }
+        return x;
+    }
 
     public void addData(Tuple data) {
         int max = getMax();
@@ -93,7 +93,7 @@ public class Table implements Serializable{
                 Pages.add(p.getPageName());
                 serializePage(p);
             } else {
-                 j.addData(data);
+                j.addData(data);
             }
             serializePage(j);
         }
@@ -103,20 +103,17 @@ public class Table implements Serializable{
     private void serializePage(Page p) {
         String pageName = p.getPageName() + ".bin";
         File file = new File(pageName);
-        ObjectOutputStream os= null;
-        try{
-            FileOutputStream fileOS= new FileOutputStream(file,true);
+        ObjectOutputStream os = null;
+        try {
+            FileOutputStream fileOS = new FileOutputStream(file, true);
             os = new ObjectOutputStream(fileOS);
             //p.addData(data);
             os.writeObject(p);
-        }
-        catch(FileNotFoundException e){
+        } catch (FileNotFoundException e) {
             e.printStackTrace();
-        }
-        catch (IOException e) {
+        } catch (IOException e) {
             e.printStackTrace();
-        }
-        finally{
+        } finally {
             try {
                 os.close();
             } catch (IOException e) {
@@ -126,11 +123,11 @@ public class Table implements Serializable{
         }
     }
 
-    private Page deserializePage(String pageName){
+    private Page deserializePage(String pageName) {
         Page p = new Page();
         String fileName = pageName + ".bin";
-        ObjectInputStream in= null;
-        try{
+        ObjectInputStream in = null;
+        try {
             FileInputStream fileIn = new FileInputStream(fileName);
             in = new ObjectInputStream(fileIn);
             p = (Page) in.readObject();
@@ -139,8 +136,7 @@ public class Table implements Serializable{
             i.printStackTrace();
         } catch (ClassNotFoundException c) {
             c.printStackTrace();
-        }
-        finally {
+        } finally {
             try {
                 in.close();
             } catch (IOException e) {

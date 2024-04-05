@@ -2,10 +2,10 @@ import java.io.Serializable;
 import java.util.Vector;
 
 public class Tuple implements Serializable {
-    private Vector<Object> data= new Vector<Object>();
+    private Vector<Object> data = new Vector<Object>();
 
-    public Tuple(Vector<Object> data){
-        this.data=data;
+    public Tuple(Vector<Object> data) {
+        this.data = data;
     }
 
     public String toString() {
@@ -17,13 +17,17 @@ public class Tuple implements Serializable {
         return x;
     }
 
+    public Vector<Object> getData() {
+        return data;
+    }
+
     public boolean compareTo(Tuple t) {
-        if(t.data.size() != data.size())
+        if (t.data.size() != data.size())
             return false;
-        for(int i =0; i<data.size()-1; i++){
-           if(!(t.data.get(i).equals(data.get(i)))){
-               return false;
-           }
+        for (int i = 0; i < data.size() - 1; i++) {
+            if (!(t.data.get(i).equals(data.get(i)))) {
+                return false;
+            }
         }
         return true;
     }
