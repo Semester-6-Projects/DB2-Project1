@@ -34,6 +34,9 @@ public class Page implements Serializable {
         return tuples.contains(data);
     }
 
+    public Vector<Tuple> getTuples() {
+        return tuples;
+    }
 
     public String toString() {
         String x = "";

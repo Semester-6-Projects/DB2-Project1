@@ -146,4 +146,14 @@ public class Table implements Serializable {
         }
         return p;
     }
+
+    public Vector<Tuple> getAllData() {
+        // Get all data from all pages. This is done linearly.
+        Vector<Tuple> data = new Vector<Tuple>();
+        for (String page : Pages) {
+            Page p = deserializePage(page);
+            data.addAll(p.getTuples());
+        }
+        return data;
+    }
 }
