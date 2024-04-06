@@ -183,13 +183,12 @@ public class DBApp {
     }
 
     public void insertIntoTable(String strTableName,
-                                Hashtable<String, Object> htblColNameValue) throws DBAppException {
-        if (!(tableNames.contains(strTableName))) {
+                                Hashtable<String,Object>  htblColNameValue) throws DBAppException{
+        if(!(tableNames.contains(strTableName))) {
             throw new DBAppException("table doesn't exist");
         }
         Table t = new Table();
         Vector<Object> dataValue = new Vector<Object>();
-        Vector<Object> dataName = new Vector<Object>();
         String hash = htblColNameValue.toString();
         String hash2 = hash.substring(1, hash.length() - 1);
         String[] hash3 = hash2.split(",");
@@ -197,24 +196,23 @@ public class DBApp {
             String[] x = hash3[i].split("=");
             String columnName = x[0].trim();
             String columnValue = x[1].trim();
-            if (checkValueMF(columnName, columnValue, strTableName)) {
+            if(checkValueMF(columnName,columnValue, strTableName)){
                 t = deserializeTable(strTableName);
-                dataName.add(columnName);
-                dataValue.add(columnValue);
-            } else {
+                for(int k = 0; k<t.getColOrder().size(); k++){
+                    if(t.getColOrder().get(k).equals(columnName)){
+                        dataValue.add(k,columnValue);
+                        break;
+                    }
+                }
+            }
+            else{
                 serializeTable(t);
                 throw new DBAppException("Column " + columnName + " doesn't exist");
             }
         }
-        if (t.getColOrder().size() != htblColNameValue.size()) {
+        if(t.getColOrder().size() != htblColNameValue.size()){
             serializeTable(t);
             throw new DBAppException("Incorrect number of insertions");
-        }
-        for (int j = 0; j < dataName.size(); j++) {
-            if (!(dataName.get(j).equals(t.getColOrder().get(j)))) {
-                serializeTable(t);
-                throw new DBAppException("Incorrect order of insertions");
-            }
         }
         Tuple t2 = new Tuple(dataValue);
         t.addData(t2);
