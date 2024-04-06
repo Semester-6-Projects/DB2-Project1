@@ -26,13 +26,8 @@ public class Page implements Serializable {
         tuples.add(data);
     }
 
-    public boolean removeData(Tuple data) {
-        try {
-            tuples.remove(data);
-            return true;
-        } catch (Exception e) {
-            return false;
-        }
+    public void removeData(Tuple data) {
+        tuples.remove(data);
     }
 
     public boolean searchData(Tuple data) {
