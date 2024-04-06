@@ -55,23 +55,24 @@ public class DBApp {
             htblColNameValue.put("gpa", Double.valueOf(0.88));
             dbApp.insertIntoTable(strTableName, htblColNameValue);
 
-
-			/*SQLTerm[] arrSQLTerms;
-			arrSQLTerms = new SQLTerm[2];
-			arrSQLTerms[0]._strTableName =  "Student";
-			arrSQLTerms[0]._strColumnName=  "name";
-			arrSQLTerms[0]._strOperator  =  "=";
-			arrSQLTerms[0]._objValue     =  "John Noor";
-
-			arrSQLTerms[1]._strTableName =  "Student";
-			arrSQLTerms[1]._strColumnName=  "gpa";
-			arrSQLTerms[1]._strOperator  =  "=";
-			arrSQLTerms[1]._objValue     =  Double.valueOf( 1.5 );
-
-			String[]strarrOperators = new String[1];
-			strarrOperators[0] = "OR";
-			// select * from Student where name = "John Noor" or gpa = 1.5;
-			Iterator resultSet = dbApp.selectFromTable(arrSQLTerms , strarrOperators);*/
+            /*
+             * SQLTerm[] arrSQLTerms;
+             * arrSQLTerms = new SQLTerm[2];
+             * arrSQLTerms[0]._strTableName = "Student";
+             * arrSQLTerms[0]._strColumnName= "name";
+             * arrSQLTerms[0]._strOperator = "=";
+             * arrSQLTerms[0]._objValue = "John Noor";
+             * 
+             * arrSQLTerms[1]._strTableName = "Student";
+             * arrSQLTerms[1]._strColumnName= "gpa";
+             * arrSQLTerms[1]._strOperator = "=";
+             * arrSQLTerms[1]._objValue = Double.valueOf( 1.5 );
+             * 
+             * String[]strarrOperators = new String[1];
+             * strarrOperators[0] = "OR";
+             * // select * from Student where name = "John Noor" or gpa = 1.5;
+             * Iterator resultSet = dbApp.selectFromTable(arrSQLTerms , strarrOperators);
+             */
         } catch (Exception exp) {
             exp.printStackTrace();
         }
@@ -132,8 +133,8 @@ public class DBApp {
     }
 
     public void createTable(String strTableName,
-                            String strClusteringKeyColumn,
-                            Hashtable<String, String> htblColNameType) throws DBAppException {
+            String strClusteringKeyColumn,
+            Hashtable<String, String> htblColNameType) throws DBAppException {
         if (!(tableNames.contains(strTableName))) {
             Table t = new Table(strTableName, strClusteringKeyColumn, htblColNameType);
             tableNames.add(strTableName);
@@ -142,7 +143,7 @@ public class DBApp {
             throw new DBAppException("table already exists");
         }
 
-        //throw new DBAppException("not implemented yet");
+        // throw new DBAppException("not implemented yet");
     }
 
     private void serializeTable(Table t) {
@@ -193,14 +194,14 @@ public class DBApp {
 
     // following method creates a B+tree index
     public void createIndex(String strTableName,
-                            String strColName,
-                            String strIndexName) throws DBAppException {
+            String strColName,
+            String strIndexName) throws DBAppException {
 
-        //throw new DBAppException("not implemented yet");
+        // throw new DBAppException("not implemented yet");
     }
 
     public void insertIntoTable(String strTableName,
-                                Hashtable<String, Object> htblColNameValue) throws DBAppException {
+            Hashtable<String, Object> htblColNameValue) throws DBAppException {
         if (!(tableNames.contains(strTableName))) {
             throw new DBAppException("table doesn't exist");
         }
@@ -236,7 +237,7 @@ public class DBApp {
         Tuple t2 = new Tuple(dataValue);
         t.addData(t2);
         serializeTable(t);
-        //throw new DBAppException("not implemented yet");
+        // throw new DBAppException("not implemented yet");
     }
 
     private boolean checkValueMF(String columnName, String columnValue, String tableName) throws DBAppException {
@@ -301,10 +302,31 @@ public class DBApp {
     // htblColNameValue will not include clustering key as column name
     // strClusteringKeyValue is the value to look for to find the row to update.
     public void updateTable(String strTableName,
-                            String strClusteringKeyValue,
-                            Hashtable<String, Object> htblColNameValue) throws DBAppException {
+            String strClusteringKeyValue,
+            Hashtable<String, Object> htblColNameValue) throws DBAppException {
 
-        //throw new DBAppException("not implemented yet");
+        // init the table
+        Table t = new Table();
+        if (!(tableNames.contains(strTableName))) {
+            throw new DBAppException("table doesn't exist");
+        } else {
+            t = deserializeTable(strTableName);
+        }
+
+        // get the clustering key from the table
+        String clusteringKey = t.getClusteringKeyColumn();
+
+        // init the hashtable to delete the row
+        Hashtable<String, Object> htblColNameValue2 = new Hashtable<String, Object>();
+        htblColNameValue2.put(clusteringKey, strClusteringKeyValue);
+
+        // delete the row
+        deleteFromTable(strTableName, htblColNameValue2);
+
+        // add the new hashtable to the table
+        insertIntoTable(strTableName, htblColNameValue);
+
+        return;
     }
 
     // following method could be used to delete one or more rows.
@@ -312,7 +334,7 @@ public class DBApp {
     // to identify which rows/tuples to delete.
     // htblColNameValue enteries are ANDED together
     public void deleteFromTable(String strTableName,
-                                Hashtable<String, Object> htblColNameValue) throws DBAppException {
+            Hashtable<String, Object> htblColNameValue) throws DBAppException {
 
         // init the table
         Table t = new Table();
@@ -366,7 +388,7 @@ public class DBApp {
     }
 
     public Iterator selectFromTable(SQLTerm[] arrSQLTerms,
-                                    String[] strarrOperators) throws DBAppException {
+            String[] strarrOperators) throws DBAppException {
 
         // Array of Iterators to hold the results of the multiple select operations
         // Each index in the array corresponds to a select operation.
@@ -440,12 +462,11 @@ public class DBApp {
             // Add the iterator to the array of iterators.
             iterators.add(results);
 
-
         }
 
-
         // Loop through the array of the operators.
-        // Each operator will be applied to the previous result and the current iterator.
+        // Each operator will be applied to the previous result and the current
+        // iterator.
         // Initialize Temp result as the first iterator.
         Iterator tempResult = iterators.get(0);
         int i = 1;
@@ -494,13 +515,10 @@ public class DBApp {
                         // Then check that each tuple in the current iterator is not in the temp result.
                         xor(tempResult, result, nextIterator, tuple, found);
 
-
                     }
                 }
 
-
             }
-
 
         }
 
