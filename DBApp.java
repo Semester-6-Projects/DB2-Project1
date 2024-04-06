@@ -352,7 +352,28 @@ public class DBApp {
                             String strClusteringKeyValue,
                             Hashtable<String, Object> htblColNameValue) throws DBAppException {
 
-        //throw new DBAppException("not implemented yet");
+        // init the table
+        Table t = new Table();
+        if (!(tableNames.contains(strTableName))) {
+            throw new DBAppException("table doesn't exist");
+        } else {
+            t = deserializeTable(strTableName);
+        }
+
+        // get the clustering key from the table
+        String clusteringKey = t.getClusteringKeyColumn();
+
+        // init the hashtable to delete the row
+        Hashtable<String, Object> htblColNameValue2 = new Hashtable<String, Object>();
+        htblColNameValue2.put(clusteringKey, strClusteringKeyValue);
+
+        // delete the row
+        deleteFromTable(strTableName, htblColNameValue2);
+
+        // add the new hashtable to the table
+        insertIntoTable(strTableName, htblColNameValue);
+
+        return;
     }
 
     // following method could be used to delete one or more rows.
