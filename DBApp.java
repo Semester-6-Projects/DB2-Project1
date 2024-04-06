@@ -297,55 +297,55 @@ public class DBApp {
     public void deleteFromTable(String strTableName,
                                 Hashtable<String, Object> htblColNameValue) throws DBAppException {
 
-		// init the table
-		Table t  = new Table();
+        // init the table
+        Table t = new Table();
 
-		// init the data vectors and name vectors
-		Vector<Object> dataValue = new Vector<Object>();
-		Vector<Object> dataName = new Vector<Object>();
+        // init the data vectors and name vectors
+        Vector<Object> dataValue = new Vector<Object>();
+        Vector<Object> dataName = new Vector<Object>();
 
-		// get the table name
-		String hash = htblColNameValue.toString();
-		String hash2 = hash.substring(1, hash.length() - 1);
-		String[] hash3 = hash2.split(",");
+        // get the table name
+        String hash = htblColNameValue.toString();
+        String hash2 = hash.substring(1, hash.length() - 1);
+        String[] hash3 = hash2.split(",");
 
-		// for loop
-		for (int i = hash3.length - 1; i >= 0; i--) {
-			// get the column name and value
-			String[] x = hash3[i].split("=");
-			String columnName = x[0].trim();
-			String columnValue = x[1].trim();
+        // for loop
+        for (int i = hash3.length - 1; i >= 0; i--) {
+            // get the column name and value
+            String[] x = hash3[i].split("=");
+            String columnName = x[0].trim();
+            String columnValue = x[1].trim();
 
-			// check if the value is in the metafile
-			if (checkValueMF(columnName, columnValue, strTableName)) {
-				// if yes then add it to the data vectors and deserialize the table
-				t = deserializeTable(strTableName);
-				dataName.add(columnName);
-				dataValue.add(columnValue);
-			} else {
-				// if no then throw an exception
-				serializeTable(t);
-				throw new DBAppException("Column " + columnName + " doesn't exist");
-			}
-		}
+            // check if the value is in the metafile
+            if (checkValueMF(columnName, columnValue, strTableName)) {
+                // if yes then add it to the data vectors and deserialize the table
+                t = deserializeTable(strTableName);
+                dataName.add(columnName);
+                dataValue.add(columnValue);
+            } else {
+                // if no then throw an exception
+                serializeTable(t);
+                throw new DBAppException("Column " + columnName + " doesn't exist");
+            }
+        }
 
-		// check if the number of columns is correct
-		if (t.getColOrder().size() != htblColNameValue.size()) {
-			serializeTable(t);
-			throw new DBAppException("Incorrect number of insertions");
-		}
+        // check if the number of columns is correct
+        if (t.getColOrder().size() != htblColNameValue.size()) {
+            serializeTable(t);
+            throw new DBAppException("Incorrect number of insertions");
+        }
 
-		// check if the order of columns is correct
-		for (int j = 0; j < dataName.size(); j++) {
-			if (!(dataName.get(j).equals(t.getColOrder().get(j)))) {
-				serializeTable(t);
-				throw new DBAppException("Incorrect order of insertions");
-			}
-		}
-		
-		// init a tuple and delete the data
-		Tuple t2 = new Tuple(dataValue);
-		t.deleteData(t2);
+        // check if the order of columns is correct
+        for (int j = 0; j < dataName.size(); j++) {
+            if (!(dataName.get(j).equals(t.getColOrder().get(j)))) {
+                serializeTable(t);
+                throw new DBAppException("Incorrect order of insertions");
+            }
+        }
+
+        // init a tuple and delete the data
+        Tuple t2 = new Tuple(dataValue);
+        t.deleteData(t2);
     }
 
     public Iterator selectFromTable(SQLTerm[] arrSQLTerms,
@@ -426,7 +426,6 @@ public class DBApp {
 
         }
 
-        // Perform the strarr operation on the iterators.
 
 
         return null;
