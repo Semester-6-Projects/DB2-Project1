@@ -1,4 +1,6 @@
 
+/** * @author Wael Abouelsaadat */ 
+
 public class SQLTerm {
 
 	public String _strTableName,_strColumnName, _strOperator;

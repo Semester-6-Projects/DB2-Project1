@@ -174,62 +174,12 @@ public class DBApp {
         return t;
     }
 
+    // following method creates a B+tree index
     public void createIndex(String strTableName,
                             String strColName,
                             String strIndexName) throws DBAppException {
-        try {
-            FileWriter outfile = new FileWriter("resources/metaFile2.csv", true);
-            CSVWriter writer = new CSVWriter(outfile);
-            writer.close();
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
-       try {
-           FileReader fr = new FileReader("resources/metaFile.csv");
-           BufferedReader br = new BufferedReader(fr);
-           String z = br.readLine();
-           while (z != null) {
-               String[] mfile = z.split(",");
-               String a = mfile[0].substring(1, mfile[0].length() - 1).trim();
-               String b = mfile[1].substring(1, mfile[1].length() - 1).trim();
-               String c = mfile[2].substring(1, mfile[2].length() - 1).trim();
-               String d = mfile[3].substring(1, mfile[3].length() - 1).trim();
-                String e = mfile[4].substring(1, mfile[4].length() - 1).trim();
-                String f = mfile[5].substring(1, mfile[5].length() - 1).trim();
-               if (a.equalsIgnoreCase(strTableName) && b.equalsIgnoreCase(strColName)) {
-                   String[] y = {strTableName, strColName, c, d, strIndexName, "B+tree"};
-                   writeInCSV("resources/metaFile2.csv", y);
-               } else {
-                   String[] y = {a,b,c,d,e,f};
-                   writeInCSV("resources/metaFile2.csv", y);
-               }
-               z = br.readLine();
-           }
-           br.close();
-           fr.close();
-       }catch (FileNotFoundException e) {
-           throw new RuntimeException(e);
-       } catch (IOException e) {
-           throw new RuntimeException(e);
-       }
-
-        File file = new File("resources/metaFile2.csv");
-        File rename = new File("resources/metaFile.csv");
-        rename.delete();
-        file.renameTo(rename);
 
         //throw new DBAppException("not implemented yet");
-    }
-
-    private static void writeInCSV(String filePath, String[] hash) {
-        try {
-            FileWriter outputfile = new FileWriter(filePath, true);
-            CSVWriter writer = new CSVWriter(outputfile);
-            writer.writeNext(hash);
-            writer.close();
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
     }
 
     public void insertIntoTable(String strTableName,
