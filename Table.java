@@ -1,6 +1,5 @@
 import java.io.*;
 import java.util.Hashtable;
-import java.io.Serializable;
 import java.util.Vector;
 
 import com.opencsv.CSVWriter;
@@ -17,8 +16,8 @@ public class Table implements Serializable {
     }
 
     public Table(String strTableName,
-                 String strClusteringKeyColumn,
-                 Hashtable<String, String> htblColNameType) {
+            String strClusteringKeyColumn,
+            Hashtable<String, String> htblColNameType) {
         this.TableName = strTableName;
         this.ClusteringKeyColumn = strClusteringKeyColumn;
         String hash = htblColNameType.toString();
@@ -29,10 +28,10 @@ public class Table implements Serializable {
             String xtrimmed = x[0].trim();
             colOrder.add(xtrimmed);
             if (xtrimmed.equals(strClusteringKeyColumn)) {
-                String[] y = {strTableName, xtrimmed, x[1], "True", "null", "null"};
+                String[] y = { strTableName, xtrimmed, x[1], "True", "null", "null" };
                 writeDataLineByLine("resources/metaFile.csv", y);
             } else {
-                String[] y = {strTableName, xtrimmed, x[1], "False", "null", "null"};
+                String[] y = { strTableName, xtrimmed, x[1], "False", "null", "null" };
                 writeDataLineByLine("resources/metaFile.csv", y);
             }
         }
@@ -56,6 +55,10 @@ public class Table implements Serializable {
     public Vector<String> getColOrder() {
         return this.colOrder;
     }
+
+	public String getClusteringKeyColumn() {
+		return this.ClusteringKeyColumn;
+	}
 
     private int getMax() {
         int x;
@@ -85,7 +88,7 @@ public class Table implements Serializable {
             Pages.add(p.getPageName());
             serializePage(p);
         } else {
-            Page j = deserializePage(Pages.getLast());
+            Page j = deserializePage(Pages.lastElement());
             if ((j.tupleSize() == max)) {
                 pageCount++;
                 String pageName = TableName + pageCount;
@@ -99,6 +102,30 @@ public class Table implements Serializable {
         }
     }
 
+    public void deleteData(Tuple data) throws DBAppException {
+        // check if table is empty
+        if (Pages.isEmpty()) {
+            throw new DBAppException("Table is empty");
+        } else {
+            boolean dataFound = false;
+            // iterate over all pages
+            for (String pageName : Pages) {
+                Page page = deserializePage(pageName);
+                // attempt to delete data from page
+                boolean deleted = page.removeData(data);
+                if (deleted) {
+                    dataFound = true;
+                    // if data is deleted, serialize the page again
+                    serializePage(page);
+                    // no need to check other pages
+                    break;
+                }
+            }
+            if (!dataFound) {
+                throw new DBAppException("Data not found in any page");
+            }
+        }
+    }
 
     private void serializePage(Page p) {
         String pageName = p.getPageName() + ".bin";
@@ -107,7 +134,7 @@ public class Table implements Serializable {
         try {
             FileOutputStream fileOS = new FileOutputStream(file, true);
             os = new ObjectOutputStream(fileOS);
-            //p.addData(data);
+            // p.addData(data);
             os.writeObject(p);
         } catch (FileNotFoundException e) {
             e.printStackTrace();

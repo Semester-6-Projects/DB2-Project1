@@ -55,25 +55,43 @@ public class DBApp {
             htblColNameValue.put("gpa", Double.valueOf(0.88));
             dbApp.insertIntoTable(strTableName, htblColNameValue);
 
-
-			/*SQLTerm[] arrSQLTerms;
-			arrSQLTerms = new SQLTerm[2];
-			arrSQLTerms[0]._strTableName =  "Student";
-			arrSQLTerms[0]._strColumnName=  "name";
-			arrSQLTerms[0]._strOperator  =  "=";
-			arrSQLTerms[0]._objValue     =  "John Noor";
-
-			arrSQLTerms[1]._strTableName =  "Student";
-			arrSQLTerms[1]._strColumnName=  "gpa";
-			arrSQLTerms[1]._strOperator  =  "=";
-			arrSQLTerms[1]._objValue     =  Double.valueOf( 1.5 );
-
-			String[]strarrOperators = new String[1];
-			strarrOperators[0] = "OR";
-			// select * from Student where name = "John Noor" or gpa = 1.5;
-			Iterator resultSet = dbApp.selectFromTable(arrSQLTerms , strarrOperators);*/
+            /*
+             * SQLTerm[] arrSQLTerms;
+             * arrSQLTerms = new SQLTerm[2];
+             * arrSQLTerms[0]._strTableName = "Student";
+             * arrSQLTerms[0]._strColumnName= "name";
+             * arrSQLTerms[0]._strOperator = "=";
+             * arrSQLTerms[0]._objValue = "John Noor";
+             * 
+             * arrSQLTerms[1]._strTableName = "Student";
+             * arrSQLTerms[1]._strColumnName= "gpa";
+             * arrSQLTerms[1]._strOperator = "=";
+             * arrSQLTerms[1]._objValue = Double.valueOf( 1.5 );
+             * 
+             * String[]strarrOperators = new String[1];
+             * strarrOperators[0] = "OR";
+             * // select * from Student where name = "John Noor" or gpa = 1.5;
+             * Iterator resultSet = dbApp.selectFromTable(arrSQLTerms , strarrOperators);
+             */
         } catch (Exception exp) {
             exp.printStackTrace();
+        }
+    }
+
+    private void xor(Iterator tempResult, Vector<Tuple> result, Iterator nextIterator, Tuple tuple, boolean found) {
+
+        while (nextIterator.hasNext()) {
+            Tuple tuple2 = (Tuple) nextIterator.next();
+            while (tempResult.hasNext()) {
+                Tuple tuple3 = (Tuple) tempResult.next();
+                if (tuple.compareTo(tuple3)) {
+                    found = true;
+                    break;
+                }
+            }
+            if (!found) {
+                result.add(tuple2);
+            }
         }
     }
 
@@ -115,8 +133,8 @@ public class DBApp {
     }
 
     public void createTable(String strTableName,
-                            String strClusteringKeyColumn,
-                            Hashtable<String, String> htblColNameType) throws DBAppException {
+            String strClusteringKeyColumn,
+            Hashtable<String, String> htblColNameType) throws DBAppException {
         if (!(tableNames.contains(strTableName))) {
             Table t = new Table(strTableName, strClusteringKeyColumn, htblColNameType);
             tableNames.add(strTableName);
@@ -125,7 +143,7 @@ public class DBApp {
             throw new DBAppException("table already exists");
         }
 
-        //throw new DBAppException("not implemented yet");
+        // throw new DBAppException("not implemented yet");
     }
 
     private void serializeTable(Table t) {
@@ -178,37 +196,37 @@ public class DBApp {
                             String strColName,
                             String strIndexName) throws DBAppException {
         try {
-            FileWriter outfile = new FileWriter("resources/metaFile2.csv", true);
             CSVWriter writer = new CSVWriter(outfile);
+            FileWriter outfile = new FileWriter("resources/metaFile2.csv", true);
             writer.close();
-        } catch (IOException e) {
             e.printStackTrace();
+        } catch (IOException e) {
         }
        try {
            FileReader fr = new FileReader("resources/metaFile.csv");
            BufferedReader br = new BufferedReader(fr);
            String z = br.readLine();
            while (z != null) {
-               String[] mfile = z.split(",");
                String a = mfile[0].substring(1, mfile[0].length() - 1).trim();
-               String b = mfile[1].substring(1, mfile[1].length() - 1).trim();
+               String[] mfile = z.split(",");
                String c = mfile[2].substring(1, mfile[2].length() - 1).trim();
+               String b = mfile[1].substring(1, mfile[1].length() - 1).trim();
                String d = mfile[3].substring(1, mfile[3].length() - 1).trim();
-                String e = mfile[4].substring(1, mfile[4].length() - 1).trim();
                 String f = mfile[5].substring(1, mfile[5].length() - 1).trim();
-               if (a.equalsIgnoreCase(strTableName) && b.equalsIgnoreCase(strColName)) {
+                String e = mfile[4].substring(1, mfile[4].length() - 1).trim();
                    String[] y = {strTableName, strColName, c, d, strIndexName, "B+tree"};
-                   writeInCSV("resources/metaFile2.csv", y);
+               if (a.equalsIgnoreCase(strTableName) && b.equalsIgnoreCase(strColName)) {
                } else {
+                   writeInCSV("resources/metaFile2.csv", y);
                    String[] y = {a,b,c,d,e,f};
                    writeInCSV("resources/metaFile2.csv", y);
-               }
                z = br.readLine();
            }
+               }
            br.close();
-           fr.close();
        }catch (FileNotFoundException e) {
            throw new RuntimeException(e);
+           fr.close();
        } catch (IOException e) {
            throw new RuntimeException(e);
        }
@@ -267,7 +285,7 @@ public class DBApp {
         Tuple t2 = new Tuple(dataValue);
         t.addData(t2);
         serializeTable(t);
-        //throw new DBAppException("not implemented yet");
+        // throw new DBAppException("not implemented yet");
     }
 
     private boolean checkValueMF(String columnName, String columnValue, String tableName) throws DBAppException {
@@ -332,10 +350,31 @@ public class DBApp {
     // htblColNameValue will not include clustering key as column name
     // strClusteringKeyValue is the value to look for to find the row to update.
     public void updateTable(String strTableName,
-                            String strClusteringKeyValue,
-                            Hashtable<String, Object> htblColNameValue) throws DBAppException {
+            String strClusteringKeyValue,
+            Hashtable<String, Object> htblColNameValue) throws DBAppException {
 
-        //throw new DBAppException("not implemented yet");
+        // init the table
+        Table t = new Table();
+        if (!(tableNames.contains(strTableName))) {
+            throw new DBAppException("table doesn't exist");
+        } else {
+            t = deserializeTable(strTableName);
+        }
+
+        // get the clustering key from the table
+        String clusteringKey = t.getClusteringKeyColumn();
+
+        // init the hashtable to delete the row
+        Hashtable<String, Object> htblColNameValue2 = new Hashtable<String, Object>();
+        htblColNameValue2.put(clusteringKey, strClusteringKeyValue);
+
+        // delete the row
+        deleteFromTable(strTableName, htblColNameValue2);
+
+        // add the new hashtable to the table
+        insertIntoTable(strTableName, htblColNameValue);
+
+        return;
     }
 
     // following method could be used to delete one or more rows.
@@ -343,13 +382,61 @@ public class DBApp {
     // to identify which rows/tuples to delete.
     // htblColNameValue enteries are ANDED together
     public void deleteFromTable(String strTableName,
-                                Hashtable<String, Object> htblColNameValue) throws DBAppException {
+            Hashtable<String, Object> htblColNameValue) throws DBAppException {
 
-        //throw new DBAppException("not implemented yet");
+        // init the table
+        Table t = new Table();
+
+        // init the data vectors and name vectors
+        Vector<Object> dataValue = new Vector<Object>();
+        Vector<Object> dataName = new Vector<Object>();
+
+        // get the table name
+        String hash = htblColNameValue.toString();
+        String hash2 = hash.substring(1, hash.length() - 1);
+        String[] hash3 = hash2.split(",");
+
+        // for loop
+        for (int i = hash3.length - 1; i >= 0; i--) {
+            // get the column name and value
+            String[] x = hash3[i].split("=");
+            String columnName = x[0].trim();
+            String columnValue = x[1].trim();
+
+            // check if the value is in the metafile
+            if (checkValueMF(columnName, columnValue, strTableName)) {
+                // if yes then add it to the data vectors and deserialize the table
+                t = deserializeTable(strTableName);
+                dataName.add(columnName);
+                dataValue.add(columnValue);
+            } else {
+                // if no then throw an exception
+                serializeTable(t);
+                throw new DBAppException("Column " + columnName + " doesn't exist");
+            }
+        }
+
+        // check if the number of columns is correct
+        if (t.getColOrder().size() != htblColNameValue.size()) {
+            serializeTable(t);
+            throw new DBAppException("Incorrect number of insertions");
+        }
+
+        // check if the order of columns is correct
+        for (int j = 0; j < dataName.size(); j++) {
+            if (!(dataName.get(j).equals(t.getColOrder().get(j)))) {
+                serializeTable(t);
+                throw new DBAppException("Incorrect order of insertions");
+            }
+        }
+
+        // init a tuple and delete the data
+        Tuple t2 = new Tuple(dataValue);
+        t.deleteData(t2);
     }
 
     public Iterator selectFromTable(SQLTerm[] arrSQLTerms,
-                                    String[] strarrOperators) throws DBAppException {
+            String[] strarrOperators) throws DBAppException {
 
         // Array of Iterators to hold the results of the multiple select operations
         // Each index in the array corresponds to a select operation.
@@ -423,14 +510,66 @@ public class DBApp {
             // Add the iterator to the array of iterators.
             iterators.add(results);
 
+        }
+
+        // Loop through the array of the operators.
+        // Each operator will be applied to the previous result and the current
+        // iterator.
+        // Initialize Temp result as the first iterator.
+        Iterator tempResult = iterators.get(0);
+        int i = 1;
+        for (String strarrOperator : strarrOperators) {
+            // Initialize the result as a vector.
+            Vector<Tuple> result = new Vector<Tuple>();
+            Iterator nextIterator = iterators.get(i);
+            // Perform intersect operation between the temp result and the current iterator.
+            while (tempResult.hasNext()) {
+                Tuple tuple = (Tuple) tempResult.next();
+                switch (strarrOperator) {
+                    case "AND" -> {
+                        while (nextIterator.hasNext()) {
+                            Tuple tuple2 = (Tuple) nextIterator.next();
+                            if (tuple.compareTo(tuple2)) {
+                                result.add(tuple);
+                            }
+                        }
+                    }
+                    case "OR" -> {
+                        boolean found = false; // Flag to check if the tuple is already in the result.
+
+                        // Add all the tuples in the temp result to the final result first.
+                        while (tempResult.hasNext()) {
+                            Tuple tuple3 = (Tuple) tempResult.next();
+                            result.add(tuple3);
+                        }
+                        // Perform union operation between the temp result and the current iterator.
+                        while (nextIterator.hasNext()) {
+                            Tuple tuple2 = (Tuple) nextIterator.next();
+                            if (tuple.compareTo(tuple2)) {
+                                found = true;
+                                break;
+                            }
+                        }
+                        if (!found) {
+                            result.add(tuple);
+                        }
+                    }
+                    case "XOR" -> {
+                        boolean found = false; // Flag to check if the tuple is already in the result.
+
+                        // Perform XOR operation between the temp result and the current iterator.
+                        // First check that each tuple in temp result is not in the current iterator.
+                        xor(nextIterator, result, tempResult, tuple, found);
+                        // Then check that each tuple in the current iterator is not in the temp result.
+                        xor(tempResult, result, nextIterator, tuple, found);
+
+                    }
+                }
+
+            }
 
         }
 
-        // Perform the strarr operation on the iterators.
-
-
         return null;
     }
-
-
 }
