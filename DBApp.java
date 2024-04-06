@@ -77,6 +77,23 @@ public class DBApp {
         }
     }
 
+    private void xor(Iterator tempResult, Vector<Tuple> result, Iterator nextIterator, Tuple tuple, boolean found) {
+
+        while (nextIterator.hasNext()) {
+            Tuple tuple2 = (Tuple) nextIterator.next();
+            while (tempResult.hasNext()) {
+                Tuple tuple3 = (Tuple) tempResult.next();
+                if (tuple.compareTo(tuple3)) {
+                    found = true;
+                    break;
+                }
+            }
+            if (!found) {
+                result.add(tuple2);
+            }
+        }
+    }
+
     // this does whatever initialization you would like
     // or leave it empty if there is no code you want to
     // execute at application startup
@@ -428,9 +445,66 @@ public class DBApp {
 
         // Perform the strarr operation on the iterators.
 
+        // Loop through the array of the operators.
+        // Each operator will be applied to the previous result and the current iterator.
+        // Initialize Temp result as the first iterator.
+        Iterator tempResult = iterators.get(0);
+        int i = 1;
+        for (String strarrOperator : strarrOperators) {
+            // Initialize the result as a vector.
+            Vector<Tuple> result = new Vector<Tuple>();
+            Iterator nextIterator = iterators.get(i);
+            // Perform intersect operation between the temp result and the current iterator.
+            while (tempResult.hasNext()) {
+                Tuple tuple = (Tuple) tempResult.next();
+                switch (strarrOperator) {
+                    case "AND" -> {
+                        while (nextIterator.hasNext()) {
+                            Tuple tuple2 = (Tuple) nextIterator.next();
+                            if (tuple.compareTo(tuple2)) {
+                                result.add(tuple);
+                            }
+                        }
+                    }
+                    case "OR" -> {
+                        boolean found = false; // Flag to check if the tuple is already in the result.
+
+                        // Add all the tuples in the temp result to the final result first.
+                        while (tempResult.hasNext()) {
+                            Tuple tuple3 = (Tuple) tempResult.next();
+                            result.add(tuple3);
+                        }
+                        // Perform union operation between the temp result and the current iterator.
+                        while (nextIterator.hasNext()) {
+                            Tuple tuple2 = (Tuple) nextIterator.next();
+                            if (tuple.compareTo(tuple2)) {
+                                found = true;
+                                break;
+                            }
+                        }
+                        if (!found) {
+                            result.add(tuple);
+                        }
+                    }
+                    case "XOR" -> {
+                        boolean found = false; // Flag to check if the tuple is already in the result.
+
+                        // Perform XOR operation between the temp result and the current iterator.
+                        // First check that each tuple in temp result is not in the current iterator.
+                        xor(nextIterator, result, tempResult, tuple, found);
+                        // Then check that each tuple in the current iterator is not in the temp result.
+                        xor(tempResult, result, nextIterator, tuple, found);
+
+
+                    }
+                }
+
+
+            }
+
+
+        }
 
         return null;
     }
-
-
 }
