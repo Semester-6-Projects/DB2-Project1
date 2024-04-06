@@ -16,8 +16,8 @@ public class Table implements Serializable {
     }
 
     public Table(String strTableName,
-            String strClusteringKeyColumn,
-            Hashtable<String, String> htblColNameType) {
+                 String strClusteringKeyColumn,
+                 Hashtable<String, String> htblColNameType) {
         this.TableName = strTableName;
         this.ClusteringKeyColumn = strClusteringKeyColumn;
         String hash = htblColNameType.toString();
@@ -28,10 +28,10 @@ public class Table implements Serializable {
             String xtrimmed = x[0].trim();
             colOrder.add(xtrimmed);
             if (xtrimmed.equals(strClusteringKeyColumn)) {
-                String[] y = { strTableName, xtrimmed, x[1], "True", "null", "null" };
+                String[] y = {strTableName, xtrimmed, x[1], "True", "null", "null"};
                 writeDataLineByLine("resources/metaFile.csv", y);
             } else {
-                String[] y = { strTableName, xtrimmed, x[1], "False", "null", "null" };
+                String[] y = {strTableName, xtrimmed, x[1], "False", "null", "null"};
                 writeDataLineByLine("resources/metaFile.csv", y);
             }
         }

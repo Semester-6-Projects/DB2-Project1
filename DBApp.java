@@ -77,6 +77,17 @@ public class DBApp {
         }
     }
 
+    private static void writeInCSV(String filePath, String[] hash) {
+        try {
+            FileWriter outputfile = new FileWriter(filePath, true);
+            CSVWriter writer = new CSVWriter(outputfile);
+            writer.writeNext(hash);
+            writer.close();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+    }
+
     private void xor(Iterator tempResult, Vector<Tuple> result, Iterator nextIterator, Tuple tuple, boolean found) {
 
         while (nextIterator.hasNext()) {
@@ -201,34 +212,34 @@ public class DBApp {
         } catch (IOException e) {
             e.printStackTrace();
         }
-       try {
-           FileReader fr = new FileReader("resources/metaFile.csv");
-           BufferedReader br = new BufferedReader(fr);
-           String z = br.readLine();
-           while (z != null) {
-               String[] mfile = z.split(",");
-               String a = mfile[0].substring(1, mfile[0].length() - 1).trim();
-               String b = mfile[1].substring(1, mfile[1].length() - 1).trim();
-               String c = mfile[2].substring(1, mfile[2].length() - 1).trim();
-               String d = mfile[3].substring(1, mfile[3].length() - 1).trim();
+        try {
+            FileReader fr = new FileReader("resources/metaFile.csv");
+            BufferedReader br = new BufferedReader(fr);
+            String z = br.readLine();
+            while (z != null) {
+                String[] mfile = z.split(",");
+                String a = mfile[0].substring(1, mfile[0].length() - 1).trim();
+                String b = mfile[1].substring(1, mfile[1].length() - 1).trim();
+                String c = mfile[2].substring(1, mfile[2].length() - 1).trim();
+                String d = mfile[3].substring(1, mfile[3].length() - 1).trim();
                 String e = mfile[4].substring(1, mfile[4].length() - 1).trim();
                 String f = mfile[5].substring(1, mfile[5].length() - 1).trim();
-               if (a.equalsIgnoreCase(strTableName) && b.equalsIgnoreCase(strColName)) {
-                   String[] y = {strTableName, strColName, c, d, strIndexName, "B+tree"};
-                   writeInCSV("resources/metaFile2.csv", y);
-               } else {
-                   String[] y = {a,b,c,d,e,f};
-                   writeInCSV("resources/metaFile2.csv", y);
-               }
-               z = br.readLine();
-           }
-           br.close();
-           fr.close();
-       }catch (FileNotFoundException e) {
-           throw new RuntimeException(e);
-       } catch (IOException e) {
-           throw new RuntimeException(e);
-       }
+                if (a.equalsIgnoreCase(strTableName) && b.equalsIgnoreCase(strColName)) {
+                    String[] y = {strTableName, strColName, c, d, strIndexName, "B+tree"};
+                    writeInCSV("resources/metaFile2.csv", y);
+                } else {
+                    String[] y = {a, b, c, d, e, f};
+                    writeInCSV("resources/metaFile2.csv", y);
+                }
+                z = br.readLine();
+            }
+            br.close();
+            fr.close();
+        } catch (FileNotFoundException e) {
+            throw new RuntimeException(e);
+        } catch (IOException e) {
+            throw new RuntimeException(e);
+        }
 
         File file = new File("resources/metaFile2.csv");
         File rename = new File("resources/metaFile.csv");
@@ -238,20 +249,9 @@ public class DBApp {
         //throw new DBAppException("not implemented yet");
     }
 
-    private static void writeInCSV(String filePath, String[] hash) {
-        try {
-            FileWriter outputfile = new FileWriter(filePath, true);
-            CSVWriter writer = new CSVWriter(outputfile);
-            writer.writeNext(hash);
-            writer.close();
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
-    }
-
     public void insertIntoTable(String strTableName,
-                                Hashtable<String,Object>  htblColNameValue) throws DBAppException{
-        if(!(tableNames.contains(strTableName))) {
+                                Hashtable<String, Object> htblColNameValue) throws DBAppException {
+        if (!(tableNames.contains(strTableName))) {
             throw new DBAppException("table doesn't exist");
         }
         Table t = new Table();
@@ -263,21 +263,20 @@ public class DBApp {
             String[] x = hash3[i].split("=");
             String columnName = x[0].trim();
             String columnValue = x[1].trim();
-            if(checkValueMF(columnName,columnValue, strTableName)){
+            if (checkValueMF(columnName, columnValue, strTableName)) {
                 t = deserializeTable(strTableName);
-                for(int k = 0; k<t.getColOrder().size(); k++){
-                    if(t.getColOrder().get(k).equals(columnName)){
-                        dataValue.add(k,columnValue);
+                for (int k = 0; k < t.getColOrder().size(); k++) {
+                    if (t.getColOrder().get(k).equals(columnName)) {
+                        dataValue.add(k, columnValue);
                         break;
                     }
                 }
-            }
-            else{
+            } else {
                 serializeTable(t);
                 throw new DBAppException("Column " + columnName + " doesn't exist");
             }
         }
-        if(t.getColOrder().size() != htblColNameValue.size()){
+        if (t.getColOrder().size() != htblColNameValue.size()) {
             serializeTable(t);
             throw new DBAppException("Incorrect number of insertions");
         }
@@ -383,55 +382,55 @@ public class DBApp {
     public void deleteFromTable(String strTableName,
                                 Hashtable<String, Object> htblColNameValue) throws DBAppException {
 
-		// init the table
-		Table t  = new Table();
+        // init the table
+        Table t = new Table();
 
-		// init the data vectors and name vectors
-		Vector<Object> dataValue = new Vector<Object>();
-		Vector<Object> dataName = new Vector<Object>();
+        // init the data vectors and name vectors
+        Vector<Object> dataValue = new Vector<Object>();
+        Vector<Object> dataName = new Vector<Object>();
 
-		// get the table name
-		String hash = htblColNameValue.toString();
-		String hash2 = hash.substring(1, hash.length() - 1);
-		String[] hash3 = hash2.split(",");
+        // get the table name
+        String hash = htblColNameValue.toString();
+        String hash2 = hash.substring(1, hash.length() - 1);
+        String[] hash3 = hash2.split(",");
 
-		// for loop
-		for (int i = hash3.length - 1; i >= 0; i--) {
-			// get the column name and value
-			String[] x = hash3[i].split("=");
-			String columnName = x[0].trim();
-			String columnValue = x[1].trim();
+        // for loop
+        for (int i = hash3.length - 1; i >= 0; i--) {
+            // get the column name and value
+            String[] x = hash3[i].split("=");
+            String columnName = x[0].trim();
+            String columnValue = x[1].trim();
 
-			// check if the value is in the metafile
-			if (checkValueMF(columnName, columnValue, strTableName)) {
-				// if yes then add it to the data vectors and deserialize the table
-				t = deserializeTable(strTableName);
-				dataName.add(columnName);
-				dataValue.add(columnValue);
-			} else {
-				// if no then throw an exception
-				serializeTable(t);
-				throw new DBAppException("Column " + columnName + " doesn't exist");
-			}
-		}
+            // check if the value is in the metafile
+            if (checkValueMF(columnName, columnValue, strTableName)) {
+                // if yes then add it to the data vectors and deserialize the table
+                t = deserializeTable(strTableName);
+                dataName.add(columnName);
+                dataValue.add(columnValue);
+            } else {
+                // if no then throw an exception
+                serializeTable(t);
+                throw new DBAppException("Column " + columnName + " doesn't exist");
+            }
+        }
 
-		// check if the number of columns is correct
-		if (t.getColOrder().size() != htblColNameValue.size()) {
-			serializeTable(t);
-			throw new DBAppException("Incorrect number of insertions");
-		}
+        // check if the number of columns is correct
+        if (t.getColOrder().size() != htblColNameValue.size()) {
+            serializeTable(t);
+            throw new DBAppException("Incorrect number of insertions");
+        }
 
-		// check if the order of columns is correct
-		for (int j = 0; j < dataName.size(); j++) {
-			if (!(dataName.get(j).equals(t.getColOrder().get(j)))) {
-				serializeTable(t);
-				throw new DBAppException("Incorrect order of insertions");
-			}
-		}
-		
-		// init a tuple and delete the data
-		Tuple t2 = new Tuple(dataValue);
-		t.deleteData(t2);
+        // check if the order of columns is correct
+        for (int j = 0; j < dataName.size(); j++) {
+            if (!(dataName.get(j).equals(t.getColOrder().get(j)))) {
+                serializeTable(t);
+                throw new DBAppException("Incorrect order of insertions");
+            }
+        }
+
+        // init a tuple and delete the data
+        Tuple t2 = new Tuple(dataValue);
+        t.deleteData(t2);
     }
 
     public Iterator selectFromTable(SQLTerm[] arrSQLTerms,
@@ -567,10 +566,8 @@ public class DBApp {
 
                     }
                 }
-
-
+                
             }
-
 
         }
 
