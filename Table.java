@@ -57,6 +57,11 @@ public class Table implements Serializable {
         return this.colOrder;
     }
 
+    public String getClusteringKeyColumn() {
+        return this.ClusteringKeyColumn;
+    }
+
+
     private int getMax() {
         int x;
         try {

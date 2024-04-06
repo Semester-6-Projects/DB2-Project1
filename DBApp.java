@@ -77,6 +77,34 @@ public class DBApp {
         }
     }
 
+    private static void writeInCSV(String filePath, String[] hash) {
+        try {
+            FileWriter outputfile = new FileWriter(filePath, true);
+            CSVWriter writer = new CSVWriter(outputfile);
+            writer.writeNext(hash);
+            writer.close();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+    }
+
+    private void xor(Iterator tempResult, Vector<Tuple> result, Iterator nextIterator, Tuple tuple, boolean found) {
+
+        while (nextIterator.hasNext()) {
+            Tuple tuple2 = (Tuple) nextIterator.next();
+            while (tempResult.hasNext()) {
+                Tuple tuple3 = (Tuple) tempResult.next();
+                if (tuple.compareTo(tuple3)) {
+                    found = true;
+                    break;
+                }
+            }
+            if (!found) {
+                result.add(tuple2);
+            }
+        }
+    }
+
     // this does whatever initialization you would like
     // or leave it empty if there is no code you want to
     // execute at application startup
@@ -178,6 +206,41 @@ public class DBApp {
     public void createIndex(String strTableName,
                             String strColName,
                             String strIndexName) throws DBAppException {
+        try {
+            FileWriter outfile = new FileWriter("resources/metaFile2.csv", true);
+            CSVWriter writer = new CSVWriter(outfile);
+            writer.close();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+        try {
+            FileReader fr = new FileReader("resources/metaFile.csv");
+            BufferedReader br = new BufferedReader(fr);
+            String z = br.readLine();
+            while (z != null) {
+                String[] mfile = z.split(",");
+                String a = mfile[0].substring(1, mfile[0].length() - 1).trim();
+                String b = mfile[1].substring(1, mfile[1].length() - 1).trim();
+                String c = mfile[2].substring(1, mfile[2].length() - 1).trim();
+                String d = mfile[3].substring(1, mfile[3].length() - 1).trim();
+                String e = mfile[4].substring(1, mfile[4].length() - 1).trim();
+                String f = mfile[5].substring(1, mfile[5].length() - 1).trim();
+                if (a.equalsIgnoreCase(strTableName) && b.equalsIgnoreCase(strColName)) {
+                    String[] y = {strTableName, strColName, c, d, strIndexName, "B+tree"};
+                    writeInCSV("resources/metaFile2.csv", y);
+                } else {
+                    String[] y = {a, b, c, d, e, f};
+                    writeInCSV("resources/metaFile2.csv", y);
+                }
+                z = br.readLine();
+            }
+            br.close();
+            fr.close();
+        } catch (FileNotFoundException e) {
+            throw new RuntimeException(e);
+        } catch (IOException e) {
+            throw new RuntimeException(e);
+        }
 
         //throw new DBAppException("not implemented yet");
     }
@@ -199,8 +262,12 @@ public class DBApp {
             String columnValue = x[1].trim();
             if (checkValueMF(columnName, columnValue, strTableName)) {
                 t = deserializeTable(strTableName);
-                dataName.add(columnName);
-                dataValue.add(columnValue);
+                for (int k = 0; k < t.getColOrder().size(); k++) {
+                    if (t.getColOrder().get(k).equals(columnName)) {
+                        dataValue.add(k, columnValue);
+                        break;
+                    }
+                }
             } else {
                 serializeTable(t);
                 throw new DBAppException("Column " + columnName + " doesn't exist");
@@ -380,6 +447,44 @@ public class DBApp {
 
         // Perform the strarr operation on the iterators.
 
+        // Loop through the array of the operators.
+        // Each operator will be applied to the previous result and the current iterator.
+        // Initialize Temp result as the first iterator.
+        Iterator tempResult = iterators.get(0);
+        int i = 1;
+        for (String strarrOperator : strarrOperators) {
+            // Initialize the result as a vector.
+            Vector<Tuple> result = new Vector<Tuple>();
+            Iterator nextIterator = iterators.get(i);
+            // Perform intersect operation between the temp result and the current iterator.
+            while (tempResult.hasNext()) {
+                Tuple tuple = (Tuple) tempResult.next();
+                switch (strarrOperator) {
+                    case "AND" -> {
+                        while (nextIterator.hasNext()) {
+                            Tuple tuple2 = (Tuple) nextIterator.next();
+                            if (tuple.compareTo(tuple2)) {
+                                result.add(tuple);
+                            }
+                        }
+                    }
+                    case "OR" -> {
+                        boolean found = false; // Flag to check if the tuple is already in the result.
+
+
+                        // Perform XOR operation between the temp result and the current iterator.
+                        // First check that each tuple in temp result is not in the current iterator.
+                        xor(nextIterator, result, tempResult, tuple, found);
+                        // Then check that each tuple in the current iterator is not in the temp result.
+                        xor(tempResult, result, nextIterator, tuple, found);
+
+
+                    }
+                }
+                
+            }
+
+        }
 
         return null;
     }
