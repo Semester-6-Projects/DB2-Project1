@@ -89,17 +89,63 @@ public class Table implements Serializable {
             Pages.add(p.getPageName());
             serializePage(p);
         } else {
-            Page j = deserializePage(Pages.lastElement());
-            if ((j.tupleSize() == max)) {
-                pageCount++;
-                String pageName = TableName + pageCount;
-                Page p = new Page(pageName, data);
-                Pages.add(p.getPageName());
-                serializePage(p);
-            } else {
-                j.addData(data);
+            int index= colOrder.indexOf(ClusteringKeyColumn);
+            for(int i =0; i<Pages.size(); i++) {
+                Page p = deserializePage(Pages.get(i));
+                Vector<Tuple> tuples= p.getTuples();
+                for(int j=0; j<tuples.size(); j++){
+                    Tuple a = tuples.get(j);
+                    String b = (String) data.getData().get(index); //value in page
+                    String c = (String) a.getData().get(index); //value to be inserted
+                    if(c.compareTo(b) < 0){
+                        if(tuples.size()<max){
+                            p.addData(data,j);
+                            serializePage(p);
+                            return;
+                        }
+                        else if(tuples.size() == max){
+                            Tuple shift = tuples.getLast();
+                            p.addData(data,j);
+                            serializePage(p);
+                            addData(shift);
+                            return;
+                        }
+                    }
+                    else if(i == Pages.size()-1){
+                        if(c.compareTo(b) < 0){
+                            if(tuples.size()<max){
+                                p.addData(data,j);
+                                serializePage(p);
+                                return;
+                            }
+                            else if(tuples.size() == max){
+                                pageCount++;
+                                String pageName = TableName + pageCount;
+                                Page x = new Page(pageName, data);
+                                Pages.add(x.getPageName());
+                                serializePage(x);
+                                serializePage(p);
+                                return;
+                            }
+                        }
+
+                    }
+                }
             }
-            serializePage(j);
+
+
+
+
+//            if ((j.tupleSize() == max)) {
+//                pageCount++;
+//                String pageName = TableName + pageCount;
+//                Page p = new Page(pageName, data);
+//                Pages.add(p.getPageName());
+//                serializePage(p);
+//            } else {
+//                j.addData(data);
+//            }
+//            serializePage(j);
         }
     }
 

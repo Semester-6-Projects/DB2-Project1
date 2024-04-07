@@ -22,8 +22,9 @@ public class Page implements Serializable {
         return pageName;
     }
 
-    public void addData(Tuple data) {
-        tuples.add(data);
+    public void addData(Tuple data, int index) {
+
+        tuples.add(index,data);
     }
 
     public boolean removeData(Tuple data) {

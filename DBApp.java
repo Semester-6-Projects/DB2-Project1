@@ -253,7 +253,7 @@ public class DBApp {
             File rename = new File("resources/metaFile.csv");
             rename.delete();
             file.renameTo(rename);
-
+            serializeTable(t);
             //throw new DBAppException("not implemented yet");
         }
     }
@@ -290,7 +290,6 @@ public class DBApp {
             throw new DBAppException("Incorrect number of insertions");
         }
         Tuple t2 = new Tuple(dataValue);
-        System.out.println(t2.toString());
         t.addData(t2);
         serializeTable(t);
         //throw new DBAppException("not implemented yet");
