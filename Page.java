@@ -1,55 +1,54 @@
+import java.io.FileOutputStream;
+import java.io.IOException;
 import java.util.Vector;
 import java.io.Serializable;
-
 public class Page implements Serializable {
-    private String pageName = "";
-    private Vector<Tuple> tuples = new Vector<Tuple>();
 
-    public Page() {
+    Vector<rows> row;
+    String filename;
+    String filepath;
+
+    public Page(int pageIndex, String tableName) {
+        row = new Vector<rows>();
+        this.createFile(pageIndex, tableName);
 
     }
 
-    public Page(String pageName, Tuple data) {
-        this.pageName = pageName;
-        tuples.add(data);
+
+
+    public String getFilename() {
+        return filename;
     }
 
-    public int tupleSize() {
-        return tuples.size();
+    public String getPath() {
+        return filepath;
     }
 
-    public String getPageName() {
-        return pageName;
-    }
+    public void createFile(int pageIndex, String tableName) {
+        this.filename = tableName + pageIndex + ".class";
 
-    public void addData(Tuple data, int index) {
 
-        tuples.add(index,data);
-    }
-
-    public boolean removeData(Tuple data) {
         try {
-            tuples.remove(data);
-            return true;
-        } catch (Exception e) {
-            return false;
+            FileOutputStream fileOut = new FileOutputStream(filename, false);
+
+            fileOut.close();
+        } catch (IOException i) {
+            i.printStackTrace();
         }
+
     }
 
-    public boolean searchData(Tuple data) {
-        return tuples.contains(data);
-    }
-
-    public Vector<Tuple> getTuples() {
-        return tuples;
-    }
-
+    @Override
     public String toString() {
-        String x = "";
-        for (int i = 0; i < tuples.size() - 1; i++) {
-            x = x + tuples.get(i).toString() + ", ";
-        }
-        x = x + tuples.get(tuples.size() - 1);
-        return x;
+        String s="";
+
+        for(int i=0; i<row.size();i++)
+            s= s+ row.get(i).tuples + " , ";
+
+        return s;
     }
+
+
+
 }
+
