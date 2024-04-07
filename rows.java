@@ -4,71 +4,67 @@ import java.util.Hashtable;
 import java.util.Vector;
 
 public class rows implements Serializable {
-	Vector tuples;
+    Vector tuples;
 
-	public rows() {
-		tuples = new Vector();
-	}
+    public rows() {
+        tuples = new Vector();
+    }
 
-	@Override
-	public boolean equals(Object obj) {
+    public static void main(String[] args) {
+        
+    }
 
-		if (this == obj)
-			return true;
-		if (obj == null)
-			return false;
-		if (getClass() != obj.getClass())
-			return false;
+    @Override
+    public boolean equals(Object obj) {
 
-		rows other = (rows) obj;
-		if (tuples == null) {
-			if (other.tuples != null)
-				return false;
+        if (this == obj)
+            return true;
+        if (obj == null)
+            return false;
+        if (getClass() != obj.getClass())
+            return false;
 
-		}
-		if (this.tuples.size() != other.tuples.size())
-			return false;
+        rows other = (rows) obj;
+        if (tuples == null) {
+            if (other.tuples != null)
+                return false;
 
-		else if (this.tuples.size() == other.tuples.size()) {
+        }
+        if (this.tuples.size() != other.tuples.size())
+            return false;
 
-			for (int i = 0; i < this.tuples.size(); i++) {
-				Comparable key1;
-				Comparable key2;
+        else if (this.tuples.size() == other.tuples.size()) {
 
-				String type = this.tuples.get(i).getClass().getName();
+            for (int i = 0; i < this.tuples.size(); i++) {
+                Comparable key1;
+                Comparable key2;
 
-				if (type.equals("java.awt.Polygon")) {
-					polygonComparable p1 = new polygonComparable();
-					Polygon poly1 = (Polygon) this.tuples.get(i);
-					p1.setPoly(poly1);
-					key1 = (Comparable) p1;
+                String type = this.tuples.get(i).getClass().getName();
 
-					polygonComparable p2 = new polygonComparable();
-					Polygon poly2 = (Polygon) other.tuples.get(i);
-					p2.setPoly(poly2);
-					key2 = (Comparable) p2;
+                if (type.equals("java.awt.Polygon")) {
+                    polygonComparable p1 = new polygonComparable();
+                    Polygon poly1 = (Polygon) this.tuples.get(i);
+                    p1.setPoly(poly1);
+                    key1 = (Comparable) p1;
 
-				} else {
-					key1 = (Comparable) this.tuples.get(i);
-					key2 = (Comparable) other.tuples.get(i);
-				}
+                    polygonComparable p2 = new polygonComparable();
+                    Polygon poly2 = (Polygon) other.tuples.get(i);
+                    p2.setPoly(poly2);
+                    key2 = (Comparable) p2;
 
-				if (key1.compareTo(key2) != 0)
-					return false;
+                } else {
+                    key1 = (Comparable) this.tuples.get(i);
+                    key2 = (Comparable) other.tuples.get(i);
+                }
 
-			}
+                if (key1.compareTo(key2) != 0)
+                    return false;
 
-		}
+            }
 
-		return true;
-	}
-	
-	
-	
-	public static void main(String[] args) {
-		
-		
-		
-	}
+        }
+
+        return true;
+    }
 
 }

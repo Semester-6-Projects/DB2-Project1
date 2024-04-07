@@ -4,29 +4,28 @@ import java.util.Vector;
 
 public class TestBPTree {
 
-	public static void main(String[] args) {
-		BPTree<Integer> tree = new BPTree<Integer>(3);
-		Scanner sc = new Scanner(System.in);
-		int k=0;
-		while(true)
-		{
-			int x = sc.nextInt();
-			if(x == -1)
-			{
+    public static void main(String[] args) {
+        BPTree<Integer> tree = new BPTree<Integer>(3);
+        Scanner sc = new Scanner(System.in);
+        int k = 0;
+        while (true) {
+            int x = sc.nextInt();
+            if (x == -1) {
 
-				break;
-			}
-		tree.insert(x, null);
-			k++;
-			System.out.println(tree.toString());
-		}
-//		System.out.println(tree.insertRef(107, 15, "p", true));
-//		tree.insert(107, new Ref("p0.class", 0));
-//		System.out.println(tree.insertRef(109, 15, "p", false));
-//		tree.insert(109, tree.insertRef(109, 15, "p", false));
-//		tree.insert(109, tree.insertRef(109, 15, "p", false));
-//	tree.insert(110, tree.insertRef(110, 15, "p", false));
-//		 System.out.println("OVERFLOW" + tree.getLastLeaf().getOverflow(1));
+                break;
+            }
+            tree.insert(x, null);
+            k++;
+            System.out.println(tree.toString());
+        }
+
+//        System.out.println(tree.insertRef(107, 15, "p", true));
+//        tree.insert(107, new Ref("p0.class", 0));
+//        System.out.println(tree.insertRef(109, 15, "p", false));
+//        tree.insert(109, tree.insertRef(109, 15, "p", false));
+//        tree.insert(109, tree.insertRef(109, 15, "p", false));
+//        tree.insert(110, tree.insertRef(110, 15, "p", false));
+//        System.out.println("OVERFLOW" + tree.getLastLeaf().getOverflow(1));
 //		tree.insert(3, new Ref("p1", 0));
 //		tree.insert(3, new Ref("p1", 1));
 //		System.out.println(tree.insertRef(2, 2, "p"));
@@ -49,7 +48,7 @@ public class TestBPTree {
 //		System.out.println("OVERFLOW" + tree.getLastLeaf().getOverflow(1));
 //		System.out.println("OVERFLOW" + tree.getLastLeaf().getOverflow(2));
 //		System.out.println(tree.getLastLeaf().overflow);
-//		 System.out.println(tree);
+//        System.out.println(tree);
 //		tree.insert(100, tree.insertRef(100, 15, "p",false));
 //		System.out.println(tree.getLastLeaf().overflow);
 //		tree.insert(1, new Ref("p0.ser", 0));
@@ -65,18 +64,18 @@ public class TestBPTree {
 //		tree.insert(25, new Ref("p0.ser", 10));
 //		ArrayList x = new ArrayList();
 //		x.add(new Ref("p0.ser", 100));
-		//x.add(new Ref("p0.ser", 2));
+//        x.add(new Ref("p0.ser", 2));
 //		ArrayList y = new ArrayList();
 //		y.add(new Ref("p0.ser", ));
 //		y.add(new Ref("beta3 17", 2));
-
+//
 //		tree.insert(100, new Ref("p0.ser", 100));
 //		tree.updateRefNonKey(x, y);
 //		System.out.println(tree);
-
-		// tree.delete(21, new Ref("p0.ser", 6));
-
-		// tree.insert(4, new Ref());
+//
+//         tree.delete(21, new Ref("p0.ser", 6));
+//
+//         tree.insert(4, new Ref());
 //		for (int i = 0; i < tree.getLastLeaf().numberOfKeys; i++) {
 //			System.err.println(tree.getLastLeaf().getRecord(i));
 //		}
@@ -92,7 +91,7 @@ public class TestBPTree {
 //		System.out.println("deletee" + tree.deleteAllRefs(null, 25));
 //		System.out.println("deletee" + tree.delete(23, new Ref("p0.ser", 9)));
 //		System.out.println("deletee" + tree.delete(23, new Ref("p0.ser", 8)));
-
+//
 //		System.out.println(tree.insertRef(26, 10, "p", false));
 //		tree.insert(26, new Ref("p1.ser", 0));
 //		System.out.println(tree.insertRef(27, 10, "p", false));
@@ -108,9 +107,9 @@ public class TestBPTree {
 //		tree.insert(8, new Ref("1", 33));
 //		tree.insert(5, new Ref("1", 39));
 //		tree.insert(7, null);
-		// when we enter a new page we have to make h=0
-		System.out.println(tree.toString());
-
+//         when we enter a new page we have to make h=0
+//		System.out.println(tree.toString());
+//
 //		tree.printingRef(4);
 //		tree.delete(4, new Ref("4", 4));
 //		tree.delete(4, new Ref("2", 2));
@@ -121,7 +120,7 @@ public class TestBPTree {
 //		System.out.println(tree);
 //		System.out.println(tree.searchGreaterthan(3));
 //		System.out.println(tree.searchGreaterEqual(5));
-		// System.out.println(tree.insertRef(4));
+//         System.out.println(tree.insertRef(4));
 //		tree.insert(3, new Ref("1", 2));
 //		BPTreeLeafNode node = tree.searchGreaterthan(3);
 //		System.out.println(tree);
@@ -135,14 +134,14 @@ public class TestBPTree {
 //		System.out.println(tree);
 //		for(int i=0;i<x.size();i++)
 //			System.out.println(x.get(i));
-		// x=new ArrayList();
-		// x.add(new Ref("1",2));
-		// x.add(new Ref("2",2));
-		// .add(new Ref("4",4));
-		// tree.deleteAllRefs(x,4);
-		// System.out.println(tree);
+//         x=new ArrayList();
+//         x.add(new Ref("1",2));
+//         x.add(new Ref("2",2));
+//         x.add(new Ref("4",4));
+//         tree.deleteAllRefs(x,4);
+//         System.out.println(tree);
 //		tree.delete(4, new Ref("1",2));
-		// tree.delete(10, null);
+//         tree.delete(10, null);
 //		System.out.println(tree);
 //		tree.delete(4, new Ref("6",2));
 //		System.out.println(tree);
@@ -165,16 +164,16 @@ public class TestBPTree {
 //		tree.insert(4, new Ref("1",2));
 //		tree.insert(4, null);
 //		System.out.println(tree);
-		// System.out.println(tree.searchNodeRef(4,new Ref("1",2)));
-
-		// tree.delete(4,new Ref("1",2));
-		// System.out.println(tree);
-
+//         System.out.println(tree.searchNodeRef(4,new Ref("1",2)));
+//
+//         tree.delete(4,new Ref("1",2));
+//         System.out.println(tree);
+//
 //		tree.delete(7);
 //		System.out.println(tree.toString());
-
+//
 //		i=0;
-//		while(i<3) 
+//		while(i<3)
 //		{
 //			int x = sc.nextInt();
 //			if(x == -1)
@@ -185,11 +184,11 @@ public class TestBPTree {
 //		}
 //		sc.close();
 //		tree.delete(5);
-		// tree.delete(4);
+//        tree.delete(4);
 //		tree.delete(11);
-		// System.out.println(tree.toString());
+//        System.out.println(tree.toString());
 //		tree.update(4,90,null);
 //		System.out.println(tree.toString());
 
-	}
+    }
 }

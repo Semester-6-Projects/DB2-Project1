@@ -2,6 +2,7 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.util.Vector;
 import java.io.Serializable;
+
 public class Page implements Serializable {
 
     Vector<rows> row;
@@ -13,7 +14,6 @@ public class Page implements Serializable {
         this.createFile(pageIndex, tableName);
 
     }
-
 
 
     public String getFilename() {
@@ -40,14 +40,13 @@ public class Page implements Serializable {
 
     @Override
     public String toString() {
-        String s="";
+        String s = "";
 
-        for(int i=0; i<row.size();i++)
-            s= s+ row.get(i).tuples + " , ";
+        for (int i = 0; i < row.size(); i++)
+            s = s + row.get(i).tuples + " , ";
 
         return s;
     }
-
 
 
 }
