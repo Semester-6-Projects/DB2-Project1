@@ -26,9 +26,9 @@ public class DBApp {
             dbApp.createIndex(strTableName, "gpa", "gpaIndex");
 
             Hashtable htblColNameValue = new Hashtable();
+            htblColNameValue.put("gpa", Double.valueOf(0.95));
             htblColNameValue.put("id", Integer.valueOf(2343432));
             htblColNameValue.put("name", new String("Ahmed Noor"));
-            htblColNameValue.put("gpa", Double.valueOf(0.95));
             dbApp.insertIntoTable(strTableName, htblColNameValue);
 
             htblColNameValue.clear();
@@ -54,7 +54,6 @@ public class DBApp {
             htblColNameValue.put("name", new String("Zaky Noor"));
             htblColNameValue.put("gpa", Double.valueOf(0.88));
             dbApp.insertIntoTable(strTableName, htblColNameValue);
-
 
 			/*SQLTerm[] arrSQLTerms;
 			arrSQLTerms = new SQLTerm[2];
@@ -205,48 +204,58 @@ public class DBApp {
     public void createIndex(String strTableName,
                             String strColName,
                             String strIndexName) throws DBAppException {
-        try {
-            FileWriter outfile = new FileWriter("resources/metaFile2.csv", true);
-            CSVWriter writer = new CSVWriter(outfile);
-            writer.close();
-        } catch (IOException e) {
-            e.printStackTrace();
+        if (!(tableNames.contains(strTableName))) {
+            throw new DBAppException("table doesn't exist");
         }
-        try {
-            FileReader fr = new FileReader("resources/metaFile.csv");
-            BufferedReader br = new BufferedReader(fr);
-            String z = br.readLine();
-            while (z != null) {
-                String[] mfile = z.split(",");
-                String a = mfile[0].substring(1, mfile[0].length() - 1).trim();
-                String b = mfile[1].substring(1, mfile[1].length() - 1).trim();
-                String c = mfile[2].substring(1, mfile[2].length() - 1).trim();
-                String d = mfile[3].substring(1, mfile[3].length() - 1).trim();
-                String e = mfile[4].substring(1, mfile[4].length() - 1).trim();
-                String f = mfile[5].substring(1, mfile[5].length() - 1).trim();
-                if (a.equalsIgnoreCase(strTableName) && b.equalsIgnoreCase(strColName)) {
-                    String[] y = {strTableName, strColName, c, d, strIndexName, "B+tree"};
-                    writeInCSV("resources/metaFile2.csv", y);
-                } else {
-                    String[] y = {a, b, c, d, e, f};
-                    writeInCSV("resources/metaFile2.csv", y);
-                }
-                z = br.readLine();
+        Table t = deserializeTable(strTableName);
+        if(!(t.getColOrder().contains(strColName))){
+            serializeTable(t);
+            throw new DBAppException("column " + strColName + " doesn't exist");
+        }
+        else {
+
+            try {
+                FileWriter outfile = new FileWriter("resources/metaFile2.csv", true);
+                CSVWriter writer = new CSVWriter(outfile);
+                writer.close();
+            } catch (IOException e) {
+                e.printStackTrace();
             }
-            br.close();
-            fr.close();
-        } catch (FileNotFoundException e) {
-            throw new RuntimeException(e);
-        } catch (IOException e) {
-            throw new RuntimeException(e);
+            try {
+                FileReader fr = new FileReader("resources/metaFile.csv");
+                BufferedReader br = new BufferedReader(fr);
+                String z = br.readLine();
+                while (z != null) {
+                    String[] mfile = z.split(",");
+                    String a = mfile[0].substring(1, mfile[0].length() - 1).trim();
+                    String b = mfile[1].substring(1, mfile[1].length() - 1).trim();
+                    String c = mfile[2].substring(1, mfile[2].length() - 1).trim();
+                    String d = mfile[3].substring(1, mfile[3].length() - 1).trim();
+                    String e = mfile[4].substring(1, mfile[4].length() - 1).trim();
+                    String f = mfile[5].substring(1, mfile[5].length() - 1).trim();
+                    if (a.equalsIgnoreCase(strTableName) && b.equalsIgnoreCase(strColName)) {
+                        String[] y = {strTableName, strColName, c, d, strIndexName, "B+tree"};
+                        writeInCSV("resources/metaFile2.csv", y);
+                    } else {
+                        String[] y = {a, b, c, d, e, f};
+                        writeInCSV("resources/metaFile2.csv", y);
+                    }
+                    z = br.readLine();
+                }
+                br.close();
+                fr.close();
+            } catch (FileNotFoundException e) {
+                throw new RuntimeException(e);
+            } catch (IOException e) {
+                throw new RuntimeException(e);
+            }
+            File file = new File("resources/metaFile2.csv");
+            File rename = new File("resources/metaFile.csv");
+            rename.delete();
+            file.renameTo(rename);
+
+            //throw new DBAppException("not implemented yet");
         }
-
-        File file = new File("resources/metaFile2.csv");
-        File rename = new File("resources/metaFile.csv");
-        rename.delete();
-        file.renameTo(rename);
-
-        //throw new DBAppException("not implemented yet");
     }
 
     public void insertIntoTable(String strTableName,
@@ -281,6 +290,7 @@ public class DBApp {
             throw new DBAppException("Incorrect number of insertions");
         }
         Tuple t2 = new Tuple(dataValue);
+        System.out.println(t2.toString());
         t.addData(t2);
         serializeTable(t);
         //throw new DBAppException("not implemented yet");
@@ -342,6 +352,7 @@ public class DBApp {
         }
         return false;
     }
+
 
     // following method updates one row only
     // htblColNameValue holds the key and new value
