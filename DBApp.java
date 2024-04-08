@@ -27,30 +27,36 @@ public class DBApp {
 
             Hashtable htblColNameValue = new Hashtable();
             htblColNameValue.put("gpa", Double.valueOf(0.95));
-            htblColNameValue.put("id", Integer.valueOf(2343432));
+            htblColNameValue.put("id", Integer.valueOf(3));
             htblColNameValue.put("name", new String("Ahmed Noor"));
             dbApp.insertIntoTable(strTableName, htblColNameValue);
 
             htblColNameValue.clear();
-            htblColNameValue.put("id", Integer.valueOf(453455));
+            htblColNameValue.put("id", Integer.valueOf(1));
             htblColNameValue.put("name", new String("Ahmed Noor"));
             htblColNameValue.put("gpa", Double.valueOf(0.95));
             dbApp.insertIntoTable(strTableName, htblColNameValue);
 
             htblColNameValue.clear();
-            htblColNameValue.put("id", Integer.valueOf(5674567));
+            htblColNameValue.put("id", Integer.valueOf(5));
             htblColNameValue.put("name", new String("Dalia Noor"));
             htblColNameValue.put("gpa", Double.valueOf(1.25));
             dbApp.insertIntoTable(strTableName, htblColNameValue);
 
             htblColNameValue.clear();
-            htblColNameValue.put("id", Integer.valueOf(23498));
+            htblColNameValue.put("id", Integer.valueOf(2));
             htblColNameValue.put("name", new String("John Noor"));
             htblColNameValue.put("gpa", Double.valueOf(1.5));
             dbApp.insertIntoTable(strTableName, htblColNameValue);
 
             htblColNameValue.clear();
-            htblColNameValue.put("id", Integer.valueOf(78452));
+            htblColNameValue.put("id", Integer.valueOf(1));
+            htblColNameValue.put("name", new String("Zaky Noor"));
+            htblColNameValue.put("gpa", Double.valueOf(0.88));
+            dbApp.insertIntoTable(strTableName, htblColNameValue);
+
+            htblColNameValue.clear();
+            htblColNameValue.put("id", Integer.valueOf(8));
             htblColNameValue.put("name", new String("Zaky Noor"));
             htblColNameValue.put("gpa", Double.valueOf(0.88));
             dbApp.insertIntoTable(strTableName, htblColNameValue);
@@ -160,7 +166,7 @@ public class DBApp {
         File file = new File(fileName);
         ObjectOutputStream os = null;
         try {
-            FileOutputStream fileOS = new FileOutputStream(file, true);
+            FileOutputStream fileOS = new FileOutputStream(file);
             os = new ObjectOutputStream(fileOS);
             os.writeObject(t);
         } catch (FileNotFoundException e) {
@@ -263,7 +269,7 @@ public class DBApp {
         if (!(tableNames.contains(strTableName))) {
             throw new DBAppException("table doesn't exist");
         }
-        Table t = new Table();
+        Table t = deserializeTable(strTableName);
         Vector<Object> dataValue = new Vector<Object>();
         String hash = htblColNameValue.toString();
         String hash2 = hash.substring(1, hash.length() - 1);
@@ -273,7 +279,6 @@ public class DBApp {
             String columnName = x[0].trim();
             String columnValue = x[1].trim();
             if (checkValueMF(columnName, columnValue, strTableName)) {
-                t = deserializeTable(strTableName);
                 for (int k = 0; k < t.getColOrder().size(); k++) {
                     if (t.getColOrder().get(k).equals(columnName)) {
                         dataValue.add(k, columnValue);

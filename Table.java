@@ -7,7 +7,7 @@ import com.opencsv.CSVWriter;
 public class Table implements Serializable {
     private String TableName = "";
     private String ClusteringKeyColumn;
-    private int pageCount = 0;
+    private int pageCount;
     private Vector<String> Pages = new Vector<String>();
     private Vector<String> colOrder = new Vector<String>();
 
@@ -56,6 +56,10 @@ public class Table implements Serializable {
         return this.colOrder;
     }
 
+    public int getPageCount(){
+        return this.pageCount;
+    }
+
     public String getClusteringKeyColumn() {
         return this.ClusteringKeyColumn;
     }
@@ -82,70 +86,74 @@ public class Table implements Serializable {
 
     public void addData(Tuple data) {
         int max = getMax();
-        if ((Pages.size() == 0)) {
+        //int max = 2;
+        if (Pages.size() == 0) {
             pageCount++;
-            String pageName = TableName + pageCount;
+            String pageName = TableName + (Pages.size()+1);
             Page p = new Page(pageName, data);
             Pages.add(p.getPageName());
+            System.out.println("Pages: " + Pages.size());
+            System.out.println(p.toString());
             serializePage(p);
         } else {
+            System.out.println("two");
             int index= colOrder.indexOf(ClusteringKeyColumn);
             for(int i =0; i<Pages.size(); i++) {
                 Page p = deserializePage(Pages.get(i));
                 Vector<Tuple> tuples= p.getTuples();
                 for(int j=0; j<tuples.size(); j++){
                     Tuple a = tuples.get(j);
-                    String b = (String) data.getData().get(index); //value in page
-                    String c = (String) a.getData().get(index); //value to be inserted
-                    if(c.compareTo(b) < 0){
+                    String b = (String) data.getData().get(index); //value to be inserted
+                    String c = (String) a.getData().get(index); //value in page
+                    if(b.compareTo(c) < 0){
+                        System.out.println("<");
                         if(tuples.size()<max){
                             p.addData(data,j);
+                            System.out.println(p.toString());
                             serializePage(p);
                             return;
                         }
                         else if(tuples.size() == max){
+                            System.out.println("awl == max + recurrsive");
                             Tuple shift = tuples.getLast();
+                            p.removeData(shift);
                             p.addData(data,j);
+                            System.out.println(p.toString());
                             serializePage(p);
                             addData(shift);
                             return;
                         }
                     }
                     else if(i == Pages.size()-1){
-                        if(c.compareTo(b) < 0){
-                            if(tuples.size()<max){
-                                p.addData(data,j);
-                                serializePage(p);
-                                return;
+                        System.out.println("pages.size: " + Pages.size());
+                        System.out.println("i: " + i);
+                        System.out.println("last page");
+                        System.out.println("tuples.size: " + tuples.size());
+                        System.out.println("pages.size: " + Pages.size());
+                        System.out.println("j: " + j);
+                        if (j == tuples.size() - 1) {
+                                if (tuples.size() == max) {
+                                    System.out.println("second ==max");
+                                    pageCount++;
+                                    String pageName = TableName + (Pages.size()+1);
+                                    Page x = new Page(pageName, data);
+                                    Pages.add(x.getPageName());
+                                    System.out.println(x.toString());
+                                    serializePage(x);
+                                    System.out.println(p.toString());
+                                    serializePage(p);
+                                    return;
+                                } else {
+                                    System.out.println("last page else");
+                                    p.addData(data, j + 1);
+                                    System.out.println(p.toString());
+                                    serializePage(p);
+                                    return;
+                                }
                             }
-                            else if(tuples.size() == max){
-                                pageCount++;
-                                String pageName = TableName + pageCount;
-                                Page x = new Page(pageName, data);
-                                Pages.add(x.getPageName());
-                                serializePage(x);
-                                serializePage(p);
-                                return;
-                            }
-                        }
-
                     }
                 }
             }
-
-
-
-
-//            if ((j.tupleSize() == max)) {
-//                pageCount++;
-//                String pageName = TableName + pageCount;
-//                Page p = new Page(pageName, data);
-//                Pages.add(p.getPageName());
-//                serializePage(p);
-//            } else {
-//                j.addData(data);
-//            }
-//            serializePage(j);
         }
     }
 
@@ -179,7 +187,7 @@ public class Table implements Serializable {
         File file = new File(pageName);
         ObjectOutputStream os = null;
         try {
-            FileOutputStream fileOS = new FileOutputStream(file, true);
+            FileOutputStream fileOS = new FileOutputStream(file);
             os = new ObjectOutputStream(fileOS);
             // p.addData(data);
             os.writeObject(p);
