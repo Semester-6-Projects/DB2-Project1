@@ -314,7 +314,7 @@ public class BPTree<T extends Comparable<T>> implements Serializable {
 //			done = this.deleteL(key, ref);
 //			done = done2 || done;
 			done = this.deleteHelper(key, ref);
-			System.out.println("I will delete here now and it should succeed");
+			//System.out.println("I will delete here now and it should succeed");
 		}
 
 		return done;

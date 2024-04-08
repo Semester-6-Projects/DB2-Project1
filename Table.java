@@ -103,8 +103,6 @@ public class Table implements Serializable {
            serializePage(p);
         }
         serializeTree(tree);
-        //System.out.println(tree.toString());
-        //System.out.println(tree.searchDuplicates(("1.5").toString()));
     }
 
     private void serializeTree(BPTree t){
@@ -161,6 +159,7 @@ public class Table implements Serializable {
             pageCount++;
             String pageName = TableName + (Pages.size()+1);
             Page p = new Page(pageName, data);
+            addInBTreeHelper(p, 0, data, 1);
             Pages.add(p.getPageName());
             serializePage(p);
         } else {
@@ -175,35 +174,73 @@ public class Table implements Serializable {
                     if(b.compareTo(c) < 0){
                         if(tuples.size()<max){
                             p.addData(data,j);
+                            addInBTreeHelper(p, j, data, 2);
                             serializePage(p);
                             return;
                         }
                         else if(tuples.size() == max){
                             Tuple shift = tuples.getLast();
-                            p.removeData(shift);
                             p.addData(data,j);
+                            addInBTreeHelper(p, j, data, 3);
+                            p.removeData(shift);
                             serializePage(p);
                             addData(shift);
                             return;
                         }
                     }
                     else if(i == Pages.size()-1){
+
                         if (j == tuples.size() - 1) {
                                 if (tuples.size() == max) {
                                     pageCount++;
                                     String pageName = TableName + (Pages.size()+1);
                                     Page x = new Page(pageName, data);
                                     Pages.add(x.getPageName());
+                                    addInBTreeHelper(x, 0, data, 1);
                                     serializePage(x);
                                     serializePage(p);
                                     return;
                                 } else {
-                                    p.addData(data, j + 1);
+                                    p.addData(data, j+1);
+                                    addInBTreeHelper(p, j+1, data, 1);
                                     serializePage(p);
                                     return;
                                 }
                             }
                     }
+                }
+            }
+        }
+    }
+
+    private void addInBTreeHelper(Page p, int startIndex, Tuple data, int flag){
+        Vector <Tuple> tuples = p.getTuples();
+        for(int i =0; i<colOrder.size(); i++) {
+            String fileName = TableName + "," + colOrder.get(i) + ".bin";
+            File check = new File(fileName);
+            if(check.exists()) {
+                BPTree tree = deserializeTree(fileName);
+                if(flag == 1 && flag ==2){
+                    Ref reference = new Ref(p.getPageName(), startIndex);
+                    tree.insert((Comparable) data.getData().get(i), reference);
+                    serializeTree(tree);
+                }
+                else{
+                    if((flag == 3)){
+                        Ref refOld = new Ref(p.getPageName(), tuples.indexOf(tuples.getLast())-1);
+                        tree.delete((Comparable) tuples.getLast().getData().get(i),refOld);
+                    }
+                        for (int j = startIndex; j < p.getTuples().size() - 1; j++) {
+                            if (!(flag == 3 && j == p.getTuples().size() - 2)) {
+                                Ref refOld = new Ref(p.getPageName(), j);
+                                Ref refNew = new Ref(p.getPageName(), j + 1);
+                                tree.update((Comparable) tuples.get(j + 1).getData().get(i), (Comparable) tuples.get(j + 1).getData().get(i), refNew, refOld);
+                            }
+                        }
+
+                    Ref reference = new Ref(p.getPageName(), startIndex);
+                    tree.insert((Comparable) data.getData().get(i), reference);
+                    serializeTree(tree);
                 }
             }
         }

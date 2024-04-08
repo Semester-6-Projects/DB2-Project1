@@ -24,11 +24,13 @@ public class DBApp {
             htblColNameType.put("gpa", "java.lang.double");
             dbApp.createTable(strTableName, "id", htblColNameType);
 
+
             Hashtable htblColNameValue = new Hashtable();
             htblColNameValue.put("gpa", Double.valueOf(0.88));
             htblColNameValue.put("id", Integer.valueOf(3));
             htblColNameValue.put("name", new String("Ahmed Noor"));
             dbApp.insertIntoTable(strTableName, htblColNameValue);
+            dbApp.createIndex(strTableName, "gpa", "gpaIndex");
 
             htblColNameValue.clear();
             htblColNameValue.put("id", Integer.valueOf(1));
@@ -60,7 +62,6 @@ public class DBApp {
             htblColNameValue.put("gpa", Double.valueOf(0.88));
             dbApp.insertIntoTable(strTableName, htblColNameValue);
 
-            dbApp.createIndex(strTableName, "gpa", "gpaIndex");
 
 			/*SQLTerm[] arrSQLTerms;
 			arrSQLTerms = new SQLTerm[2];
