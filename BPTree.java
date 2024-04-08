@@ -30,7 +30,7 @@ public class BPTree<T extends Comparable<T>> implements Serializable {
 	}
 
 	public void setFileName(String tableName, String columnName) {
-		filename = tableName + "," + columnName + ".class";
+		filename = tableName + "," + columnName + ".bin";
 
 	}
 

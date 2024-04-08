@@ -59,6 +59,9 @@ public class Table implements Serializable {
     public int getPageCount(){
         return this.pageCount;
     }
+    public Vector<String> getPages(){
+        return this.Pages;
+    }
 
     public String getClusteringKeyColumn() {
         return this.ClusteringKeyColumn;
@@ -84,19 +87,83 @@ public class Table implements Serializable {
         return x;
     }
 
+    public void createIndexHelper(String tableName, String columnName){
+        int index = colOrder.indexOf(columnName);
+        BPTree tree = new BPTree(2);
+        tree.setFileName(tableName,columnName);
+        tree.createFile(tree.getFileName());
+        for(int i=0; i< Pages.size();i++){
+           Page p = deserializePage(Pages.get(i));
+           Vector<Tuple> tuples = p.getTuples();
+           for(int j=0; j<p.tupleSize(); j++){
+               Tuple tuple = tuples.get(j);
+               Ref reference = new Ref(p.getPageName(), j);
+               tree.insert((Comparable) tuple.getData().get(index),reference);
+           }
+           serializePage(p);
+        }
+        serializeTree(tree);
+        //System.out.println(tree.toString());
+        //System.out.println(tree.searchDuplicates(("1.5").toString()));
+    }
+
+    private void serializeTree(BPTree t){
+        String treeName = t.getFileName();
+        File file = new File(treeName);
+        ObjectOutputStream os = null;
+        try {
+            FileOutputStream fileOS = new FileOutputStream(file);
+            os = new ObjectOutputStream(fileOS);
+            os.writeObject(t);
+        } catch (FileNotFoundException e) {
+            e.printStackTrace();
+        } catch (IOException e) {
+            e.printStackTrace();
+        } finally {
+            try {
+                os.close();
+            } catch (IOException e) {
+                // TODO Auto-generated catch block
+                e.printStackTrace();
+            }
+        }
+    }
+
+    private BPTree deserializeTree(String treeName) {
+        BPTree t = new BPTree(2);
+        String fileName = treeName;
+        ObjectInputStream in = null;
+        try {
+            FileInputStream fileIn = new FileInputStream(fileName);
+            in = new ObjectInputStream(fileIn);
+            t = (BPTree) in.readObject();
+
+        } catch (IOException i) {
+            i.printStackTrace();
+        } catch (ClassNotFoundException c) {
+            c.printStackTrace();
+        } finally {
+            try {
+                in.close();
+            } catch (IOException e) {
+                // TODO Auto-generated catch block
+                e.printStackTrace();
+            }
+        }
+        return t;
+    }
+
+
     public void addData(Tuple data) {
-        int max = getMax();
-        //int max = 2;
+        //int max = getMax();
+        int max = 3;
         if (Pages.size() == 0) {
             pageCount++;
             String pageName = TableName + (Pages.size()+1);
             Page p = new Page(pageName, data);
             Pages.add(p.getPageName());
-            System.out.println("Pages: " + Pages.size());
-            System.out.println(p.toString());
             serializePage(p);
         } else {
-            System.out.println("two");
             int index= colOrder.indexOf(ClusteringKeyColumn);
             for(int i =0; i<Pages.size(); i++) {
                 Page p = deserializePage(Pages.get(i));
@@ -106,47 +173,32 @@ public class Table implements Serializable {
                     String b = (String) data.getData().get(index); //value to be inserted
                     String c = (String) a.getData().get(index); //value in page
                     if(b.compareTo(c) < 0){
-                        System.out.println("<");
                         if(tuples.size()<max){
                             p.addData(data,j);
-                            System.out.println(p.toString());
                             serializePage(p);
                             return;
                         }
                         else if(tuples.size() == max){
-                            System.out.println("awl == max + recurrsive");
                             Tuple shift = tuples.getLast();
                             p.removeData(shift);
                             p.addData(data,j);
-                            System.out.println(p.toString());
                             serializePage(p);
                             addData(shift);
                             return;
                         }
                     }
                     else if(i == Pages.size()-1){
-                        System.out.println("pages.size: " + Pages.size());
-                        System.out.println("i: " + i);
-                        System.out.println("last page");
-                        System.out.println("tuples.size: " + tuples.size());
-                        System.out.println("pages.size: " + Pages.size());
-                        System.out.println("j: " + j);
                         if (j == tuples.size() - 1) {
                                 if (tuples.size() == max) {
-                                    System.out.println("second ==max");
                                     pageCount++;
                                     String pageName = TableName + (Pages.size()+1);
                                     Page x = new Page(pageName, data);
                                     Pages.add(x.getPageName());
-                                    System.out.println(x.toString());
                                     serializePage(x);
-                                    System.out.println(p.toString());
                                     serializePage(p);
                                     return;
                                 } else {
-                                    System.out.println("last page else");
                                     p.addData(data, j + 1);
-                                    System.out.println(p.toString());
                                     serializePage(p);
                                     return;
                                 }

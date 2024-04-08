@@ -5,7 +5,7 @@ import java.util.Vector;
 public class TestBPTree {
 
     public static void main(String[] args) {
-        BPTree<Integer> tree = new BPTree<Integer>(3);
+        BPTree<Integer> tree = new BPTree<Integer>(2);
         Scanner sc = new Scanner(System.in);
         int k = 0;
         while (true) {

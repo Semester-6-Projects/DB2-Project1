@@ -23,10 +23,9 @@ public class DBApp {
             htblColNameType.put("name", "java.lang.String");
             htblColNameType.put("gpa", "java.lang.double");
             dbApp.createTable(strTableName, "id", htblColNameType);
-            dbApp.createIndex(strTableName, "gpa", "gpaIndex");
 
             Hashtable htblColNameValue = new Hashtable();
-            htblColNameValue.put("gpa", Double.valueOf(0.95));
+            htblColNameValue.put("gpa", Double.valueOf(0.88));
             htblColNameValue.put("id", Integer.valueOf(3));
             htblColNameValue.put("name", new String("Ahmed Noor"));
             dbApp.insertIntoTable(strTableName, htblColNameValue);
@@ -34,7 +33,7 @@ public class DBApp {
             htblColNameValue.clear();
             htblColNameValue.put("id", Integer.valueOf(1));
             htblColNameValue.put("name", new String("Ahmed Noor"));
-            htblColNameValue.put("gpa", Double.valueOf(0.95));
+            htblColNameValue.put("gpa", Double.valueOf(0.96));
             dbApp.insertIntoTable(strTableName, htblColNameValue);
 
             htblColNameValue.clear();
@@ -60,6 +59,8 @@ public class DBApp {
             htblColNameValue.put("name", new String("Zaky Noor"));
             htblColNameValue.put("gpa", Double.valueOf(0.88));
             dbApp.insertIntoTable(strTableName, htblColNameValue);
+
+            dbApp.createIndex(strTableName, "gpa", "gpaIndex");
 
 			/*SQLTerm[] arrSQLTerms;
 			arrSQLTerms = new SQLTerm[2];
@@ -219,7 +220,6 @@ public class DBApp {
             throw new DBAppException("column " + strColName + " doesn't exist");
         }
         else {
-
             try {
                 FileWriter outfile = new FileWriter("resources/metaFile2.csv", true);
                 CSVWriter writer = new CSVWriter(outfile);
@@ -259,10 +259,12 @@ public class DBApp {
             File rename = new File("resources/metaFile.csv");
             rename.delete();
             file.renameTo(rename);
+            t.createIndexHelper(strTableName,strColName);
             serializeTable(t);
-            //throw new DBAppException("not implemented yet");
         }
     }
+
+
 
     public void insertIntoTable(String strTableName,
                                 Hashtable<String, Object> htblColNameValue) throws DBAppException {
