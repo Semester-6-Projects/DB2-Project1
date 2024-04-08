@@ -153,8 +153,8 @@ public class Table implements Serializable {
 
 
     public void addData(Tuple data) {
-        //int max = getMax();
-        int max = 3;
+        int max = getMax();
+        //int max = 3;
         if (Pages.size() == 0) {
             pageCount++;
             String pageName = TableName + (Pages.size()+1);
