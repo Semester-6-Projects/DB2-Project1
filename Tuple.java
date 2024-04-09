@@ -7,6 +7,9 @@ public class Tuple implements Serializable {
     public Tuple(Vector<Object> data) {
         this.data = data;
     }
+    public Tuple(){
+
+    }
 
     public String toString() {
         String x = "";

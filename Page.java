@@ -47,9 +47,9 @@ public class Page implements Serializable {
     public String toString() {
         String x = "";
         for (int i = 0; i < tuples.size() - 1; i++) {
-            x = x + tuples.get(i).toString() + ", ";
+            x = x + tuples.get(i).toString() + ", " + "\n";
         }
-        x = x + tuples.get(tuples.size() - 1);
+        x = x + tuples.get(tuples.size() - 1) + "\n" + "\n";
         return x;
     }
 }

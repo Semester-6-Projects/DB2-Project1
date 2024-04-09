@@ -296,9 +296,9 @@ public class BPTree<T extends Comparable<T>> implements Serializable {
 		boolean done = false;
 		BPTreeLeafNode leaf = this.searchNode(key);
 		if (leaf != null && leaf.hasDuplicates(key)) {
-			System.out.println("I have duplicates so I entered here");
+			//System.out.println("I have duplicates so I entered here");
 			done = leaf.deleteOverflow(key, ref);
-			System.out.println("No matching tuple so I will look at main ref");
+			//System.out.println("No matching tuple so I will look at main ref");
 
 		}
 

@@ -161,6 +161,7 @@ public class Table implements Serializable {
             Page p = new Page(pageName, data);
             addInBTreeHelper(p, 0, data, 1);
             Pages.add(p.getPageName());
+            //System.out.print(p.toString());
             serializePage(p);
         } else {
             int index= colOrder.indexOf(ClusteringKeyColumn);
@@ -175,6 +176,7 @@ public class Table implements Serializable {
                         if(tuples.size()<max){
                             p.addData(data,j);
                             addInBTreeHelper(p, j, data, 2);
+                            //System.out.print(p.toString());
                             serializePage(p);
                             return;
                         }
@@ -183,6 +185,7 @@ public class Table implements Serializable {
                             p.addData(data,j);
                             addInBTreeHelper(p, j, data, 3);
                             p.removeData(shift);
+                            //System.out.print(p.toString());
                             serializePage(p);
                             addData(shift);
                             return;
@@ -197,12 +200,15 @@ public class Table implements Serializable {
                                     Page x = new Page(pageName, data);
                                     Pages.add(x.getPageName());
                                     addInBTreeHelper(x, 0, data, 1);
+                                    //System.out.println(p.toString());
+                                    //System.out.println(x.toString());
                                     serializePage(x);
                                     serializePage(p);
                                     return;
                                 } else {
                                     p.addData(data, j+1);
                                     addInBTreeHelper(p, j+1, data, 1);
+                                    //System.out.print(p.toString());
                                     serializePage(p);
                                     return;
                                 }
@@ -269,6 +275,36 @@ public class Table implements Serializable {
                 throw new DBAppException("Data not found in any page");
             }
         }
+    }
+
+    public Tuple getTuple(String clusteringKeyValue){
+        int index = colOrder.indexOf(ClusteringKeyColumn);
+        Tuple tu = new Tuple();
+        String fileName = TableName + "," + ClusteringKeyColumn + ".bin";
+        File check = new File(fileName);
+        if (check.exists()) {
+            BPTree tree = deserializeTree(fileName);
+            Ref r= tree.search(clusteringKeyValue);
+            Page p = deserializePage(r.getFileName());
+            tu = p.getTuples().get(r.getIndexInPage());
+            serializePage(p);
+            serializeTree(tree);
+            return tu;
+        }
+        else{
+            for(int i=0; i< Pages.size(); i++){
+                Page p = deserializePage(Pages.get(i));
+                for (int j = 0; j < p.getTuples().size()-1; j++) {
+                    if(p.getTuples().get(j).getData().get(index).equals (clusteringKeyValue)){
+                        Tuple tuple = p.getTuples().get(j);
+                        serializePage(p);
+                        return tuple;
+                    }
+                }
+                serializePage(p);
+            }
+        }
+        return tu;
     }
 
     private void serializePage(Page p) {

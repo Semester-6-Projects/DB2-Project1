@@ -62,6 +62,10 @@ public class DBApp {
             htblColNameValue.put("gpa", Double.valueOf(0.88));
             dbApp.insertIntoTable(strTableName, htblColNameValue);
 
+            htblColNameValue.clear();
+            htblColNameValue.put("name", new String("Amy"));
+            dbApp.updateTable(strTableName, "1", htblColNameValue);
+
 
 			/*SQLTerm[] arrSQLTerms;
 			arrSQLTerms = new SQLTerm[2];
@@ -377,20 +381,46 @@ public class DBApp {
             t = deserializeTable(strTableName);
         }
 
-        // get the clustering key from the table
         String clusteringKey = t.getClusteringKeyColumn();
+        if(checkValueMF(clusteringKey,strClusteringKeyValue,strTableName)){
+            Hashtable<String, Object> htblColNameValue2 = new Hashtable<String, Object>();
+            htblColNameValue2.put(clusteringKey, strClusteringKeyValue);
+            Tuple tu = t.getTuple(strClusteringKeyValue);
+                if(!(tu.getData().size()>0)) {
+                    serializeTable(t);
+                    throw new DBAppException("row/tuple does not exist");
+                }
+            Vector <String> columns = t.getColOrder();
+            serializeTable(t);
+            //deleteFromTable(strTableName, htblColNameValue2);
+            Vector <Object> data = tu.getData();
+            Hashtable htblnew = new Hashtable();
 
-        // init the hashtable to delete the row
-        Hashtable<String, Object> htblColNameValue2 = new Hashtable<String, Object>();
-        htblColNameValue2.put(clusteringKey, strClusteringKeyValue);
+            String hash = htblColNameValue.toString();
+            String hash2 = hash.substring(1, hash.length() - 1);
+            String[] hash3 = hash2.split(",");
+            String[] x = hash3[0].split("=");
+            String columnName = x[0].trim();
+            String columnValue = x[1].trim();
 
-        // delete the row
-        deleteFromTable(strTableName, htblColNameValue2);
+            for (int i = 0; i < columns.size(); i++) {
+                if(columns.get(i).equals(columnName)){
+                    htblnew.put(columnName, columnValue );
+                }
+                else{
+                    htblnew.put(columns.get(i), data.get(i) );
+                }
+            }
+            insertIntoTable(strTableName, htblnew);
 
-        // add the new hashtable to the table
-        insertIntoTable(strTableName, htblColNameValue);
+            return;
+        }
+        else {
+            serializeTable(t);
+            throw new DBAppException("Column " + clusteringKey + " doesn't exist");
+        }
 
-        return;
+
     }
 
     // following method could be used to delete one or more rows.
