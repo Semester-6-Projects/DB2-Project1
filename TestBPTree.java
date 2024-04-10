@@ -5,19 +5,24 @@ import java.util.Vector;
 public class TestBPTree {
 
     public static void main(String[] args) {
-        BPTree<Integer> tree = new BPTree<Integer>(2);
+        BPTree tree = new BPTree(2);
         Scanner sc = new Scanner(System.in);
         int k = 0;
         while (true) {
-            int x = sc.nextInt();
-            if (x == -1) {
-
+            String x = sc.nextLine();
+            if (x.equalsIgnoreCase("stop")) {
                 break;
             }
-            tree.insert(x, null);
+
+            tree.insert((Comparable)x, new Ref("ay haga", k));
             k++;
             System.out.println(tree.toString());
         }
+        System.out.println(tree.searchGreaterthan("h").getFirstRecord());
+        System.out.println(tree.searchGreaterthan("h").getLastRecord());
+        System.out.println(tree.searchGreaterthan("h").getLastKey());
+        System.out.println(tree.searchGreaterthan("h").getFirstKey());
+        System.out.println(tree.searchGreaterthan("h").getRecords());
 
 //        System.out.println(tree.insertRef(107, 15, "p", true));
 //        tree.insert(107, new Ref("p0.class", 0));

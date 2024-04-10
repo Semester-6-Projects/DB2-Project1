@@ -23,7 +23,7 @@ public class DBApp {
             htblColNameType.put("name", "java.lang.String");
             htblColNameType.put("gpa", "java.lang.double");
             dbApp.createTable(strTableName, "id", htblColNameType);
-
+            //dbApp.createIndex(strTableName, "id", "idIndex");
 
             Hashtable htblColNameValue = new Hashtable();
             htblColNameValue.put("gpa", Double.valueOf(0.88));
@@ -31,9 +31,10 @@ public class DBApp {
             htblColNameValue.put("name", new String("Ahmed Noor"));
             dbApp.insertIntoTable(strTableName, htblColNameValue);
             dbApp.createIndex(strTableName, "gpa", "gpaIndex");
+            dbApp.createIndex(strTableName, "name", "nameIndex");
 
             htblColNameValue.clear();
-            htblColNameValue.put("id", Integer.valueOf(1));
+            htblColNameValue.put("id", Integer.valueOf(7));
             htblColNameValue.put("name", new String("Ahmed Noor"));
             htblColNameValue.put("gpa", Double.valueOf(0.96));
             dbApp.insertIntoTable(strTableName, htblColNameValue);
@@ -62,8 +63,16 @@ public class DBApp {
             htblColNameValue.put("gpa", Double.valueOf(0.88));
             dbApp.insertIntoTable(strTableName, htblColNameValue);
 
+//            htblColNameValue.clear();
+//            htblColNameValue.put("id", Integer.valueOf(6));
+//            htblColNameValue.put("name", new String("Zaky Noor"));
+//            htblColNameValue.put("gpa", Double.valueOf(0.88));
+//            dbApp.insertIntoTable(strTableName, htblColNameValue);
+
             htblColNameValue.clear();
             htblColNameValue.put("name", new String("Amy"));
+            htblColNameValue.put("gpa", new String("0.92"));
+            //htblColNameValue.put("id", new String("9"));
             dbApp.updateTable(strTableName, "1", htblColNameValue);
 
 
@@ -377,8 +386,13 @@ public class DBApp {
         Table t = new Table();
         if (!(tableNames.contains(strTableName))) {
             throw new DBAppException("table doesn't exist");
-        } else {
+        }
+        else {
             t = deserializeTable(strTableName);
+        }
+        if (htblColNameValue.containsKey(t.getClusteringKeyColumn())){
+            serializeTable(t);
+            throw new DBAppException("cannot update primary key");
         }
 
         String clusteringKey = t.getClusteringKeyColumn();
@@ -394,23 +408,28 @@ public class DBApp {
             serializeTable(t);
             //deleteFromTable(strTableName, htblColNameValue2);
             Vector <Object> data = tu.getData();
+            Vector<Object> colUpdated = new Vector<Object>();
             Hashtable htblnew = new Hashtable();
 
             String hash = htblColNameValue.toString();
             String hash2 = hash.substring(1, hash.length() - 1);
             String[] hash3 = hash2.split(",");
-            String[] x = hash3[0].split("=");
-            String columnName = x[0].trim();
-            String columnValue = x[1].trim();
-
-            for (int i = 0; i < columns.size(); i++) {
-                if(columns.get(i).equals(columnName)){
+            for (int i = 0; i < hash3.length; i++) {
+                String[] x = hash3[i].split("=");
+                String columnName = x[0].trim();
+                String columnValue = x[1].trim();
+                if(columns.contains(columnName)){
+                    colUpdated.add(columnName);
                     htblnew.put(columnName, columnValue );
                 }
-                else{
-                    htblnew.put(columns.get(i), data.get(i) );
+
+            }
+            for (int i = 0; i < columns.size(); i++) {
+                if (!(colUpdated.contains(columns.get(i)))){
+                    htblnew.put(columns.get(i), data.get(i));
                 }
             }
+
             insertIntoTable(strTableName, htblnew);
 
             return;

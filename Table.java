@@ -154,7 +154,9 @@ public class Table implements Serializable {
 
     public void addData(Tuple data) {
         int max = getMax();
-        //int max = 3;
+        //int max = 2;
+        String fileName = TableName + "," + ClusteringKeyColumn + ".bin";
+        File check = new File(fileName);
         if (Pages.size() == 0) {
             pageCount++;
             String pageName = TableName + (Pages.size()+1);
@@ -163,7 +165,14 @@ public class Table implements Serializable {
             Pages.add(p.getPageName());
             //System.out.print(p.toString());
             serializePage(p);
-        } else {
+        } else if(check.exists()) {
+            BPTree tree = deserializeTree(fileName);
+            int index = colOrder.indexOf(ClusteringKeyColumn);
+            BPTreeLeafNode r = tree.searchGreaterthan((Comparable) data.getData().get(index));
+            serializeTree(tree);
+            addWithIndex(data, r);
+        }
+        else {
             int index= colOrder.indexOf(ClusteringKeyColumn);
             for(int i =0; i<Pages.size(); i++) {
                 Page p = deserializePage(Pages.get(i));
@@ -192,7 +201,6 @@ public class Table implements Serializable {
                         }
                     }
                     else if(i == Pages.size()-1){
-
                         if (j == tuples.size() - 1) {
                                 if (tuples.size() == max) {
                                     pageCount++;
@@ -219,6 +227,87 @@ public class Table implements Serializable {
         }
     }
 
+    public void addWithIndex(Tuple data, BPTreeLeafNode node){
+        int max = getMax();
+        //int max = 2;
+        if(node != null)
+        //System.out.println(node.toString());
+        if(node == null){
+            Page p = deserializePage(Pages.getLast());
+            Vector<Tuple> tuples = p.getTuples();
+            if (tuples.size() == max) {
+                pageCount++;
+                String pageName = TableName + (Pages.size() + 1);
+                Page x = new Page(pageName, data);
+                Pages.add(x.getPageName());
+                addInBTreeHelper(x, 0, data, 1);
+                //System.out.println(p.toString());
+                //System.out.println(x.toString());
+                serializePage(x);
+                serializePage(p);
+                return;
+            } else {
+                p.addData(data, tuples.size());
+                addInBTreeHelper(p, tuples.size()-1, data, 1);
+                //System.out.print(p.toString());
+                serializePage(p);
+                return;
+            }
+        }
+        else {
+            int colIndex= colOrder.indexOf(ClusteringKeyColumn);
+            Ref yy = null;
+            for (int i = node.getRecords().length-1 ; i >= 0; i--) {
+                if(((Comparable) node.getKey(i)).compareTo(data.getData().get(colIndex)) > 0 ){
+                   yy = node.getRecords()[i];
+                }
+            }
+            Ref r = yy;
+            Page p = deserializePage(r.getFileName());
+            int index = r.getIndexInPage();
+            //System.out.println("index: " + index);
+            Vector<Tuple> tuples = p.getTuples();
+            if (tuples.size() < max) {
+                p.addData(data, index);
+                addInBTreeHelper(p, index, data, 2);
+                //System.out.print(p.toString());
+                serializePage(p);
+                return;
+            } else if (tuples.size() == max) {
+                Tuple shift = tuples.getLast();
+                p.addData(data, index);
+                addInBTreeHelper(p, index, data, 3);
+                p.removeData(shift);
+                System.out.print(p.toString());
+                serializePage(p);
+                addData(shift);
+                return;
+            } else if (Pages.getLast().equalsIgnoreCase(p.getPageName())) {
+                if (index == tuples.size() - 1) {
+                    if (tuples.size() == max) {
+                        pageCount++;
+                        String pageName = TableName + (Pages.size() + 1);
+                        Page x = new Page(pageName, data);
+                        Pages.add(x.getPageName());
+                        addInBTreeHelper(x, 0, data, 1);
+                        //System.out.println(p.toString());
+                        //System.out.println(x.toString());
+                        serializePage(x);
+                        serializePage(p);
+                        return;
+                    } else {
+                        p.addData(data, index + 1);
+                        addInBTreeHelper(p, index + 1, data, 1);
+                        //System.out.print(p.toString());
+                        serializePage(p);
+                        return;
+                    }
+                }
+            }
+        }
+
+    }
+
     private void addInBTreeHelper(Page p, int startIndex, Tuple data, int flag){
         Vector <Tuple> tuples = p.getTuples();
         for(int i =0; i<colOrder.size(); i++) {
@@ -226,13 +315,13 @@ public class Table implements Serializable {
             File check = new File(fileName);
             if(check.exists()) {
                 BPTree tree = deserializeTree(fileName);
-                if(flag == 1 && flag ==2){
+                if(flag == 1){
                     Ref reference = new Ref(p.getPageName(), startIndex);
                     tree.insert((Comparable) data.getData().get(i), reference);
                     serializeTree(tree);
                 }
                 else{
-                    if((flag == 3)){
+                    if((flag == 3) || flag == 2){
                         Ref refOld = new Ref(p.getPageName(), tuples.indexOf(tuples.getLast())-1);
                         tree.delete((Comparable) tuples.getLast().getData().get(i),refOld);
                     }
@@ -360,6 +449,7 @@ public class Table implements Serializable {
         for (String page : Pages) {
             Page p = deserializePage(page);
             data.addAll(p.getTuples());
+            serializePage(p);
         }
         return data;
     }
