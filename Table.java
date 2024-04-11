@@ -152,7 +152,7 @@ public class Table implements Serializable {
     }
 
 
-    public void addData(Tuple data) {
+    public boolean addData(Tuple data) {
         int max = getMax();
         //int max = 2;
         String fileName = TableName + "," + ClusteringKeyColumn + ".bin";
@@ -165,12 +165,19 @@ public class Table implements Serializable {
             Pages.add(p.getPageName());
             //System.out.print(p.toString());
             serializePage(p);
+            return true;
         } else if(check.exists()) {
             BPTree tree = deserializeTree(fileName);
             int index = colOrder.indexOf(ClusteringKeyColumn);
             BPTreeLeafNode r = tree.searchGreaterthan((Comparable) data.getData().get(index));
-            serializeTree(tree);
-            addWithIndex(data, r);
+            if(tree.search((Comparable) data.getData().get(index)) == null){
+                serializeTree(tree);
+                return false;
+            }else {
+                serializeTree(tree);
+                addWithIndex(data, r);
+                return true;
+            }
         }
         else {
             int index= colOrder.indexOf(ClusteringKeyColumn);
@@ -181,13 +188,17 @@ public class Table implements Serializable {
                     Tuple a = tuples.get(j);
                     String b = (String) data.getData().get(index); //value to be inserted
                     String c = (String) a.getData().get(index); //value in page
+                    if(b.compareTo(c) ==0 ){
+                        serializePage(p);
+                        return false;
+                    }
                     if(b.compareTo(c) < 0){
                         if(tuples.size()<max){
                             p.addData(data,j);
                             addInBTreeHelper(p, j, data, 2);
                             //System.out.print(p.toString());
                             serializePage(p);
-                            return;
+                            return true;
                         }
                         else if(tuples.size() == max){
                             Tuple shift = tuples.getLast();
@@ -197,7 +208,7 @@ public class Table implements Serializable {
                             //System.out.print(p.toString());
                             serializePage(p);
                             addData(shift);
-                            return;
+                            return true;
                         }
                     }
                     else if(i == Pages.size()-1){
@@ -212,19 +223,20 @@ public class Table implements Serializable {
                                     //System.out.println(x.toString());
                                     serializePage(x);
                                     serializePage(p);
-                                    return;
+                                    return true;
                                 } else {
                                     p.addData(data, j+1);
                                     addInBTreeHelper(p, j+1, data, 1);
                                     //System.out.print(p.toString());
                                     serializePage(p);
-                                    return;
+                                    return true;
                                 }
                             }
                     }
                 }
             }
         }
+        return false;
     }
 
     public void addWithIndex(Tuple data, BPTreeLeafNode node){

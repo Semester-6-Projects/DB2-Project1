@@ -58,7 +58,7 @@ public class DBApp {
             dbApp.insertIntoTable(strTableName, htblColNameValue);
 
             htblColNameValue.clear();
-            htblColNameValue.put("id", Integer.valueOf(8));
+            htblColNameValue.put("id", Integer.valueOf(9));
             htblColNameValue.put("name", new String("Zaky Noor"));
             htblColNameValue.put("gpa", Double.valueOf(0.88));
             dbApp.insertIntoTable(strTableName, htblColNameValue);
@@ -311,8 +311,13 @@ public class DBApp {
             throw new DBAppException("Incorrect number of insertions");
         }
         Tuple t2 = new Tuple(dataValue);
-        t.addData(t2);
-        serializeTable(t);
+        if(t.addData(t2)){
+            serializeTable(t);
+        }
+        else {
+            serializeTable(t);
+            throw new DBAppException("Value of primary key (" + t.getClusteringKeyColumn() + ") is already in use");
+        }
         //throw new DBAppException("not implemented yet");
     }
 
