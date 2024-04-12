@@ -599,7 +599,7 @@ public class DBApp {
             }
 
         }
-        System.out.println(tempResult);
-        return null;
+        // Convert the result vector to an iterator and return it.
+        return tempResult.iterator();
     }
 }
