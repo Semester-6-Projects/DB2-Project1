@@ -5,7 +5,7 @@ public class RecordOperators {
     private static boolean recordExists(Vector<Tuple> records, Tuple record) {
         // Check if a record exists in a record vector.
         for (Tuple r : records) {
-            if (r.equals(record)) {
+            if (r.compareTo(record)) {
                 return true;
             }
         }

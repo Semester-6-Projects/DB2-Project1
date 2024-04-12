@@ -2,7 +2,6 @@ import java.io.*;
 import java.util.Iterator;
 import java.util.Hashtable;
 import java.util.Vector;
-
 import com.opencsv.CSVWriter;
 
 public class DBApp {
@@ -73,25 +72,27 @@ public class DBApp {
             htblColNameValue.put("name", new String("Amy"));
             htblColNameValue.put("gpa", new String("0.92"));
             //htblColNameValue.put("id", new String("9"));
-            dbApp.updateTable(strTableName, "1", htblColNameValue);
+            //dbApp.updateTable(strTableName, "1", htblColNameValue);
 
-
-			/*SQLTerm[] arrSQLTerms;
+			SQLTerm[] arrSQLTerms;
 			arrSQLTerms = new SQLTerm[2];
+            arrSQLTerms[0]=new SQLTerm();
+            arrSQLTerms[1]=new SQLTerm();
 			arrSQLTerms[0]._strTableName =  "Student";
-			arrSQLTerms[0]._strColumnName=  "name";
-			arrSQLTerms[0]._strOperator  =  "=";
-			arrSQLTerms[0]._objValue     =  "John Noor";
+			arrSQLTerms[0]._strColumnName=  "id";
+			arrSQLTerms[0]._strOperator  =  ">";
+			arrSQLTerms[0]._objValue     =  Integer.valueOf(6);
 
 			arrSQLTerms[1]._strTableName =  "Student";
 			arrSQLTerms[1]._strColumnName=  "gpa";
-			arrSQLTerms[1]._strOperator  =  "=";
-			arrSQLTerms[1]._objValue     =  Double.valueOf( 1.5 );
+			arrSQLTerms[1]._strOperator  =  "!=";
+			arrSQLTerms[1]._objValue     =  Double.valueOf( 0.88);
 
 			String[]strarrOperators = new String[1];
+            //strarrOperators[0] = null;
 			strarrOperators[0] = "OR";
 			// select * from Student where name = "John Noor" or gpa = 1.5;
-			Iterator resultSet = dbApp.selectFromTable(arrSQLTerms , strarrOperators);*/
+			Iterator resultSet = dbApp.selectFromTable(arrSQLTerms , strarrOperators);
         } catch (Exception exp) {
             exp.printStackTrace();
         }
@@ -492,7 +493,7 @@ public class DBApp {
          */
 
         // Initialize the iterator for the current select operation.
-        Vector<Tuple> results = null;
+        Vector<Tuple> results = new Vector<Tuple>();
         // Check if the table exists in the database.
         Validators.checkTableExistsMF(arrSQLTerm._strTableName);
         Validators.checkColumnExistsMF(arrSQLTerm._strColumnName, arrSQLTerm._strTableName);
@@ -503,44 +504,62 @@ public class DBApp {
 
         // Case 1 : The column doesn't have an index. We perform a linear search and a manual comparison operation on
         // the data, row by row.
+        String fileName = arrSQLTerm._strTableName + "," + arrSQLTerm._strColumnName + ".bin";
+        File check = new File(fileName);
+        if(check.exists() && !(arrSQLTerm._strOperator.equals("!="))){
+            results = t.getSelectDataIndex(arrSQLTerm._strColumnName, arrSQLTerm._strOperator, arrSQLTerm._objValue);
+            serializeTable(t);
+            return results;
+        }
         Vector<Tuple> allRows = t.getAllData();
-
         for (Tuple tuple : allRows) {
             Object value = tuple.getData().get(t.getColOrder().indexOf(arrSQLTerm._strColumnName));
             switch (arrSQLTerm._strOperator) {
                 case "=" -> {
+                    arrSQLTerm._objValue = arrSQLTerm._objValue + "";
+                    value = value + "";
                     if (arrSQLTerm._objValue.equals(value)) {
                         results.add(tuple);
+                        break;
                     }
                 }
                 case "!=" -> {
+                    arrSQLTerm._objValue = arrSQLTerm._objValue + "";
+                    value = value + "";
                     if (!arrSQLTerm._objValue.equals(value)) {
+                        System.out.println("!=");
                         results.add(tuple);
+                        break;
                     }
                 }
                 case ">" -> {
-                    if ((int) arrSQLTerm._objValue < (double) value) {
+                    if ((double) arrSQLTerm._objValue < (double) value) {
                         results.add(tuple);
+                        break;
                     }
                 }
                 case "<" -> {
                     if ((double) arrSQLTerm._objValue > (double) value) {
                         results.add(tuple);
+                        break;
                     }
                 }
                 case ">=" -> {
                     if ((double) arrSQLTerm._objValue <= (double) value) {
                         results.add(tuple);
+                        break;
                     }
                 }
                 case "<=" -> {
                     if ((double) arrSQLTerm._objValue >= (double) value) {
                         results.add(tuple);
+                        break;
                     }
                 }
             }
 
         }
+        serializeTable(t);
         return results;
     }
 
@@ -564,6 +583,10 @@ public class DBApp {
 
         // Initialize Temp result vector as the first vector in the subResults array.
         Vector<Tuple> tempResult = subResults.get(0);
+        if(strarrOperators[0] == null){
+            System.out.println(tempResult);
+            return null;
+        }
         int i = 1;
         for (String strarrOperator : strarrOperators) {
             // Initialize the result as a vector.
@@ -576,7 +599,7 @@ public class DBApp {
             }
 
         }
-
+        System.out.println(tempResult);
         return null;
     }
 }

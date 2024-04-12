@@ -1,4 +1,5 @@
 import java.io.*;
+import java.util.ArrayList;
 import java.util.Hashtable;
 import java.util.Vector;
 
@@ -242,7 +243,7 @@ public class Table implements Serializable {
     public void addWithIndex(Tuple data, BPTreeLeafNode node){
         int max = getMax();
         //int max = 2;
-        if(node != null)
+        //if(node != null)
         //System.out.println(node.toString());
         if(node == null){
             Page p = deserializePage(Pages.getLast());
@@ -466,23 +467,110 @@ public class Table implements Serializable {
         return data;
     }
 
-    public Vector<Tuple> getSelectDataIndex(String columnName, String operator, String value) {
+    public Vector<Tuple> getSelectDataIndex(String columnName, String operator, Object value) {
         // Get only the relevant data using the binary plus tree index.
         Vector<Tuple> data = new Vector<Tuple>();
         BPTree tree = deserializeTree(TableName + "," + columnName + ".bin");
+        value = value +"";
 
         switch (operator) {
             case "=":
-
+                Ref b= tree.search((Comparable) value);
+                if (b != null) {
+                    ArrayList<Ref> dups = tree.searchDuplicates((Comparable) value);
+                    for (int i = 0; i < dups.size(); i++) {
+                        Ref a= dups.get(i);
+                        if (a != null) {
+                            Page p = deserializePage(a.getFileName());
+                            data.add(p.getTuples().get(a.getIndexInPage()));
+                            serializePage(p);
+                        }
+                    }
+                    serializeTree(tree);
+                }
+                break;
             case ">":
-
+                BPTreeLeafNode nn = tree.searchGreaterthan((Comparable) value);
+                Object max = value;
+                if(nn != null) {
+                    Object temp = value;
+                    for (int i = nn.getRecords().length - 1; i >= 0; i--) {
+                        if (((Comparable) nn.getKey(i)).compareTo(temp) > 0) {
+                            max = nn.getKey(i);
+                        }
+                    }
+                }
+                else{
+                    serializeTree(tree);
+                    break;
+                }
+                while(nn != null) {
+                    ArrayList<Ref> dups = tree.searchDuplicates((Comparable) max);
+                        for (int i = 0; i < dups.size(); i++) {
+                            Ref rr= dups.get(i);
+                            if (rr != null) {
+                                Page p = deserializePage(rr.getFileName());
+                                data.add(p.getTuples().get(rr.getIndexInPage()));
+                                serializePage(p);
+                            }
+                        }
+                        nn = tree.searchGreaterthan((Comparable) max);
+                        if(nn != null) {
+                            Object temp = max;
+                            for (int i = nn.getRecords().length - 1; i >= 0; i--) {
+                                if (((Comparable) nn.getKey(i)).compareTo(temp) > 0) {
+                                    max = nn.getKey(i);
+                                }
+                            }
+                        }
+                        else{
+                            serializeTree(tree);
+                            break;
+                        }
+                    }
+                    serializeTree(tree);
+                break;
             case "<":
-
+                BPTreeLeafNode n = tree.searchMinNode();
+                if(n != null){
+                    Object min = n.getFirstKey();
+                    while(((Comparable) min).compareTo(value) < 0) {
+                    ArrayList<Ref> dups = tree.searchDuplicates((Comparable) min);
+                    for (int i = 0; i < dups.size(); i++) {
+                        Ref rr= dups.get(i);
+                        if (rr != null) {
+                            Page p = deserializePage(rr.getFileName());
+                            data.add(p.getTuples().get(rr.getIndexInPage()));
+                            serializePage(p);
+                        }
+                    }
+                    n = tree.searchGreaterthan((Comparable) min);
+                    if(n != null) {
+                        Object temp = min;
+                        for (int i = n.getRecords().length - 1; i >= 0; i--) {
+                            if (((Comparable) n.getKey(i)).compareTo(temp) > 0) {
+                                min = n.getKey(i);
+                            }
+                        }
+                    }
+                    else{
+                        serializeTree(tree);
+                        break;
+                    }
+                    }
+                    serializeTree(tree);
+                }
+                break;
             case ">=":
-
+                Vector<Tuple> data1 = getSelectDataIndex(columnName, "=",value);
+                Vector<Tuple> data2 = getSelectDataIndex(columnName, ">",value);
+                data = RecordOperators.orRecords(data1,data2);
+                break;
             case "<=":
-
-            case "!=":
+                Vector<Tuple> data11 = getSelectDataIndex(columnName, "=",value);
+                Vector<Tuple> data22 = getSelectDataIndex(columnName, "<",value);
+                data = RecordOperators.orRecords(data11,data22);
+                break;
         }
 
         return data;

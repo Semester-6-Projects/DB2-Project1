@@ -9,20 +9,17 @@ public class TestBPTree {
         Scanner sc = new Scanner(System.in);
         int k = 0;
         while (true) {
-            String x = sc.nextLine();
-            if (x.equalsIgnoreCase("stop")) {
+            int x = sc.nextInt();
+            if (x == -1) {
                 break;
             }
-
             tree.insert((Comparable)x, new Ref("ay haga", k));
             k++;
-            System.out.println(tree.toString());
+//            System.out.println(tree.toString());
         }
-        System.out.println(tree.searchGreaterthan("h").getFirstRecord());
-        System.out.println(tree.searchGreaterthan("h").getLastRecord());
-        System.out.println(tree.searchGreaterthan("h").getLastKey());
-        System.out.println(tree.searchGreaterthan("h").getFirstKey());
-        System.out.println(tree.searchGreaterthan("h").getRecords());
+        System.out.println(tree.toString());
+        System.out.println(tree.searchGreaterthan(5));
+        System.out.println(tree.searchMinNode());
 
 //        System.out.println(tree.insertRef(107, 15, "p", true));
 //        tree.insert(107, new Ref("p0.class", 0));
