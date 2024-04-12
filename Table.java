@@ -9,7 +9,7 @@ public class Table implements Serializable {
     private String TableName = "";
     private String ClusteringKeyColumn;
     private int pageCount;
-    private Vector<String> Pages = new Vector<String>();
+    private Vector<PageInfo> Pages = new Vector<PageInfo>();
     private Vector<String> colOrder = new Vector<String>();
 
     public Table() {
@@ -60,7 +60,7 @@ public class Table implements Serializable {
     public int getPageCount(){
         return this.pageCount;
     }
-    public Vector<String> getPages(){
+    public Vector<PageInfo> getPages(){
         return this.Pages;
     }
 
@@ -94,7 +94,7 @@ public class Table implements Serializable {
         tree.setFileName(tableName,columnName);
         tree.createFile(tree.getFileName());
         for(int i=0; i< Pages.size();i++){
-           Page p = deserializePage(Pages.get(i));
+           Page p = deserializePage(Pages.get(i).getPageName());
            Vector<Tuple> tuples = p.getTuples();
            for(int j=0; j<p.tupleSize(); j++){
                Tuple tuple = tuples.get(j);
@@ -152,9 +152,36 @@ public class Table implements Serializable {
         return t;
     }
 
+    private String binarySearch(Vector<PageInfo> pageInfos, int start, int end, Object value)
+    {
+        if (end >= start) {
+            int mid = (end + start) / 2;
+
+            // If the element is present at the middle itself
+            PageInfo w = pageInfos.get(mid);
+            if (((Comparable) value).compareTo((Comparable) w.getMin()) > 0
+                    && ((Comparable) value).compareTo((Comparable) w.getMax()) < 0) {
+                return w.getPageName();
+            }
+            // If element is smaller than mid, then it can only be present in right subarray
+            if (((Comparable) value).compareTo((Comparable) w.getMax()) > 0)
+                return binarySearch(pageInfos, mid+1, end, value);
+
+            // Else the element can only be present in left subarray
+            return binarySearch(pageInfos, start, mid-1, value);
+        }
+        else if(((Comparable) pageInfos.getFirst().getMin()).compareTo((Comparable) value) >0){
+            return pageInfos.getFirst().getPageName();
+        }
+        else{
+            return pageInfos.getLast().getPageName();
+        }
+
+    }
+
 
     public boolean addData(Tuple data) {
-        int max = getMax();
+       int max = getMax();
         //int max = 2;
         String fileName = TableName + "," + ClusteringKeyColumn + ".bin";
         File check = new File(fileName);
@@ -163,7 +190,9 @@ public class Table implements Serializable {
             String pageName = TableName + (Pages.size()+1);
             Page p = new Page(pageName, data);
             addInBTreeHelper(p, 0, data, 1);
-            Pages.add(p.getPageName());
+            PageInfo pi = new PageInfo(pageName, data.getData().get(colOrder.indexOf(ClusteringKeyColumn)),
+                    data.getData().get(colOrder.indexOf(ClusteringKeyColumn)));
+            Pages.add(pi);
             //System.out.print(p.toString());
             serializePage(p);
             return true;
@@ -171,7 +200,7 @@ public class Table implements Serializable {
             BPTree tree = deserializeTree(fileName);
             int index = colOrder.indexOf(ClusteringKeyColumn);
             BPTreeLeafNode r = tree.searchGreaterthan((Comparable) data.getData().get(index));
-            if(tree.search((Comparable) data.getData().get(index)) == null){
+            if(tree.search((Comparable) data.getData().get(index)) != null){
                 serializeTree(tree);
                 return false;
             }else {
@@ -182,8 +211,9 @@ public class Table implements Serializable {
         }
         else {
             int index= colOrder.indexOf(ClusteringKeyColumn);
-            for(int i =0; i<Pages.size(); i++) {
-                Page p = deserializePage(Pages.get(i));
+            Object value = data.getData().get(index);
+                String name = binarySearch(Pages,0, Pages.size()-1, value);
+                Page p = deserializePage(name);
                 Vector<Tuple> tuples= p.getTuples();
                 for(int j=0; j<tuples.size(); j++){
                     Tuple a = tuples.get(j);
@@ -198,6 +228,12 @@ public class Table implements Serializable {
                             p.addData(data,j);
                             addInBTreeHelper(p, j, data, 2);
                             //System.out.print(p.toString());
+                            for (int i = 0; i < Pages.size(); i++) {
+                                if(name.equals(Pages.get(i).getPageName())){
+                                    Pages.get(i).setMin(tuples.getFirst().getData().get(index));
+                                    Pages.get(i).setMax(tuples.getLast().getData().get(index));
+                                }
+                            }
                             serializePage(p);
                             return true;
                         }
@@ -207,18 +243,26 @@ public class Table implements Serializable {
                             addInBTreeHelper(p, j, data, 3);
                             p.removeData(shift);
                             //System.out.print(p.toString());
+                            for (int i = 0; i < Pages.size(); i++) {
+                                if(name.equals(Pages.get(i).getPageName())){
+                                    Pages.get(i).setMin(tuples.getFirst().getData().get(index));
+                                    Pages.get(i).setMax(tuples.getLast().getData().get(index));
+                                }
+                            }
                             serializePage(p);
                             addData(shift);
                             return true;
                         }
                     }
-                    else if(i == Pages.size()-1){
+                    else if(Pages.getLast().getPageName().equals(name)){
                         if (j == tuples.size() - 1) {
                                 if (tuples.size() == max) {
                                     pageCount++;
                                     String pageName = TableName + (Pages.size()+1);
                                     Page x = new Page(pageName, data);
-                                    Pages.add(x.getPageName());
+                                    PageInfo pi = new PageInfo(pageName, data.getData().get(colOrder.indexOf(ClusteringKeyColumn)),
+                                            data.getData().get(colOrder.indexOf(ClusteringKeyColumn)));
+                                    Pages.add(pi);
                                     addInBTreeHelper(x, 0, data, 1);
                                     //System.out.println(p.toString());
                                     //System.out.println(x.toString());
@@ -229,13 +273,14 @@ public class Table implements Serializable {
                                     p.addData(data, j+1);
                                     addInBTreeHelper(p, j+1, data, 1);
                                     //System.out.print(p.toString());
+                                    Pages.getLast().setMin(tuples.getFirst().getData().get(index));
+                                    Pages.getLast().setMax(tuples.getLast().getData().get(index));
                                     serializePage(p);
                                     return true;
                                 }
                             }
                     }
                 }
-            }
         }
         return false;
     }
@@ -243,16 +288,16 @@ public class Table implements Serializable {
     public void addWithIndex(Tuple data, BPTreeLeafNode node){
         int max = getMax();
         //int max = 2;
-        //if(node != null)
-        //System.out.println(node.toString());
         if(node == null){
-            Page p = deserializePage(Pages.getLast());
+            Page p = deserializePage(Pages.getLast().getPageName());
+            int index = colOrder.indexOf(ClusteringKeyColumn);
             Vector<Tuple> tuples = p.getTuples();
             if (tuples.size() == max) {
                 pageCount++;
                 String pageName = TableName + (Pages.size() + 1);
                 Page x = new Page(pageName, data);
-                Pages.add(x.getPageName());
+                PageInfo pi = new PageInfo(pageName, data.getData().get(index),data.getData().get(index));
+                Pages.add(pi);
                 addInBTreeHelper(x, 0, data, 1);
                 //System.out.println(p.toString());
                 //System.out.println(x.toString());
@@ -263,16 +308,22 @@ public class Table implements Serializable {
                 p.addData(data, tuples.size());
                 addInBTreeHelper(p, tuples.size()-1, data, 1);
                 //System.out.print(p.toString());
+                Pages.getLast().setMin(tuples.getFirst().getData().get(index));
+                Pages.getLast().setMax(tuples.getLast().getData().get(index));
                 serializePage(p);
                 return;
             }
         }
         else {
+            //System.out.println(node);
             int colIndex= colOrder.indexOf(ClusteringKeyColumn);
             Ref yy = null;
+            //System.out.println(node.getRecords().length);
             for (int i = node.getRecords().length-1 ; i >= 0; i--) {
-                if(((Comparable) node.getKey(i)).compareTo(data.getData().get(colIndex)) > 0 ){
-                   yy = node.getRecords()[i];
+                if(node.getKey(i) != null) {
+                    if (((Comparable) node.getKey(i)).compareTo(data.getData().get(colIndex)) > 0) {
+                        yy = node.getRecords()[i];
+                    }
                 }
             }
             Ref r = yy;
@@ -284,6 +335,12 @@ public class Table implements Serializable {
                 p.addData(data, index);
                 addInBTreeHelper(p, index, data, 2);
                 //System.out.print(p.toString());
+                for (int i = 0; i < Pages.size(); i++) {
+                    if(r.getFileName().equals(Pages.get(i).getPageName())){
+                        Pages.get(i).setMin(tuples.getFirst().getData().get(index));
+                        Pages.get(i).setMax(tuples.getLast().getData().get(index));
+                    }
+                }
                 serializePage(p);
                 return;
             } else if (tuples.size() == max) {
@@ -291,17 +348,24 @@ public class Table implements Serializable {
                 p.addData(data, index);
                 addInBTreeHelper(p, index, data, 3);
                 p.removeData(shift);
-                System.out.print(p.toString());
+                //System.out.print(p.toString());
+                for (int i = 0; i < Pages.size(); i++) {
+                    if(r.getFileName().equals(Pages.get(i).getPageName())){
+                        Pages.get(i).setMin(tuples.getFirst().getData().get(index));
+                        Pages.get(i).setMax(tuples.getLast().getData().get(index));
+                    }
+                }
                 serializePage(p);
                 addData(shift);
                 return;
-            } else if (Pages.getLast().equalsIgnoreCase(p.getPageName())) {
+            } else if (Pages.getLast().getPageName().equalsIgnoreCase(p.getPageName())) {
                 if (index == tuples.size() - 1) {
                     if (tuples.size() == max) {
                         pageCount++;
                         String pageName = TableName + (Pages.size() + 1);
                         Page x = new Page(pageName, data);
-                        Pages.add(x.getPageName());
+                        PageInfo pi = new PageInfo(pageName, data.getData().get(colOrder.indexOf(ClusteringKeyColumn)),data.getData().get(colOrder.indexOf(ClusteringKeyColumn)));
+                        Pages.add(pi);
                         addInBTreeHelper(x, 0, data, 1);
                         //System.out.println(p.toString());
                         //System.out.println(x.toString());
@@ -312,6 +376,8 @@ public class Table implements Serializable {
                         p.addData(data, index + 1);
                         addInBTreeHelper(p, index + 1, data, 1);
                         //System.out.print(p.toString());
+                        Pages.getLast().setMin(tuples.getFirst().getData().get(index));
+                        Pages.getLast().setMax(tuples.getLast().getData().get(index));
                         serializePage(p);
                         return;
                     }
@@ -361,8 +427,8 @@ public class Table implements Serializable {
         } else {
             boolean dataFound = false;
             // iterate over all pages
-            for (String pageName : Pages) {
-                Page page = deserializePage(pageName);
+            for (PageInfo pages : Pages) {
+                Page page = deserializePage(pages.getPageName());
                 // attempt to delete data from page
                 boolean deleted = page.removeData(data);
                 if (deleted) {
@@ -395,7 +461,7 @@ public class Table implements Serializable {
         }
         else{
             for(int i=0; i< Pages.size(); i++){
-                Page p = deserializePage(Pages.get(i));
+                Page p = deserializePage(Pages.get(i).getPageName());
                 for (int j = 0; j < p.getTuples().size()-1; j++) {
                     if(p.getTuples().get(j).getData().get(index).equals (clusteringKeyValue)){
                         Tuple tuple = p.getTuples().get(j);
@@ -459,8 +525,8 @@ public class Table implements Serializable {
     public Vector<Tuple> getAllData() {
         // Get all data from all pages. This is done linearly.
         Vector<Tuple> data = new Vector<Tuple>();
-        for (String page : Pages) {
-            Page p = deserializePage(page);
+        for (PageInfo page : Pages) {
+            Page p = deserializePage(page.getPageName());
             data.addAll(p.getTuples());
             serializePage(p);
         }
@@ -495,8 +561,10 @@ public class Table implements Serializable {
                 if(nn != null) {
                     Object temp = value;
                     for (int i = nn.getRecords().length - 1; i >= 0; i--) {
-                        if (((Comparable) nn.getKey(i)).compareTo(temp) > 0) {
-                            max = nn.getKey(i);
+                        if(nn.getKey(i) != null) {
+                            if (((Comparable) nn.getKey(i)).compareTo(temp) > 0) {
+                                max = nn.getKey(i);
+                            }
                         }
                     }
                 }
@@ -518,8 +586,10 @@ public class Table implements Serializable {
                         if(nn != null) {
                             Object temp = max;
                             for (int i = nn.getRecords().length - 1; i >= 0; i--) {
-                                if (((Comparable) nn.getKey(i)).compareTo(temp) > 0) {
-                                    max = nn.getKey(i);
+                                if(nn.getKey(i) != null) {
+                                    if (((Comparable) nn.getKey(i)).compareTo(temp) > 0) {
+                                        max = nn.getKey(i);
+                                    }
                                 }
                             }
                         }
@@ -548,8 +618,10 @@ public class Table implements Serializable {
                     if(n != null) {
                         Object temp = min;
                         for (int i = n.getRecords().length - 1; i >= 0; i--) {
-                            if (((Comparable) n.getKey(i)).compareTo(temp) > 0) {
-                                min = n.getKey(i);
+                            if(n.getKey(i) != null) {
+                                if (((Comparable) n.getKey(i)).compareTo(temp) > 0) {
+                                    min = n.getKey(i);
+                                }
                             }
                         }
                     }
