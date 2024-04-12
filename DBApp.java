@@ -489,85 +489,79 @@ public class DBApp {
         t.deleteData(t2);
     }
 
+
+    public Vector<Tuple> getSubResult(SQLTerm arrSQLTerm) throws DBAppException {
+        /*
+        This gets the sub-results of a single select operation.
+        It retrieves data depending on if the table has an index on the column or not.
+         */
+
+        // Initialize the iterator for the current select operation.
+        Vector<Tuple> results = null;
+        // Check if the table exists in the database.
+        Validators.checkTableExistsMF(arrSQLTerm._strTableName);
+        Validators.checkColumnExistsMF(arrSQLTerm._strColumnName, arrSQLTerm._strTableName);
+
+        // Deserialize the table.
+        Table t = deserializeTable(arrSQLTerm._strTableName);
+
+
+        // Case 1 : The column doesn't have an index. We perform a linear search and a manual comparison operation on
+        // the data, row by row.
+        Vector<Tuple> allRows = t.getAllData();
+
+        for (Tuple tuple : allRows) {
+            Object value = tuple.getData().get(t.getColOrder().indexOf(arrSQLTerm._strColumnName));
+            switch (arrSQLTerm._strOperator) {
+                case "=" -> {
+                    if (arrSQLTerm._objValue.equals(value)) {
+                        results.add(tuple);
+                    }
+                }
+                case "!=" -> {
+                    if (!arrSQLTerm._objValue.equals(value)) {
+                        results.add(tuple);
+                    }
+                }
+                case ">" -> {
+                    if ((int) arrSQLTerm._objValue < (double) value) {
+                        results.add(tuple);
+                    }
+                }
+                case "<" -> {
+                    if ((double) arrSQLTerm._objValue > (double) value) {
+                        results.add(tuple);
+                    }
+                }
+                case ">=" -> {
+                    if ((double) arrSQLTerm._objValue <= (double) value) {
+                        results.add(tuple);
+                    }
+                }
+                case "<=" -> {
+                    if ((double) arrSQLTerm._objValue >= (double) value) {
+                        results.add(tuple);
+                    }
+                }
+            }
+
+        }
+        return results;
+    }
+
     public Iterator selectFromTable(SQLTerm[] arrSQLTerms,
                                     String[] strarrOperators) throws DBAppException {
 
         // Array of Iterators to hold the results of the multiple select operations
         // Each index in the array corresponds to a select operation.
-        Vector<Iterator> iterators = new Vector<Iterator>();
+        Vector<Vector> subResults = new Vector<>();
 
         // Iterate through the SQLTerms array and select the relevant data.
         for (SQLTerm arrSQLTerm : arrSQLTerms) {
-            // Initialize the iterator for the current select operation.
-            Iterator<Tuple> results = null;
-            // Check if the table exists in the database.
-            if (!(tableNames.contains(arrSQLTerm._strTableName))) {
-                throw new DBAppException("table doesn't exist");
-            }
-
-            // Deserialize the table.
-            Table t = deserializeTable(arrSQLTerm._strTableName);
-
-            // TODO: Check if the column exists in the metafile.
-            // Currently checks if the column exists in the table.
-            if (!(t.getColOrder().contains(arrSQLTerm._strColumnName))) {
-                throw new DBAppException("Column " + arrSQLTerm._strColumnName + " doesn't exist");
-            }
-
-            // Get table data
-            Vector<Tuple> tuples = t.getAllData();
-
-            // Perform the select operation linearly.
-            Iterator<Tuple> it = tuples.iterator();
-            while (it.hasNext()) {
-                Tuple tuple = it.next();
-
-                // Get the relevant Value from the tuple
-                // TODO: Check if the column exists in the metafile.
-                // TODO: Check the column data type and cast the value accordingly.
-                // TODO:
-                Object value = tuple.getData().get(t.getColOrder().indexOf(arrSQLTerm._strColumnName));
-
-                switch (arrSQLTerm._strOperator) {
-                    case "=" -> {
-                        if (arrSQLTerm._objValue.equals(value)) {
-                            results = it;
-                        }
-                    }
-                    case "!=" -> {
-                        if (!arrSQLTerm._objValue.equals(value)) {
-                            results = it;
-                        }
-                    }
-                    case ">" -> {
-                        if ((int) arrSQLTerm._objValue < (double) value) {
-                            results = it;
-                        }
-                    }
-                    case "<" -> {
-                        if ((double) arrSQLTerm._objValue > (double) value) {
-                            results = it;
-                        }
-                    }
-                    case ">=" -> {
-                        if ((double) arrSQLTerm._objValue <= (double) value) {
-                            results = it;
-                        }
-                    }
-                    case "<=" -> {
-                        if ((double) arrSQLTerm._objValue >= (double) value) {
-                            results = it;
-                        }
-                    }
-                }
-            }
-            // Add the iterator to the array of iterators.
-            iterators.add(results);
-
-
+            // Initialize the vector for the current select operation.
+            subResults.add(getSubResult(arrSQLTerm));
         }
 
-        // Perform the strarr operation on the iterators.
         /*
         Perform the strarr operation on the iterators.
         Loop through the array of the operators.
@@ -580,18 +574,10 @@ public class DBApp {
             // Initialize the result as a vector.
             Vector<Tuple> result = new Vector<Tuple>();
 
-                                break;
-
-                        // Perform XOR operation between the temp result and the current iterator.
-                        // First check that each tuple in temp result is not in the current iterator.
-                        xor(nextIterator, result, tempResult, tuple, found);
-                        // Then check that each tuple in the current iterator is not in the temp result.
-                        xor(tempResult, result, nextIterator, tuple, found);
-
-
-                    }
-                }
-                
+            switch (strarrOperator) {
+                case "AND" -> tempResult = RecordOperators.andRecords(tempResult, subResults.get(i));
+                case "OR" -> tempResult = RecordOperators.orRecords(tempResult, subResults.get(i));
+                case "XOR" -> tempResult = RecordOperators.xorRecords(tempResult, subResults.get(i));
             }
 
         }
