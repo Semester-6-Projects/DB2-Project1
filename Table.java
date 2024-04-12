@@ -465,4 +465,26 @@ public class Table implements Serializable {
         }
         return data;
     }
+
+    public Vector<Tuple> getSelectDataIndex(String columnName, String operator, String value) {
+        // Get only the relevant data using the binary plus tree index.
+        Vector<Tuple> data = new Vector<Tuple>();
+        BPTree tree = deserializeTree(TableName + "," + columnName + ".bin");
+
+        switch (operator) {
+            case "=":
+
+            case ">":
+
+            case "<":
+
+            case ">=":
+
+            case "<=":
+
+            case "!=":
+        }
+
+        return data;
+    }
 }
