@@ -213,11 +213,10 @@ public class DBApp {
             throw new DBAppException("table doesn't exist");
         }
         Table t = deserializeTable(strTableName);
-        if(!(t.getColOrder().contains(strColName))){
+        if (!(t.getColOrder().contains(strColName))) {
             serializeTable(t);
             throw new DBAppException("column " + strColName + " doesn't exist");
-        }
-        else {
+        } else {
             try {
                 FileWriter outfile = new FileWriter("resources/metaFile2.csv", true);
                 CSVWriter writer = new CSVWriter(outfile);
@@ -257,11 +256,10 @@ public class DBApp {
             File rename = new File("resources/metaFile.csv");
             rename.delete();
             file.renameTo(rename);
-            t.createIndexHelper(strTableName,strColName);
+            t.createIndexHelper(strTableName, strColName);
             serializeTable(t);
         }
     }
-
 
 
     public void insertIntoTable(String strTableName,
@@ -295,10 +293,9 @@ public class DBApp {
             throw new DBAppException("Incorrect number of insertions");
         }
         Tuple t2 = new Tuple(dataValue);
-        if(t.addData(t2)){
+        if (t.addData(t2)) {
             serializeTable(t);
-        }
-        else {
+        } else {
             serializeTable(t);
             throw new DBAppException("Value of primary key (" + t.getClusteringKeyColumn() + ") is already in use");
         }
@@ -375,28 +372,27 @@ public class DBApp {
         Table t = new Table();
         if (!(tableNames.contains(strTableName))) {
             throw new DBAppException("table doesn't exist");
-        }
-        else {
+        } else {
             t = deserializeTable(strTableName);
         }
-        if (htblColNameValue.containsKey(t.getClusteringKeyColumn())){
+        if (htblColNameValue.containsKey(t.getClusteringKeyColumn())) {
             serializeTable(t);
             throw new DBAppException("cannot update primary key");
         }
 
         String clusteringKey = t.getClusteringKeyColumn();
-        if(checkValueMF(clusteringKey,strClusteringKeyValue,strTableName)){
+        if (checkValueMF(clusteringKey, strClusteringKeyValue, strTableName)) {
             Hashtable<String, Object> htblColNameValue2 = new Hashtable<String, Object>();
             htblColNameValue2.put(clusteringKey, strClusteringKeyValue);
             Tuple tu = t.getTuple(strClusteringKeyValue);
-                if(!(tu.getData().size()>0)) {
-                    serializeTable(t);
-                    throw new DBAppException("row/tuple does not exist");
-                }
-            Vector <String> columns = t.getColOrder();
+            if (!(tu.getData().size() > 0)) {
+                serializeTable(t);
+                throw new DBAppException("row/tuple does not exist");
+            }
+            Vector<String> columns = t.getColOrder();
             serializeTable(t);
             //deleteFromTable(strTableName, htblColNameValue2);
-            Vector <Object> data = tu.getData();
+            Vector<Object> data = tu.getData();
             Vector<Object> colUpdated = new Vector<Object>();
             Hashtable htblnew = new Hashtable();
 
@@ -407,14 +403,14 @@ public class DBApp {
                 String[] x = hash3[i].split("=");
                 String columnName = x[0].trim();
                 String columnValue = x[1].trim();
-                if(columns.contains(columnName)){
+                if (columns.contains(columnName)) {
                     colUpdated.add(columnName);
-                    htblnew.put(columnName, columnValue );
+                    htblnew.put(columnName, columnValue);
                 }
 
             }
             for (int i = 0; i < columns.size(); i++) {
-                if (!(colUpdated.contains(columns.get(i)))){
+                if (!(colUpdated.contains(columns.get(i)))) {
                     htblnew.put(columns.get(i), data.get(i));
                 }
             }
@@ -422,8 +418,7 @@ public class DBApp {
             insertIntoTable(strTableName, htblnew);
 
             return;
-        }
-        else {
+        } else {
             serializeTable(t);
             throw new DBAppException("Column " + clusteringKey + " doesn't exist");
         }
