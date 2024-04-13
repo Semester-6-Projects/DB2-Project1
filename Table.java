@@ -421,29 +421,30 @@ public class Table implements Serializable {
     }
 
     public void deleteData(Tuple data) throws DBAppException {
-        // check if table is empty
-        if (Pages.isEmpty()) {
-            throw new DBAppException("Table is empty");
-        } else {
-            boolean dataFound = false;
-            // iterate over all pages
-            for (PageInfo pages : Pages) {
-                Page page = deserializePage(pages.getPageName());
-                // attempt to delete data from page
-                boolean deleted = page.removeData(data);
-                if (deleted) {
-                    dataFound = true;
-                    // if data is deleted, serialize the page again
-                    serializePage(page);
-                    // no need to check other pages
-                    break;
-                }
-            }
-            if (!dataFound) {
-                throw new DBAppException("Data not found in any page");
-            }
-        }
-    }
+		// get the bptree
+		int index = colOrder.indexOf(ClusteringKeyColumn);
+		String fileName = TableName + "," + ClusteringKeyColumn + ".bin";
+		File check = new File(fileName);
+		if (check.exists()) {
+			BPTree tree = deserializeTree(fileName);
+			Ref r = tree.search((Comparable) data.getData().get(index));
+			if (r != null) {
+				Page p = deserializePage(r.getFileName());
+				boolean deleted = p.removeData(data);
+				if (deleted) {
+					serializePage(p);
+					tree.delete((Comparable) data.getData().get(index), r);
+					serializeTree(tree);
+				} else {
+					throw new DBAppException("Data not found in page");
+				}
+			} else {
+				throw new DBAppException("Data not found in tree");
+			}
+		} else {
+			throw new DBAppException("Tree does not exist");
+		}
+	}
 
     public Tuple getTuple(String clusteringKeyValue){
         int index = colOrder.indexOf(ClusteringKeyColumn);
