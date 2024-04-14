@@ -60,12 +60,7 @@ public class DBApp {
             htblColNameValue.put("name", new String("Zaky Noor"));
             htblColNameValue.put("gpa", Double.valueOf(0.88));
             dbApp.insertIntoTable(strTableName, htblColNameValue);
-
             htblColNameValue.clear();
-            htblColNameValue.put("name", new String("Amy"));
-            htblColNameValue.put("gpa", new String("0.92"));
-            // htblColNameValue.put("id", new String("9"));
-            // dbApp.updateTable(strTableName, "1", htblColNameValue);
 
             SQLTerm[] arrSQLTerms;
             arrSQLTerms = new SQLTerm[2];
@@ -83,7 +78,7 @@ public class DBApp {
 
             String[] strarrOperators = new String[1];
             // strarrOperators[0] = null;
-            strarrOperators[0] = "AND";
+            strarrOperators[0] = "OR";
             // select * from Student where name = "John Noor" or gpa = 1.5;
             Iterator resultSet = dbApp.selectFromTable(arrSQLTerms, strarrOperators);
 

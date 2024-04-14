@@ -473,7 +473,47 @@ public class Table implements Serializable {
                 throw new DBAppException("Data not found in tree");
             }
         } else {
-            throw new DBAppException("Tree does not exist and the delete operation is not supported for linear search");
+			// if tree not found then search linearly
+			for (int i = 0; i < Pages.size(); i++) {
+				Page p = deserializePage(Pages.get(i).getPageName());
+				boolean deleted = p.removeData(data);
+				if (deleted) {
+					// serialise the page after deleting from it
+					serializePage(p);
+
+					// loop over all the pages 
+					for (int j = 0; j < Pages.size(); j++) {
+						// check if the page is the one we just deleted from
+						if (p.getPageName().equals(Pages.get(j).getPageName())) {
+							// load the page info
+							PageInfo pi = Pages.get(j);
+
+							// check if the page is empty
+							if (p.tupleSize() == 0) {
+								// remove the page from the pages list
+								Pages.remove(j);
+
+								// delete the page from the disk
+								File f = new File(p.getPageName() + ".bin");
+								f.delete();
+
+								// break the loop because we deleted the page
+								break;
+							} 
+						
+							// deserialize the page again to update the min and max
+							Page page = deserializePage(p.getPageName());
+
+							// set the min and max of the page info
+							pi.setMin(page.getTuples().get(0).getData().get(index));
+							pi.setMax(page.getTuples().get(page.tupleSize() - 1).getData().get(index));
+
+							// finally, serialize the page 
+							serializePage(page);
+						}
+					}
+				}
+			}
         }
     }
 
