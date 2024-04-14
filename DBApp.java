@@ -461,6 +461,9 @@ public class DBApp {
 
         // delete the tuple
         table.deleteData(tuple);
+
+		// serialize the table
+		serializeTable(table);
     }
 
     public Vector<Tuple> getSubResult(SQLTerm arrSQLTerm) throws DBAppException {
