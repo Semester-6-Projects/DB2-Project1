@@ -507,6 +507,72 @@ public class DBApp {
         }
     }
 
+    public String[] getColumnRow(String tableName, String columnName) throws DBAppException {
+        // This retrieves the row containing the metadata for a column.
+        try {
+            FileReader fr = new FileReader("resources/metaFile.csv");
+            BufferedReader br = new BufferedReader(fr);
+            String z = br.readLine();
+            while (z != null) {
+                String[] mfile = z.split(",");
+                String curTableName = mfile[0].substring(1, mfile[0].length() - 1).trim();
+                String curColumnName = mfile[1].substring(1, mfile[1].length() - 1).trim();
+                if (curTableName.equals(tableName) && curColumnName.equals(columnName)) {
+                    String[] columnRow = {mfile[0], mfile[1], mfile[2], mfile[3], mfile[4], mfile[5]};
+                    br.close();
+                    fr.close();
+                    return columnRow;
+                }
+
+                z = br.readLine();
+            }
+            br.close();
+            fr.close();
+            throw new DBAppException("Column " + columnName + " doesn't exist in table " + tableName);
+        } catch (FileNotFoundException e) {
+            throw new RuntimeException(e);
+        } catch (IOException e) {
+            throw new RuntimeException(e);
+        }
+    }
+
+    public String getColumnType(String tableName, String columnName) throws DBAppException {
+        // This retrieved the column type from the metadata file.
+        // The options are: java.lang.Integer, java.lang.Double, java.lang.String
+
+        String[] columnRow = getColumnRow(tableName, columnName);
+        return columnRow[2];
+    }
+
+    public boolean checkColumnIndex(String tableName, String columnName) throws DBAppException {
+        // This checks if the column has an index on it.
+        String[] columnRow = getColumnRow(tableName, columnName);
+        return !columnRow[4].equals("");
+    }
+
+    public boolean canBeCast(String type, Object value) {
+        // This checks if the value can be cast to the specified type.
+        try {
+            // Try to cast the value to the specified type, if it fails, return false, else return true.
+            switch (type) {
+                case "java.lang.Integer" -> {
+                    Integer.parseInt(value + "");
+                    break;
+                }
+                case "java.lang.Double" -> {
+                    Double.parseDouble(value + "");
+                    break;
+                }
+                case "java.lang.String" -> {
+                    break;
+                }
+            }
+            return true;
+        } catch (Exception e) {
+            return false;
+        }
+    }
+
     public Vector<Tuple> getSubResult(SQLTerm arrSQLTerm) throws DBAppException {
         /*
          * This gets the sub-results of a single select operation.
@@ -520,69 +586,145 @@ public class DBApp {
         Validators.checkTableExistsMF(arrSQLTerm._strTableName);
         Validators.checkColumnExistsMF(arrSQLTerm._strColumnName, arrSQLTerm._strTableName);
         // Check data types with meta data file.
-        String columnValue= arrSQLTerm._objValue + "";
+        String columnValue = arrSQLTerm._objValue + "";
         checkValueMF(arrSQLTerm._strColumnName, columnValue, arrSQLTerm._strTableName);
 
         // Deserialize the table.
         Table t = deserializeTable(arrSQLTerm._strTableName);
 
-        // Case 1 : The column doesn't have an index. We perform a linear search and a
-        // manual comparison operation on
-        // the data, row by row.
+        // Case 1 : A binary tree exists for the column.
         String fileName = arrSQLTerm._strTableName + "," + arrSQLTerm._strColumnName + ".bin";
         File check = new File(fileName);
+
         if (check.exists() && !(arrSQLTerm._strOperator.equals("!="))) {
             results = t.getSelectDataIndex(arrSQLTerm._strColumnName, arrSQLTerm._strOperator, arrSQLTerm._objValue);
             serializeTable(t);
-            //System.out.println("subresults: " + results.toString());
             return results;
         }
+
+        // Case 2 : A binary tree does not exist for the column.
+        // Get all the data from the table and iterate through it.
         Vector<Tuple> allRows = t.getAllData();
         for (Tuple tuple : allRows) {
             Object value = tuple.getData().get(t.getColOrder().indexOf(arrSQLTerm._strColumnName));
-            switch (arrSQLTerm._strOperator) {
-                case "=" -> {
+            String columnType = getColumnType(arrSQLTerm._strTableName, arrSQLTerm._strColumnName);
+            if (!canBeCast(columnType, value)) {
+                throw new DBAppException("Data type mismatch");
+            }
+
+            switch (columnType) {
+                case "java.lang.Integer" -> {
+                    arrSQLTerm._objValue = Integer.parseInt(arrSQLTerm._objValue + "");
+                    value = Integer.parseInt(value + "");
+
+                    switch (arrSQLTerm._strOperator) {
+                        case "=" -> {
+                            value = value + "";
+                            if (arrSQLTerm._objValue.equals(value)) {
+                                results.add(tuple);
+                                break;
+                            }
+                        }
+                        case "!=" -> {
+                            if (!arrSQLTerm._objValue.equals(value)) {
+                                results.add(tuple);
+                                break;
+                            }
+                        }
+                        case ">" -> {
+                            if ((int) arrSQLTerm._objValue < (int) value) {
+                                results.add(tuple);
+                                break;
+                            }
+                        }
+                        case "<" -> {
+                            if ((int) arrSQLTerm._objValue > (int) value) {
+                                results.add(tuple);
+                                break;
+                            }
+                        }
+                        case ">=" -> {
+                            if ((int) arrSQLTerm._objValue <= (int) value) {
+                                results.add(tuple);
+                                break;
+                            }
+                        }
+                        case "<=" -> {
+                            if ((int) arrSQLTerm._objValue >= (int) value) {
+                                results.add(tuple);
+                                break;
+                            }
+                        }
+                    }
+                }
+                case "java.lang.Double" -> {
+                    arrSQLTerm._objValue = Double.parseDouble(arrSQLTerm._objValue + "");
+                    value = Double.parseDouble(value + "");
+
+                    switch (arrSQLTerm._strOperator) {
+                        case "=" -> {
+                            value = value + "";
+                            if (arrSQLTerm._objValue.equals(value)) {
+                                results.add(tuple);
+                                break;
+                            }
+                        }
+                        case "!=" -> {
+                            if (!arrSQLTerm._objValue.equals(value)) {
+                                results.add(tuple);
+                                break;
+                            }
+                        }
+                        case ">" -> {
+                            if ((double) arrSQLTerm._objValue < (int) value) {
+                                results.add(tuple);
+                                break;
+                            }
+                        }
+                        case "<" -> {
+                            if ((double) arrSQLTerm._objValue > (double) value) {
+                                results.add(tuple);
+                                break;
+                            }
+                        }
+                        case ">=" -> {
+                            if ((double) arrSQLTerm._objValue <= (double) value) {
+                                results.add(tuple);
+                                break;
+                            }
+                        }
+                        case "<=" -> {
+                            if ((double) arrSQLTerm._objValue >= (double) value) {
+                                results.add(tuple);
+                                break;
+                            }
+                        }
+                    }
+                }
+                case "java.lang.String" -> {
                     arrSQLTerm._objValue = arrSQLTerm._objValue + "";
                     value = value + "";
-                    if (arrSQLTerm._objValue.equals(value)) {
-                        results.add(tuple);
-                        break;
+
+                    switch (arrSQLTerm._strOperator) {
+                        case "=" -> {
+                            value = value + "";
+                            if (arrSQLTerm._objValue.equals(value)) {
+                                results.add(tuple);
+                                break;
+                            }
+                        }
+                        case "!=" -> {
+                            if (!arrSQLTerm._objValue.equals(value)) {
+                                results.add(tuple);
+                                break;
+                            }
+                        }
+                        
                     }
-                }
-                case "!=" -> {
-                    arrSQLTerm._objValue = arrSQLTerm._objValue + "";
-                    value = value + "";
-                    if (!arrSQLTerm._objValue.equals(value)) {
-                        //System.out.println("!=");
-                        results.add(tuple);
-                        break;
-                    }
-                }
-                case ">" -> {
-                    if ((double) arrSQLTerm._objValue < (double) value) {
-                        results.add(tuple);
-                        break;
-                    }
-                }
-                case "<" -> {
-                    if ((double) arrSQLTerm._objValue > (double) value) {
-                        results.add(tuple);
-                        break;
-                    }
-                }
-                case ">=" -> {
-                    if ((double) arrSQLTerm._objValue <= (double) value) {
-                        results.add(tuple);
-                        break;
-                    }
-                }
-                case "<=" -> {
-                    if ((double) arrSQLTerm._objValue >= (double) value) {
-                        results.add(tuple);
-                        break;
-                    }
+
                 }
             }
+
 
         }
         serializeTable(t);
