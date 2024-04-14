@@ -35,6 +35,14 @@ public class Page implements Serializable {
             return false;
         }
     }
+    public boolean removeDataIndex(int index) {
+        try {
+            tuples.remove(index);
+            return true;
+        } catch (Exception e) {
+            return false;
+        }
+    }
 
     public boolean searchData(Tuple data) {
         return tuples.contains(data);

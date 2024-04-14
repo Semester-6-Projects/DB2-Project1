@@ -62,7 +62,43 @@ public class Validators {
         }
         return false;
     }
+    public static String dataType(String columnName, String columnValue, String tableName) throws DBAppException {
+        try {
+            FileReader fr = new FileReader("resources/metaFile.csv");
+            BufferedReader br = new BufferedReader(fr);
+            String z = br.readLine();
 
+            while (z != null) {
+                String[] mfile = z.split(",");
+                String a = mfile[0].substring(1, mfile[0].length() - 1).trim();
+                String b = mfile[1].substring(1, mfile[1].length() - 1).trim();
+                String c = mfile[2].substring(1, mfile[2].length() - 1).trim();
+                if (a.equals(tableName) && b.equals(columnName)) {
+                    if (c.equalsIgnoreCase("java.lang.Integer")) {
+                        br.close();
+                        fr.close();
+                        return "int";
+                    } else if (c.equalsIgnoreCase("java.lang.Double")) {
+                        br.close();
+                        fr.close();
+                        return "double";
+                    } else if (c.equalsIgnoreCase("java.lang.String")) {
+                        br.close();
+                        fr.close();
+                        return "string";
+                    }
+                }
+                z = br.readLine();
+            }
+            br.close();
+            fr.close();
+        } catch (FileNotFoundException e) {
+            throw new RuntimeException(e);
+        } catch (IOException e) {
+            throw new RuntimeException(e);
+        }
+        return "";
+    }
 
     private void generalExcCheck(String tablename, String key, String keyType) throws DBAppException {
         Boolean keyattr = false;

@@ -17,8 +17,8 @@ public class Table implements Serializable {
     }
 
     public Table(String strTableName,
-            String strClusteringKeyColumn,
-            Hashtable<String, String> htblColNameType) {
+                 String strClusteringKeyColumn,
+                 Hashtable<String, String> htblColNameType) throws DBAppException{
         this.TableName = strTableName;
         this.ClusteringKeyColumn = strClusteringKeyColumn;
         String hash = htblColNameType.toString();
@@ -28,12 +28,18 @@ public class Table implements Serializable {
             String[] x = hash3[i].split("=");
             String xtrimmed = x[0].trim();
             colOrder.add(xtrimmed);
-            if (xtrimmed.equals(strClusteringKeyColumn)) {
-                String[] y = { strTableName, xtrimmed, x[1], "True", "null", "null" };
-                writeDataLineByLine("resources/metaFile.csv", y);
-            } else {
-                String[] y = { strTableName, xtrimmed, x[1], "False", "null", "null" };
-                writeDataLineByLine("resources/metaFile.csv", y);
+            if(x[1].equalsIgnoreCase("java.lang.Integer") || x[1].equalsIgnoreCase("java.lang.Double")
+                    || x[1].equalsIgnoreCase("java.lang.String")) {
+                if (xtrimmed.equals(strClusteringKeyColumn)) {
+                    String[] y = {strTableName, xtrimmed, x[1], "True", "null", "null"};
+                    writeDataLineByLine("resources/metaFile.csv", y);
+                } else {
+                    String[] y = {strTableName, xtrimmed, x[1], "False", "null", "null"};
+                    writeDataLineByLine("resources/metaFile.csv", y);
+                }
+            }
+            else{
+                throw new DBAppException("cannot create a column with type " + x[1]);
             }
         }
     }
@@ -158,8 +164,8 @@ public class Table implements Serializable {
 
             // If the element is present at the middle itself
             PageInfo w = pageInfos.get(mid);
-            if (((Comparable) value).compareTo((Comparable) w.getMin()) > 0
-                    && ((Comparable) value).compareTo((Comparable) w.getMax()) < 0) {
+            if (((Comparable) value).compareTo((Comparable) w.getMin()) >= 0
+                    && ((Comparable) value).compareTo((Comparable) w.getMax()) <= 0) {
                 return w.getPageName();
             }
             // If element is smaller than mid, then it can only be present in right subarray
@@ -177,8 +183,8 @@ public class Table implements Serializable {
     }
 
     public boolean addData(Tuple data) {
-        int max = getMax();
-        // int max = 2;
+        //int max = getMax();
+        int max = 2;
         String fileName = TableName + "," + ClusteringKeyColumn + ".bin";
         File check = new File(fileName);
         if (Pages.size() == 0) {
@@ -280,8 +286,8 @@ public class Table implements Serializable {
     }
 
     public void addWithIndex(Tuple data, BPTreeLeafNode node) {
-        int max = getMax();
-        // int max = 2;
+        //int max = getMax();
+        int max = 2;
         if (node == null) {
             Page p = deserializePage(Pages.lastElement().getPageName());
             int index = colOrder.indexOf(ClusteringKeyColumn);
@@ -422,15 +428,36 @@ public class Table implements Serializable {
         if (check.exists()) {
             BPTree tree = deserializeTree(fileName);
             Ref r = tree.search((Comparable) data.getData().get(index));
+            serializeTree(tree);
             if (r != null) {
                 Page p = deserializePage(r.getFileName());
-                boolean deleted = p.removeData(data);
+                boolean deleted = p.removeDataIndex(r.getIndexInPage());
                 if (deleted) {
+                    Vector<Tuple> tuples = p.getTuples();
                     // serialise the page after deleting from it
-                    serializePage(p);
+                    //serializePage(p);
 
                     // delete the reference of that page from the tree
-                    tree.delete((Comparable) data.getData().get(index), r);
+                    //tree.delete((Comparable) data.getData().get(index), r);
+
+                    //deleting the data from all trees if they exist
+                    for (int i = 0; i < colOrder.size(); i++) {
+                        String treeCheck = colOrder.get(i);
+                        String fName = TableName + "," + treeCheck + ".bin";
+                        File tCheck = new File(fName);
+                        if (tCheck.exists()) {
+                            BPTree tt = deserializeTree(fName);
+                            tt.delete((Comparable) data.getData().get(i), r);
+
+                            for (int j = r.getIndexInPage(); j < p.getTuples().size(); j++) {
+                                Ref refOld = new Ref(r.getFileName(), j + 1);
+                                Ref refNew = new Ref(p.getPageName(), j);
+                                tt.update((Comparable) tuples.get(j).getData().get(i),
+                                        (Comparable) tuples.get(j).getData().get(i), refNew, refOld);
+                            }
+                            serializeTree(tt);
+                        }
+                    }
 
                     // loop over all the pages
                     for (int i = 0; i < Pages.size(); i++) {
@@ -445,6 +472,7 @@ public class Table implements Serializable {
                                 Pages.remove(i);
 
                                 // delete the page from the disk
+                                serializePage(p);
                                 File f = new File(r.getFileName() + ".bin");
                                 f.delete();
 
@@ -453,67 +481,90 @@ public class Table implements Serializable {
                             }
 
                             // deserialize the page again to update the min and max
-                            Page page = deserializePage(r.getFileName());
+                            //Page page = deserializePage(r.getFileName());
 
                             // set the min and max of the page info
-                            pi.setMin(page.getTuples().get(0).getData().get(index));
-                            pi.setMax(page.getTuples().get(page.tupleSize() - 1).getData().get(index));
+                            pi.setMin(p.getTuples().get(0).getData().get(index));
+                            pi.setMax(p.getTuples().get(p.tupleSize() - 1).getData().get(index));
 
                             // finally, serialize the page
-                            serializePage(page);
+                            serializePage(p);
                         }
                     }
 
                     // serialise the tree after deleting from it
-                    serializeTree(tree);
-                } else {
-                    throw new DBAppException("Data not found in page");
+                    //serializeTree(tree);
                 }
-            } else {
-                throw new DBAppException("Data not found in tree");
             }
+
         } else {
-			// if tree not found then search linearly
-			for (int i = 0; i < Pages.size(); i++) {
-				Page p = deserializePage(Pages.get(i).getPageName());
-				boolean deleted = p.removeData(data);
-				if (deleted) {
-					// serialise the page after deleting from it
-					serializePage(p);
+            // if tree not found then search linearly
+            Object value = data.getData().get(index);
+            String name = binarySearch(Pages, 0, Pages.size() - 1, value);
+            Page p = deserializePage(name);
+            Vector<Tuple> tuples = p.getTuples();
+            for (int i = 0; i < tuples.size(); i++) {
+                value = value + "";
+                String value2 = tuples.get(i).getData().get(index) + "";
+                if (value2.equals(value)){
+                    boolean deleted = p.removeDataIndex(i);
+                    if (deleted) {
+                        // serialise the page after deleting from it
+                        //serializePage(p);
+                        for (int k = 0; k < colOrder.size(); k++) {
+                            String treeCheck = colOrder.get(k);
+                            String fName = TableName + "," + treeCheck + ".bin";
+                            File tCheck = new File(fName);
+                            if (tCheck.exists()) {
+                                BPTree tt = deserializeTree(fName);
+                                Ref r = new Ref(p.getPageName(),i);
+                                tt.delete((Comparable) data.getData().get(k), r);
 
-					// loop over all the pages 
-					for (int j = 0; j < Pages.size(); j++) {
-						// check if the page is the one we just deleted from
-						if (p.getPageName().equals(Pages.get(j).getPageName())) {
-							// load the page info
-							PageInfo pi = Pages.get(j);
+                                for (int j = r.getIndexInPage(); j < p.getTuples().size(); j++) {
+                                    Ref refOld = new Ref(r.getFileName(), j + 1);
+                                    Ref refNew = new Ref(p.getPageName(), j);
+                                    tt.update((Comparable) tuples.get(j).getData().get(k),
+                                            (Comparable) tuples.get(j).getData().get(k), refNew, refOld);
+                                }
+                                serializeTree(tt);
+                            }
+                        }
 
-							// check if the page is empty
-							if (p.tupleSize() == 0) {
-								// remove the page from the pages list
-								Pages.remove(j);
+                        // loop over all the pages
+                        for (int j = 0; j < Pages.size(); j++) {
+                            // check if the page is the one we just deleted from
+                            if (p.getPageName().equals(Pages.get(j).getPageName())) {
+                                // load the page info
+                                PageInfo pi = Pages.get(j);
 
-								// delete the page from the disk
-								File f = new File(p.getPageName() + ".bin");
-								f.delete();
+                                // check if the page is empty
+                                if (p.tupleSize() == 0) {
+                                    // remove the page from the pages list
+                                    Pages.remove(j);
 
-								// break the loop because we deleted the page
-								break;
-							} 
-						
-							// deserialize the page again to update the min and max
-							Page page = deserializePage(p.getPageName());
+                                    // delete the page from the disk
+                                    serializePage(p);
+                                    File f = new File(p.getPageName() + ".bin");
+                                    f.delete();
 
-							// set the min and max of the page info
-							pi.setMin(page.getTuples().get(0).getData().get(index));
-							pi.setMax(page.getTuples().get(page.tupleSize() - 1).getData().get(index));
+                                    // break the loop because we deleted the page
+                                    break;
+                                }
 
-							// finally, serialize the page 
-							serializePage(page);
-						}
-					}
-				}
-			}
+                                // deserialize the page again to update the min and max
+                                //Page page = deserializePage(p.getPageName());
+
+                                // set the min and max of the page info
+                                pi.setMin(p.getTuples().get(0).getData().get(index));
+                                pi.setMax(p.getTuples().get(p.tupleSize() - 1).getData().get(index));
+
+                                // finally, serialize the page
+                                serializePage(p);
+                            }
+                        }
+                    }
+                }
+            }
         }
     }
 

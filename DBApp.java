@@ -21,7 +21,7 @@ public class DBApp {
             htblColNameType.put("name", "java.lang.String");
             htblColNameType.put("gpa", "java.lang.double");
             dbApp.createTable(strTableName, "id", htblColNameType);
-            dbApp.createIndex(strTableName, "id", "idIndex");
+            //dbApp.createIndex(strTableName, "id", "idIndex");
 
             Hashtable htblColNameValue = new Hashtable();
             htblColNameValue.put("gpa", Double.valueOf(0.88));
@@ -60,42 +60,67 @@ public class DBApp {
             htblColNameValue.put("name", new String("Zaky Noor"));
             htblColNameValue.put("gpa", Double.valueOf(0.88));
             dbApp.insertIntoTable(strTableName, htblColNameValue);
+
             htblColNameValue.clear();
+            htblColNameValue.put("gpa", Double.valueOf(0.88));
+            htblColNameValue.put("id", Integer.valueOf(3));
+            htblColNameValue.put("name", new String("Ahmed Noor"));
+            //dbApp.deleteFromTable(strTableName, htblColNameValue);
 
-            SQLTerm[] arrSQLTerms;
-            arrSQLTerms = new SQLTerm[2];
-            arrSQLTerms[0] = new SQLTerm();
-            arrSQLTerms[1] = new SQLTerm();
-            arrSQLTerms[0]._strTableName = "Student";
-            arrSQLTerms[0]._strColumnName = "id";
-            arrSQLTerms[0]._strOperator = ">";
-            arrSQLTerms[0]._objValue = Integer.valueOf(6);
+            htblColNameValue.clear();
+            htblColNameValue.put("id", Integer.valueOf(5));
+            htblColNameValue.put("name", new String("Dalia Noor"));
+            htblColNameValue.put("gpa", Double.valueOf(1.25));
+            //dbApp.deleteFromTable(strTableName, htblColNameValue);
 
-            arrSQLTerms[1]._strTableName = "Student";
-            arrSQLTerms[1]._strColumnName = "gpa";
-            arrSQLTerms[1]._strOperator = "!=";
-            arrSQLTerms[1]._objValue = Double.valueOf(0.88);
+            htblColNameValue.clear();
+            htblColNameValue.put("name", new String("Dalia Noor"));
+            htblColNameValue.put("gpa", Double.valueOf(1.25));
+            dbApp.updateTable(strTableName,"1", htblColNameValue);
 
-            String[] strarrOperators = new String[1];
-            // strarrOperators[0] = null;
-            strarrOperators[0] = "OR";
-            // select * from Student where name = "John Noor" or gpa = 1.5;
-            Iterator resultSet = dbApp.selectFromTable(arrSQLTerms, strarrOperators);
 
-            // printing the sql
-            for (SQLTerm term : arrSQLTerms) {
-                System.out.println("Table Name: " + term._strTableName);
-                System.out.println("Column Name: " + term._strColumnName);
-                System.out.println("Operator: " + term._strOperator);
-                System.out.println("Value: " + term._objValue);
-                System.out.println("-------------------");
-            }
-
+//            SQLTerm[] arrSQLTerms;
+//            arrSQLTerms = new SQLTerm[3];
+//
+//            arrSQLTerms[2] = new SQLTerm();
+//            arrSQLTerms[2]._strTableName = "Student";
+//            arrSQLTerms[2]._strColumnName = "id";
+//            arrSQLTerms[2]._strOperator = "=";
+//            arrSQLTerms[2]._objValue = Integer.valueOf(9);
+//
+//            arrSQLTerms[0] = new SQLTerm();
+//            arrSQLTerms[0]._strTableName = "Student";
+//            arrSQLTerms[0]._strColumnName = "gpa";
+//            arrSQLTerms[0]._strOperator = "=";
+//            arrSQLTerms[0]._objValue = Double.valueOf(0.88);
+//
+//            arrSQLTerms[1] = new SQLTerm();
+//            arrSQLTerms[1]._strTableName = "Student";
+//            arrSQLTerms[1]._strColumnName = "name";
+//            arrSQLTerms[1]._strOperator = "=";
+//            arrSQLTerms[1]._objValue = "Zaky Noor";
+//
+//            String[] strarrOperators = new String[2];
+//            // strarrOperators[0] = null;
+//            strarrOperators[0] = "AND";
+//            strarrOperators[1] = "AND";
+//            // select * from Student where name = "John Noor" or gpa = 1.5;
+//            Iterator resultSet = dbApp.selectFromTable(arrSQLTerms, strarrOperators);
+////
+//            // printing the sql
+//            for (SQLTerm term : arrSQLTerms) {
+//                System.out.println("Table Name: " + term._strTableName);
+//                System.out.println("Column Name: " + term._strColumnName);
+//                System.out.println("Operator: " + term._strOperator);
+//                System.out.println("Value: " + term._objValue);
+//                System.out.println("-------------------");
+//            }
+//
             // printing the results of the sql
-            System.out.println("Result set:");
-            while (resultSet.hasNext()) {
-                System.out.println(resultSet.next());
-            }
+//            System.out.println("Result set:");
+//            while (resultSet.hasNext()) {
+//                System.out.println(resultSet.next());
+//            }
         } catch (Exception exp) {
             exp.printStackTrace();
         }
@@ -150,8 +175,8 @@ public class DBApp {
     }
 
     public void createTable(String strTableName,
-            String strClusteringKeyColumn,
-            Hashtable<String, String> htblColNameType) throws DBAppException {
+                            String strClusteringKeyColumn,
+                            Hashtable<String, String> htblColNameType) throws DBAppException {
         if (!(tableNames.contains(strTableName))) {
             Table t = new Table(strTableName, strClusteringKeyColumn, htblColNameType);
             tableNames.add(strTableName);
@@ -210,8 +235,8 @@ public class DBApp {
     }
 
     public void createIndex(String strTableName,
-            String strColName,
-            String strIndexName) throws DBAppException {
+                            String strColName,
+                            String strIndexName) throws DBAppException {
         if (!(tableNames.contains(strTableName))) {
             throw new DBAppException("table doesn't exist");
         }
@@ -265,7 +290,7 @@ public class DBApp {
     }
 
     public void insertIntoTable(String strTableName,
-            Hashtable<String, Object> htblColNameValue) throws DBAppException {
+                                Hashtable<String, Object> htblColNameValue) throws DBAppException {
         if (!(tableNames.contains(strTableName))) {
             throw new DBAppException("table doesn't exist");
         }
@@ -366,8 +391,8 @@ public class DBApp {
     // htblColNameValue will not include clustering key as column name
     // strClusteringKeyValue is the value to look for to find the row to update.
     public void updateTable(String strTableName,
-            String strClusteringKeyValue,
-            Hashtable<String, Object> htblColNameValue) throws DBAppException {
+                            String strClusteringKeyValue,
+                            Hashtable<String, Object> htblColNameValue) throws DBAppException {
 
         // init the table
         Table t = new Table();
@@ -384,7 +409,18 @@ public class DBApp {
         String clusteringKey = t.getClusteringKeyColumn();
         if (checkValueMF(clusteringKey, strClusteringKeyValue, strTableName)) {
             Hashtable<String, Object> htblColNameValue2 = new Hashtable<String, Object>();
-            htblColNameValue2.put(clusteringKey, strClusteringKeyValue);
+            String checkType = Validators.dataType(clusteringKey,strClusteringKeyValue, strTableName);
+            if(checkType.equals("int")){
+                int x = Integer.valueOf(Integer.parseInt(strClusteringKeyValue));
+                htblColNameValue2.put(clusteringKey, x);
+            }
+            else if(checkType.equals("double")){
+                double y = Double.valueOf(Double.parseDouble(strClusteringKeyValue));
+                htblColNameValue2.put(clusteringKey, y);
+            }
+            else {
+                htblColNameValue2.put(clusteringKey, strClusteringKeyValue);
+            }
             Tuple tu = t.getTuple(strClusteringKeyValue);
             if (!(tu.getData().size() > 0)) {
                 serializeTable(t);
@@ -392,7 +428,7 @@ public class DBApp {
             }
             Vector<String> columns = t.getColOrder();
             serializeTable(t);
-            // deleteFromTable(strTableName, htblColNameValue2);
+            deleteFromTable(strTableName, htblColNameValue2);
             Vector<Object> data = tu.getData();
             Vector<Object> colUpdated = new Vector<Object>();
             Hashtable htblnew = new Hashtable();
@@ -431,10 +467,11 @@ public class DBApp {
     // to identify which rows/tuples to delete.
     // htblColNameValue enteries are ANDED together
     public void deleteFromTable(String strTableName,
-            Hashtable<String, Object> htblColNameValue) throws DBAppException {
+                                Hashtable<String, Object> htblColNameValue) throws DBAppException {
         // init the table
-        Table table = new Table();
 
+        SQLTerm[] arrSQLTerms;
+        arrSQLTerms = new SQLTerm[htblColNameValue.size()];
         // open the hashtable
         String hash = htblColNameValue.toString();
         hash = hash.substring(1, hash.length() - 1);
@@ -445,25 +482,29 @@ public class DBApp {
             String[] temp = hashArr[i].split("=");
             String name = temp[0].trim();
             String data = temp[1].trim();
-
-            // check if the column exists
-            if (checkValueMF(name, data, strTableName)) {
-                table = deserializeTable(strTableName);
-                dataVec.add(data);
-                nameVec.add(name);
-            } else {
-                throw new DBAppException("The column " + name + " does not exist in the table " + strTableName);
+            arrSQLTerms[i] = new SQLTerm();
+            arrSQLTerms[i]._strTableName = strTableName;
+            arrSQLTerms[i]._strColumnName = name;
+            arrSQLTerms[i]._strOperator = "=";
+            arrSQLTerms[i]._objValue = data;
+        }
+        String[] strarrOperators = {null};
+        if (!(htblColNameValue.size() - 1 == 0)) {
+            strarrOperators = new String[htblColNameValue.size() - 1];
+            for (int i = 0; i < strarrOperators.length; i++) {
+                strarrOperators[i] = "AND";
             }
         }
 
-        // init a tuple to search for
-        Tuple tuple = new Tuple(dataVec);
-
-        // delete the tuple
-        table.deleteData(tuple);
-
-		// serialize the table
-		serializeTable(table);
+        Iterator resultSet = selectFromTable(arrSQLTerms, strarrOperators);
+        if (resultSet != null){
+            while (resultSet.hasNext()) {
+                Tuple tuple = (Tuple) resultSet.next();
+                Table table = deserializeTable(strTableName);
+                table.deleteData(tuple);
+                serializeTable(table);
+            }
+        }
     }
 
     public Vector<Tuple> getSubResult(SQLTerm arrSQLTerm) throws DBAppException {
@@ -478,6 +519,9 @@ public class DBApp {
         // Check if the table exists in the database.
         Validators.checkTableExistsMF(arrSQLTerm._strTableName);
         Validators.checkColumnExistsMF(arrSQLTerm._strColumnName, arrSQLTerm._strTableName);
+        // Check data types with meta data file.
+        String columnValue= arrSQLTerm._objValue + "";
+        checkValueMF(arrSQLTerm._strColumnName, columnValue, arrSQLTerm._strTableName);
 
         // Deserialize the table.
         Table t = deserializeTable(arrSQLTerm._strTableName);
@@ -490,6 +534,7 @@ public class DBApp {
         if (check.exists() && !(arrSQLTerm._strOperator.equals("!="))) {
             results = t.getSelectDataIndex(arrSQLTerm._strColumnName, arrSQLTerm._strOperator, arrSQLTerm._objValue);
             serializeTable(t);
+            //System.out.println("subresults: " + results.toString());
             return results;
         }
         Vector<Tuple> allRows = t.getAllData();
@@ -508,7 +553,7 @@ public class DBApp {
                     arrSQLTerm._objValue = arrSQLTerm._objValue + "";
                     value = value + "";
                     if (!arrSQLTerm._objValue.equals(value)) {
-                        System.out.println("!=");
+                        //System.out.println("!=");
                         results.add(tuple);
                         break;
                     }
@@ -545,7 +590,7 @@ public class DBApp {
     }
 
     public Iterator selectFromTable(SQLTerm[] arrSQLTerms,
-            String[] strarrOperators) throws DBAppException {
+                                    String[] strarrOperators) throws DBAppException {
 
         // Array of Iterators to hold the results of the multiple select operations
         // Each index in the array corresponds to a select operation.
@@ -567,8 +612,8 @@ public class DBApp {
         // Initialize Temp result vector as the first vector in the subResults array.
         Vector<Tuple> tempResult = subResults.get(0);
         if (strarrOperators[0] == null) {
-            System.out.println(tempResult);
-            return null;
+            //System.out.println(tempResult);
+            return tempResult.iterator();
         }
         int i = 1;
         for (String strarrOperator : strarrOperators) {
@@ -580,6 +625,8 @@ public class DBApp {
                 case "OR" -> tempResult = RecordOperators.orRecords(tempResult, subResults.get(i));
                 case "XOR" -> tempResult = RecordOperators.xorRecords(tempResult, subResults.get(i));
             }
+            i++;
+            //System.out.println("tempResult: " + tempResult.toString());
 
         }
         // Convert the result vector to an iterator and return it.
