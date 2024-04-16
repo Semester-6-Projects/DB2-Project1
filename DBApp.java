@@ -552,7 +552,7 @@ public class DBApp {
         return columnRow[2];
     }
 
-    public boolean checkColumnIndex(String tableName, String columnName) throws DBAppException {
+    public boolean hasColumnIndex(String tableName, String columnName) throws DBAppException {
         // This checks if the column has an index on it.
         String[] columnRow = getColumnRow(tableName, columnName);
         String index = columnRow[4].substring(1, columnRow[4].length() - 1);
