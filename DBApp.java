@@ -5,7 +5,7 @@ import java.util.Vector;
 import com.opencsv.CSVWriter;
 
 public class DBApp {
-    private Vector<String> tableNames = new Vector<String>();
+    private static Vector<String> tableNames = new Vector<String>();
 
     public DBApp() {
     }
@@ -21,15 +21,15 @@ public class DBApp {
             htblColNameType.put("name", "java.lang.String");
             htblColNameType.put("gpa", "java.lang.double");
             dbApp.createTable(strTableName, "id", htblColNameType);
-            //dbApp.createIndex(strTableName, "id", "idIndex");
+           // dbApp.createIndex(strTableName, "id", "idIndex");
 
             Hashtable htblColNameValue = new Hashtable();
             htblColNameValue.put("gpa", Double.valueOf(0.88));
             htblColNameValue.put("id", Integer.valueOf(3));
             htblColNameValue.put("name", new String("Ahmed Noor"));
             dbApp.insertIntoTable(strTableName, htblColNameValue);
-            dbApp.createIndex(strTableName, "gpa", "gpaIndex");
-            dbApp.createIndex(strTableName, "name", "nameIndex");
+           // dbApp.createIndex(strTableName, "gpa", "gpaIndex");
+            //dbApp.createIndex(strTableName, "name", "nameIndex");
 
             htblColNameValue.clear();
             htblColNameValue.put("id", Integer.valueOf(7));
@@ -65,48 +65,54 @@ public class DBApp {
             htblColNameValue.put("gpa", Double.valueOf(0.88));
             htblColNameValue.put("id", Integer.valueOf(3));
             htblColNameValue.put("name", new String("Ahmed Noor"));
-            //dbApp.deleteFromTable(strTableName, htblColNameValue);
+            dbApp.deleteFromTable(strTableName, htblColNameValue);
+
 
             htblColNameValue.clear();
             htblColNameValue.put("id", Integer.valueOf(5));
             htblColNameValue.put("name", new String("Dalia Noor"));
             htblColNameValue.put("gpa", Double.valueOf(1.25));
-            //dbApp.deleteFromTable(strTableName, htblColNameValue);
+            dbApp.deleteFromTable(strTableName, htblColNameValue);
+//
+//            Table t = dbApp.deserializeTable(tableNames.get(0));
+//            for (int i = 0; i <t.getPageCount(); i++) {
+//                System.out.println(t.deserializePage(t.getPages().get(i).getPageName()));
+//            }
 
-            htblColNameValue.clear();
-            htblColNameValue.put("name", new String("Dalia Noor"));
-            htblColNameValue.put("gpa", Double.valueOf(1.25));
-            dbApp.updateTable(strTableName,"1", htblColNameValue);
+//            htblColNameValue.clear();
+//            htblColNameValue.put("name", new String("Dalia Noor"));
+//            htblColNameValue.put("gpa", Double.valueOf(1.25));
+            //dbApp.updateTable(strTableName,"1", htblColNameValue);
 
 
-//            SQLTerm[] arrSQLTerms;
-//            arrSQLTerms = new SQLTerm[3];
+            SQLTerm[] arrSQLTerms;
+            arrSQLTerms = new SQLTerm[3];
+
+            arrSQLTerms[2] = new SQLTerm();
+            arrSQLTerms[2]._strTableName = "Student";
+            arrSQLTerms[2]._strColumnName = "id";
+            arrSQLTerms[2]._strOperator = "=";
+            arrSQLTerms[2]._objValue = Integer.valueOf(9);
+
+            arrSQLTerms[0] = new SQLTerm();
+            arrSQLTerms[0]._strTableName = "Student";
+            arrSQLTerms[0]._strColumnName = "gpa";
+            arrSQLTerms[0]._strOperator = "=";
+            arrSQLTerms[0]._objValue = Double.valueOf(0.88);
+
+            arrSQLTerms[1] = new SQLTerm();
+            arrSQLTerms[1]._strTableName = "Student";
+            arrSQLTerms[1]._strColumnName = "name";
+            arrSQLTerms[1]._strOperator = "=";
+            arrSQLTerms[1]._objValue = "Zaky Noor";
+
+            String[] strarrOperators = new String[2];
+            // strarrOperators[0] = null;
+            strarrOperators[0] = "AND";
+            strarrOperators[1] = "AND";
+            // select * from Student where name = "John Noor" or gpa = 1.5;
+            Iterator resultSet = dbApp.selectFromTable(arrSQLTerms, strarrOperators);
 //
-//            arrSQLTerms[2] = new SQLTerm();
-//            arrSQLTerms[2]._strTableName = "Student";
-//            arrSQLTerms[2]._strColumnName = "id";
-//            arrSQLTerms[2]._strOperator = "=";
-//            arrSQLTerms[2]._objValue = Integer.valueOf(9);
-//
-//            arrSQLTerms[0] = new SQLTerm();
-//            arrSQLTerms[0]._strTableName = "Student";
-//            arrSQLTerms[0]._strColumnName = "gpa";
-//            arrSQLTerms[0]._strOperator = "=";
-//            arrSQLTerms[0]._objValue = Double.valueOf(0.88);
-//
-//            arrSQLTerms[1] = new SQLTerm();
-//            arrSQLTerms[1]._strTableName = "Student";
-//            arrSQLTerms[1]._strColumnName = "name";
-//            arrSQLTerms[1]._strOperator = "=";
-//            arrSQLTerms[1]._objValue = "Zaky Noor";
-//
-//            String[] strarrOperators = new String[2];
-//            // strarrOperators[0] = null;
-//            strarrOperators[0] = "AND";
-//            strarrOperators[1] = "AND";
-//            // select * from Student where name = "John Noor" or gpa = 1.5;
-//            Iterator resultSet = dbApp.selectFromTable(arrSQLTerms, strarrOperators);
-////
 //            // printing the sql
 //            for (SQLTerm term : arrSQLTerms) {
 //                System.out.println("Table Name: " + term._strTableName);
@@ -116,11 +122,11 @@ public class DBApp {
 //                System.out.println("-------------------");
 //            }
 //
-            // printing the results of the sql
-//            System.out.println("Result set:");
-//            while (resultSet.hasNext()) {
-//                System.out.println(resultSet.next());
-//            }
+//
+            System.out.println("Result set:");
+            while (resultSet.hasNext()) {
+                System.out.println(resultSet.next());
+     }
         } catch (Exception exp) {
             exp.printStackTrace();
         }
@@ -469,7 +475,7 @@ public class DBApp {
     public void deleteFromTable(String strTableName,
                                 Hashtable<String, Object> htblColNameValue) throws DBAppException {
         // init the table
-
+        System.out.println("deleteeeee");
         SQLTerm[] arrSQLTerms;
         arrSQLTerms = new SQLTerm[htblColNameValue.size()];
         // open the hashtable
@@ -498,10 +504,12 @@ public class DBApp {
 
         Iterator resultSet = selectFromTable(arrSQLTerms, strarrOperators);
         if (resultSet != null){
+            System.out.println(resultSet.hasNext());
             while (resultSet.hasNext()) {
                 Tuple tuple = (Tuple) resultSet.next();
                 Table table = deserializeTable(strTableName);
                 table.deleteData(tuple);
+                System.out.println("pagee");
                 serializeTable(table);
             }
         }
@@ -611,16 +619,25 @@ public class DBApp {
             if (!canBeCast(columnType, value)) {
                 throw new DBAppException("Data type mismatch");
             }
+            //System.out.println(columnType);
+            columnType=columnType.substring(1, columnType.length() - 1);
+            System.out.println(columnType);
+            //System.out.println("java.lang.Integer");
+            //System.out.println(columnType.compareTo("java.lang.Integer"));
 
             switch (columnType) {
                 case "java.lang.Integer" -> {
                     arrSQLTerm._objValue = Integer.parseInt(arrSQLTerm._objValue + "");
                     value = Integer.parseInt(value + "");
-
+                    System.out.println(value);
+                    System.out.println(arrSQLTerm._objValue);
+                    System.out.println(arrSQLTerm._objValue.equals(value));
                     switch (arrSQLTerm._strOperator) {
                         case "=" -> {
-                            value = value + "";
+                            System.out.println("gowa case +");
+                            //value = value + "";
                             if (arrSQLTerm._objValue.equals(value)) {
+                                System.out.println("gowa if");
                                 results.add(tuple);
                                 break;
                             }
@@ -657,13 +674,16 @@ public class DBApp {
                         }
                     }
                 }
-                case "java.lang.Double" -> {
+                case "java.lang.double" -> {
                     arrSQLTerm._objValue = Double.parseDouble(arrSQLTerm._objValue + "");
                     value = Double.parseDouble(value + "");
+                    System.out.println(value);
+                    System.out.println(arrSQLTerm._objValue);
+                    System.out.println(arrSQLTerm._objValue.equals(value));
 
                     switch (arrSQLTerm._strOperator) {
                         case "=" -> {
-                            value = value + "";
+                            //value = value + "";
                             if (arrSQLTerm._objValue.equals(value)) {
                                 results.add(tuple);
                                 break;
@@ -707,7 +727,7 @@ public class DBApp {
 
                     switch (arrSQLTerm._strOperator) {
                         case "=" -> {
-                            value = value + "";
+                            //value = value + "";
                             if (arrSQLTerm._objValue.equals(value)) {
                                 results.add(tuple);
                                 break;
@@ -728,6 +748,7 @@ public class DBApp {
 
         }
         serializeTable(t);
+        System.out.println("sub results" + results);
         return results;
     }
 
@@ -768,10 +789,11 @@ public class DBApp {
                 case "XOR" -> tempResult = RecordOperators.xorRecords(tempResult, subResults.get(i));
             }
             i++;
-            //System.out.println("tempResult: " + tempResult.toString());
+            System.out.println("tempResult: " + tempResult.toString());
 
         }
         // Convert the result vector to an iterator and return it.
+        System.out.println("final" + tempResult);
         return tempResult.iterator();
     }
 }
