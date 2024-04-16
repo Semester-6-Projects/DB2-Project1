@@ -555,7 +555,8 @@ public class DBApp {
     public boolean checkColumnIndex(String tableName, String columnName) throws DBAppException {
         // This checks if the column has an index on it.
         String[] columnRow = getColumnRow(tableName, columnName);
-        return !columnRow[4].equals("");
+        String index = columnRow[4].substring(1, columnRow[4].length() - 1);
+        return !index.equals("") || index.equals("null") || index.equals("\"\"");
     }
 
     public boolean canBeCast(String type, Object value) {
