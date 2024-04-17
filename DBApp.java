@@ -740,7 +740,31 @@ public class DBApp {
                                 break;
                             }
                         }
-                        
+                        case ">" -> {
+                            if (arrSQLTerm._objValue.toString().compareTo(value.toString()) < 0) {
+                                results.add(tuple);
+                                break;
+                            }
+                        }
+                        case "<" -> {
+                            if (arrSQLTerm._objValue.toString().compareTo(value.toString()) > 0) {
+                                results.add(tuple);
+                                break;
+                            }
+                        }
+                        case ">=" -> {
+                            if (arrSQLTerm._objValue.toString().compareTo(value.toString()) <= 0) {
+                                results.add(tuple);
+                                break;
+                            }
+                        }
+                        case "<=" -> {
+                            if (arrSQLTerm._objValue.toString().compareTo(value.toString()) >= 0) {
+                                results.add(tuple);
+                                break;
+                            }
+                        }
+
                     }
 
                 }
