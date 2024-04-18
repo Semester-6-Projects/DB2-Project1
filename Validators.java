@@ -229,8 +229,7 @@ public class Validators {
         }
 
         if (flag) {
-            DBAppException exc = new DBAppException(
-                    "Table already exists");
+            DBAppException exc = new DBAppException("Table already exists");
             throw exc;
         }
 

@@ -19,7 +19,8 @@ public class DBApp {
             Hashtable htblColNameType = new Hashtable();
             htblColNameType.put("id", "java.lang.Integer");
             htblColNameType.put("name", "java.lang.String");
-            htblColNameType.put("gpa", "java.lang.double");
+            htblColNameType.put("gpa", "java.lang.Double");
+            //htblColNameType.put("gpad", "java.lang.Double");
             dbApp.createTable(strTableName, "id", htblColNameType);
            // dbApp.createIndex(strTableName, "id", "idIndex");
 
@@ -33,14 +34,14 @@ public class DBApp {
 
             htblColNameValue.clear();
             htblColNameValue.put("id", Integer.valueOf(7));
-            htblColNameValue.put("name", new String("Ahmed Noor"));
+            htblColNameValue.put("name", new String("Amy "));
             htblColNameValue.put("gpa", Double.valueOf(0.96));
             dbApp.insertIntoTable(strTableName, htblColNameValue);
 
             htblColNameValue.clear();
             htblColNameValue.put("id", Integer.valueOf(5));
             htblColNameValue.put("name", new String("Dalia Noor"));
-            htblColNameValue.put("gpa", Double.valueOf(1.25));
+            htblColNameValue.put("gpa", Integer.valueOf(1));
             dbApp.insertIntoTable(strTableName, htblColNameValue);
 
             htblColNameValue.clear();
@@ -57,27 +58,27 @@ public class DBApp {
 
             htblColNameValue.clear();
             htblColNameValue.put("id", Integer.valueOf(9));
-            htblColNameValue.put("name", new String("Zaky Noor"));
+            htblColNameValue.put("name", new String("Zeinar"));
             htblColNameValue.put("gpa", Double.valueOf(0.88));
             dbApp.insertIntoTable(strTableName, htblColNameValue);
 
             htblColNameValue.clear();
-            htblColNameValue.put("gpa", Double.valueOf(0.88));
-            htblColNameValue.put("id", Integer.valueOf(3));
-            htblColNameValue.put("name", new String("Ahmed Noor"));
-            dbApp.deleteFromTable(strTableName, htblColNameValue);
-
-
-            htblColNameValue.clear();
-            htblColNameValue.put("id", Integer.valueOf(5));
-            htblColNameValue.put("name", new String("Dalia Noor"));
-            htblColNameValue.put("gpa", Double.valueOf(1.25));
-            dbApp.deleteFromTable(strTableName, htblColNameValue);
+            //htblColNameValue.put("gpa", Double.valueOf(0.88));
+            //htblColNameValue.put("id", Integer.valueOf(3));
+            //htblColNameValue.put("name", new String("Ahmed Noorrr"));
+            //dbApp.deleteFromTable(strTableName, htblColNameValue);
+            //dbApp.updateTable(strTableName,"1",htblColNameValue);
 //
-//            Table t = dbApp.deserializeTable(tableNames.get(0));
-//            for (int i = 0; i <t.getPageCount(); i++) {
-//                System.out.println(t.deserializePage(t.getPages().get(i).getPageName()));
-//            }
+//            htblColNameValue.clear();
+//            htblColNameValue.put("id", Integer.valueOf(5));
+//            htblColNameValue.put("name", new String("Dalia Noor"));
+//            htblColNameValue.put("gpa", Double.valueOf(1.25));
+//            dbApp.deleteFromTable(strTableName, htblColNameValue);
+//
+            Table t = dbApp.deserializeTable(tableNames.get(0));
+            for (int i = 0; i <t.getPageCount(); i++) {
+                System.out.println(t.deserializePage(t.getPages().get(i).getPageName()));
+            }
 
 //            htblColNameValue.clear();
 //            htblColNameValue.put("name", new String("Dalia Noor"));
@@ -86,13 +87,13 @@ public class DBApp {
 
 
             SQLTerm[] arrSQLTerms;
-            arrSQLTerms = new SQLTerm[3];
+            arrSQLTerms = new SQLTerm[4];
 
-            arrSQLTerms[2] = new SQLTerm();
-            arrSQLTerms[2]._strTableName = "Student";
-            arrSQLTerms[2]._strColumnName = "id";
-            arrSQLTerms[2]._strOperator = "=";
-            arrSQLTerms[2]._objValue = Integer.valueOf(9);
+//            arrSQLTerms[2] = new SQLTerm();
+//            arrSQLTerms[2]._strTableName = "Student";
+//            arrSQLTerms[2]._strColumnName = "id";
+//            arrSQLTerms[2]._strOperator = "=";
+//            arrSQLTerms[2]._objValue = Integer.valueOf(9);
 
             arrSQLTerms[0] = new SQLTerm();
             arrSQLTerms[0]._strTableName = "Student";
@@ -103,15 +104,16 @@ public class DBApp {
             arrSQLTerms[1] = new SQLTerm();
             arrSQLTerms[1]._strTableName = "Student";
             arrSQLTerms[1]._strColumnName = "name";
-            arrSQLTerms[1]._strOperator = "=";
+            arrSQLTerms[1]._strOperator = "<=";
             arrSQLTerms[1]._objValue = "Zaky Noor";
 
-            String[] strarrOperators = new String[2];
-            // strarrOperators[0] = null;
+            String[] strarrOperators = new String[5];
+            //strarrOperators[0] = null;
             strarrOperators[0] = "AND";
-            strarrOperators[1] = "AND";
+            strarrOperators[1] = "or";
+
             // select * from Student where name = "John Noor" or gpa = 1.5;
-            Iterator resultSet = dbApp.selectFromTable(arrSQLTerms, strarrOperators);
+//            Iterator resultSet = dbApp.selectFromTable(arrSQLTerms, strarrOperators);
 //
 //            // printing the sql
 //            for (SQLTerm term : arrSQLTerms) {
@@ -123,10 +125,13 @@ public class DBApp {
 //            }
 //
 //
-            System.out.println("Result set:");
-            while (resultSet.hasNext()) {
-                System.out.println(resultSet.next());
-     }
+//            System.out.println("Result set:");
+//            if(resultSet!=null){
+//            while (resultSet.hasNext()) {
+//                System.out.println(resultSet.next());
+//     }}
+//            else
+//                System.out.println("no results");
         } catch (Exception exp) {
             exp.printStackTrace();
         }
@@ -188,10 +193,10 @@ public class DBApp {
             tableNames.add(strTableName);
             serializeTable(t);
         } else {
-            throw new DBAppException("table already exists");
+            throw new DBAppException("Table already exists");
         }
 
-        // throw new DBAppException("not implemented yet");
+
     }
 
     private void serializeTable(Table t) {
@@ -244,12 +249,12 @@ public class DBApp {
                             String strColName,
                             String strIndexName) throws DBAppException {
         if (!(tableNames.contains(strTableName))) {
-            throw new DBAppException("table doesn't exist");
+            throw new DBAppException("Table doesn't exist");
         }
         Table t = deserializeTable(strTableName);
         if (!(t.getColOrder().contains(strColName))) {
             serializeTable(t);
-            throw new DBAppException("column " + strColName + " doesn't exist");
+            throw new DBAppException("Column " + strColName + " doesn't exist in table "+strTableName);
         } else {
             try {
                 FileWriter outfile = new FileWriter("resources/metaFile2.csv", true);
@@ -298,9 +303,14 @@ public class DBApp {
     public void insertIntoTable(String strTableName,
                                 Hashtable<String, Object> htblColNameValue) throws DBAppException {
         if (!(tableNames.contains(strTableName))) {
-            throw new DBAppException("table doesn't exist");
+            throw new DBAppException("Cannot insert into table " + strTableName+ ", it doesn't exist");
         }
+
         Table t = deserializeTable(strTableName);
+        if(htblColNameValue.size()!=t.getColOrder().size()){
+            serializeTable(t);
+            throw new DBAppException("Incorrect number of insertions.Should be "+ t.getColOrder().size());
+        }
         Vector<Object> dataValue = new Vector<Object>();
         String hash = htblColNameValue.toString();
         String hash2 = hash.substring(1, hash.length() - 1);
@@ -318,7 +328,7 @@ public class DBApp {
                 }
             } else {
                 serializeTable(t);
-                throw new DBAppException("Column " + columnName + " doesn't exist");
+                throw new DBAppException("Column " + columnName + " doesn't exist in table "+ strTableName);
             }
         }
         if (t.getColOrder().size() != htblColNameValue.size()) {
@@ -332,7 +342,7 @@ public class DBApp {
             serializeTable(t);
             throw new DBAppException("Value of primary key (" + t.getClusteringKeyColumn() + ") is already in use");
         }
-        // throw new DBAppException("not implemented yet");
+
     }
 
     private boolean checkValueMF(String columnName, String columnValue, String tableName) throws DBAppException {
@@ -354,7 +364,7 @@ public class DBApp {
                             fr.close();
                             return true;
                         } catch (Exception e) {
-                            throw new DBAppException("mismatch data type, for column '" + columnName
+                            throw new DBAppException("Mismatch data type, for column '" + columnName
                                     + "' should be java.lang.Integer");
                         }
                     } else if (c.equalsIgnoreCase("java.lang.Double")) {
@@ -364,13 +374,13 @@ public class DBApp {
                             fr.close();
                             return true;
                         } catch (Exception e) {
-                            throw new DBAppException("mismatch data type, for column '" + columnName
+                            throw new DBAppException("Mismatch data type, for column '" + columnName
                                     + "' should be java.lang.Double");
                         }
                     } else if (c.equalsIgnoreCase("java.lang.String")) {
                         for (int i = 0; i < columnValue.length(); i++) {
                             if (((char) (columnValue.charAt(i)) >= '0') && ((char) (columnValue.charAt(i)) <= '9')) {
-                                throw new DBAppException("mismatch data type, for column '" + columnName
+                                throw new DBAppException("Mismatch data type, for column '" + columnName
                                         + "' should be java.lang.String");
                             }
                         }
@@ -403,13 +413,17 @@ public class DBApp {
         // init the table
         Table t = new Table();
         if (!(tableNames.contains(strTableName))) {
-            throw new DBAppException("table doesn't exist");
+            throw new DBAppException("Table doesn't exist");
         } else {
             t = deserializeTable(strTableName);
         }
+        if(t.getPages().size()==0){
+            serializeTable(t);
+            throw new DBAppException("Table is empty");
+        }
         if (htblColNameValue.containsKey(t.getClusteringKeyColumn())) {
             serializeTable(t);
-            throw new DBAppException("cannot update primary key");
+            throw new DBAppException("Cannot update primary key");
         }
 
         String clusteringKey = t.getClusteringKeyColumn();
@@ -430,7 +444,11 @@ public class DBApp {
             Tuple tu = t.getTuple(strClusteringKeyValue);
             if (!(tu.getData().size() > 0)) {
                 serializeTable(t);
-                throw new DBAppException("row/tuple does not exist");
+                throw new DBAppException("Tuple does not exist");
+            }
+            if (htblColNameValue.size()==0) {
+                serializeTable(t);
+                throw new DBAppException("Please select the values to be updated");
             }
             Vector<String> columns = t.getColOrder();
             serializeTable(t);
@@ -475,8 +493,10 @@ public class DBApp {
     public void deleteFromTable(String strTableName,
                                 Hashtable<String, Object> htblColNameValue) throws DBAppException {
         // init the table
-        System.out.println("deleteeeee");
         SQLTerm[] arrSQLTerms;
+        if(htblColNameValue.size()==0){
+            throw new DBAppException("Please select values to be deleted");
+        }
         arrSQLTerms = new SQLTerm[htblColNameValue.size()];
         // open the hashtable
         String hash = htblColNameValue.toString();
@@ -501,18 +521,27 @@ public class DBApp {
                 strarrOperators[i] = "AND";
             }
         }
+        Table table = deserializeTable(strTableName);
+        if(table.getPages().size()==0){
+            serializeTable(table);
+            throw new DBAppException("Table is empty");
+        }
 
         Iterator resultSet = selectFromTable(arrSQLTerms, strarrOperators);
+        if (!resultSet.hasNext()) {
+            serializeTable(table);
+            throw new DBAppException("Tuples not found");
+        }
         if (resultSet != null){
-            System.out.println(resultSet.hasNext());
+            //System.out.println(resultSet.hasNext());
             while (resultSet.hasNext()) {
                 Tuple tuple = (Tuple) resultSet.next();
-                Table table = deserializeTable(strTableName);
                 table.deleteData(tuple);
-                System.out.println("pagee");
+                //System.out.println("pagee");
                 serializeTable(table);
             }
         }
+
     }
 
     public String[] getColumnRow(String tableName, String columnName) throws DBAppException {
@@ -591,15 +620,24 @@ public class DBApp {
 
         // Initialize the iterator for the current select operation.
         Vector<Tuple> results = new Vector<Tuple>();
-        // Check if the table exists in the database.
-        Validators.checkTableExistsMF(arrSQLTerm._strTableName);
-        Validators.checkColumnExistsMF(arrSQLTerm._strColumnName, arrSQLTerm._strTableName);
+        // Check if the table exists in the database
+
+       if(! Validators.checkTableExistsMF(arrSQLTerm._strTableName)){
+           throw new DBAppException("Table '"+arrSQLTerm._strTableName+"' not found");
+       }
+        if(!Validators.checkColumnExistsMF(arrSQLTerm._strColumnName, arrSQLTerm._strTableName)){
+            throw new DBAppException("Column'"+arrSQLTerm._strColumnName+"' not found");
+        }
         // Check data types with meta data file.
         String columnValue = arrSQLTerm._objValue + "";
         checkValueMF(arrSQLTerm._strColumnName, columnValue, arrSQLTerm._strTableName);
 
         // Deserialize the table.
         Table t = deserializeTable(arrSQLTerm._strTableName);
+        if(t.getPages().size()==0){
+            serializeTable(t);
+            throw new DBAppException("Table is empty");
+        }
 
         // Case 1 : A binary tree exists for the column.
         String fileName = arrSQLTerm._strTableName + "," + arrSQLTerm._strColumnName + ".bin";
@@ -618,27 +656,24 @@ public class DBApp {
             Object value = tuple.getData().get(t.getColOrder().indexOf(arrSQLTerm._strColumnName));
             String columnType = getColumnType(arrSQLTerm._strTableName, arrSQLTerm._strColumnName);
             if (!canBeCast(columnType, value)) {
+                serializeTable(t);
                 throw new DBAppException("Data type mismatch");
             }
             //System.out.println(columnType);
             columnType=columnType.substring(1, columnType.length() - 1);
-            System.out.println(columnType);
-            //System.out.println("java.lang.Integer");
-            //System.out.println(columnType.compareTo("java.lang.Integer"));
 
-            switch (columnType) {
-                case "java.lang.Integer" -> {
+
+            switch (columnType.toLowerCase()) {
+                case "java.lang.integer" -> {
                     arrSQLTerm._objValue = Integer.parseInt(arrSQLTerm._objValue + "");
                     value = Integer.parseInt(value + "");
-                    System.out.println(value);
-                    System.out.println(arrSQLTerm._objValue);
-                    System.out.println(arrSQLTerm._objValue.equals(value));
+
                     switch (arrSQLTerm._strOperator) {
                         case "=" -> {
-                            System.out.println("gowa case +");
+
                             //value = value + "";
                             if (arrSQLTerm._objValue.equals(value)) {
-                                System.out.println("gowa if");
+
                                 results.add(tuple);
                                 break;
                             }
@@ -673,14 +708,15 @@ public class DBApp {
                                 break;
                             }
                         }
+                        default -> {
+                            serializeTable(t);
+                            throw new DBAppException("Operator "+arrSQLTerm._strOperator+" not supported");
+                        }
                     }
                 }
                 case "java.lang.double" -> {
                     arrSQLTerm._objValue = Double.parseDouble(arrSQLTerm._objValue + "");
                     value = Double.parseDouble(value + "");
-                    System.out.println(value);
-                    System.out.println(arrSQLTerm._objValue);
-                    System.out.println(arrSQLTerm._objValue.equals(value));
 
                     switch (arrSQLTerm._strOperator) {
                         case "=" -> {
@@ -720,9 +756,13 @@ public class DBApp {
                                 break;
                             }
                         }
+                        default -> {
+                            serializeTable(t);
+                            throw new DBAppException("Operator '"+arrSQLTerm._strOperator+"' not supported");
+                        }
                     }
                 }
-                case "java.lang.String" -> {
+                case "java.lang.string" -> {
                     arrSQLTerm._objValue = arrSQLTerm._objValue + "";
                     value = value + "";
 
@@ -764,6 +804,10 @@ public class DBApp {
                                 break;
                             }
                         }
+                        default -> {
+                            serializeTable(t);
+                            throw new DBAppException("Operator '"+arrSQLTerm._strOperator+"' not supported");
+                        }
 
                     }
 
@@ -783,11 +827,19 @@ public class DBApp {
         // Array of Iterators to hold the results of the multiple select operations
         // Each index in the array corresponds to a select operation.
         Vector<Vector> subResults = new Vector<>();
+        if(arrSQLTerms[0]==null){
+            throw new DBAppException("please insert terms to be selected");
+        }
+        if(strarrOperators[0]==null){
+            throw new DBAppException("please insert operators");
+        }
 
         // Iterate through the SQLTerms array and select the relevant data.
         for (SQLTerm arrSQLTerm : arrSQLTerms) {
             // Initialize the vector for the current select operation.
-            subResults.add(getSubResult(arrSQLTerm));
+            if (arrSQLTerm != null) {
+                subResults.add(getSubResult(arrSQLTerm));
+            }
         }
 
         /*
@@ -796,29 +848,46 @@ public class DBApp {
          * Each operator will be applied to the previous result and the current
          * iterator.
          */
-
-        // Initialize Temp result vector as the first vector in the subResults array.
-        Vector<Tuple> tempResult = subResults.get(0);
-        if (strarrOperators[0] == null) {
-            //System.out.println(tempResult);
-            return tempResult.iterator();
-        }
-        int i = 1;
-        for (String strarrOperator : strarrOperators) {
-            // Initialize the result as a vector.
-            Vector<Tuple> result = new Vector<Tuple>();
-
-            switch (strarrOperator) {
-                case "AND" -> tempResult = RecordOperators.andRecords(tempResult, subResults.get(i));
-                case "OR" -> tempResult = RecordOperators.orRecords(tempResult, subResults.get(i));
-                case "XOR" -> tempResult = RecordOperators.xorRecords(tempResult, subResults.get(i));
+        Vector<Tuple> tempResult =  null ;
+        if(subResults.size()!=0) {
+            // Initialize Temp result vector as the first vector in the subResults array.
+             tempResult = subResults.get(0);
+            if (strarrOperators[0] == null) {
+                //System.out.println(tempResult);
+                return tempResult.iterator();
             }
-            i++;
-            System.out.println("tempResult: " + tempResult.toString());
+            int i = 1;
+            for (String strarrOperator : strarrOperators) {
+                // Initialize the result as a vector.
+                if (strarrOperator != null) {
+                    Vector<Tuple> result = new Vector<Tuple>();
+                    if(i==subResults.size()){
+                        throw new DBAppException("Incorrect number of SQLTerms ");
+                    }
+
+                    switch (strarrOperator.toUpperCase()) {
+                        case "AND" -> tempResult = RecordOperators.andRecords(tempResult, subResults.get(i));
+                        case "OR" -> tempResult = RecordOperators.orRecords(tempResult, subResults.get(i));
+                        case "XOR" -> tempResult = RecordOperators.xorRecords(tempResult, subResults.get(i));
+                        default -> {
+                            throw new DBAppException("Operation '" + strarrOperator + "' not supported");
+                        }
+                    }
+                    i++;
+                    System.out.println("tempResult: " + tempResult.toString());
+                }
+
+            }
+            if(i!=subResults.size()){
+                throw new DBAppException("Incorrect number of operators");
+            }
 
         }
         // Convert the result vector to an iterator and return it.
         System.out.println("final" + tempResult);
-        return tempResult.iterator();
+        if(tempResult==null){
+            return null;
+        }
+            return tempResult.iterator();
     }
 }

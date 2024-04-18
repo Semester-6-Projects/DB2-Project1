@@ -19,6 +19,9 @@ public class Table implements Serializable {
     public Table(String strTableName,
                  String strClusteringKeyColumn,
                  Hashtable<String, String> htblColNameType) throws DBAppException{
+        if(htblColNameType.size()==0){
+            throw new DBAppException("Please insert the columns and their types");
+        }
         this.TableName = strTableName;
         this.ClusteringKeyColumn = strClusteringKeyColumn;
         String hash = htblColNameType.toString();
@@ -27,20 +30,25 @@ public class Table implements Serializable {
         for (int i = hash3.length - 1; i >= 0; i--) {
             String[] x = hash3[i].split("=");
             String xtrimmed = x[0].trim();
-            colOrder.add(xtrimmed);
-            if(x[1].equalsIgnoreCase("java.lang.Integer") || x[1].equalsIgnoreCase("java.lang.Double")
-                    || x[1].equalsIgnoreCase("java.lang.String")) {
-                if (xtrimmed.equals(strClusteringKeyColumn)) {
-                    String[] y = {strTableName, xtrimmed, x[1], "True", "null", "null"};
-                    writeDataLineByLine("resources/metaFile.csv", y);
-                } else {
-                    String[] y = {strTableName, xtrimmed, x[1], "False", "null", "null"};
-                    writeDataLineByLine("resources/metaFile.csv", y);
-                }
+            if(colOrder.contains(xtrimmed)) {
+                throw new DBAppException("Can not have 2 columns with the same name");
             }
             else{
-                throw new DBAppException("cannot create a column with type " + x[1]);
+                colOrder.add(xtrimmed);
+                if (x[1].equalsIgnoreCase("java.lang.Integer") || x[1].equalsIgnoreCase("java.lang.Double")
+                        || x[1].equalsIgnoreCase("java.lang.String")) {
+                    if (xtrimmed.equals(strClusteringKeyColumn)) {
+                        String[] y = {strTableName, xtrimmed, x[1], "True", "null", "null"};
+                        writeDataLineByLine("resources/metaFile.csv", y);
+                    } else {
+                        String[] y = {strTableName, xtrimmed, x[1], "False", "null", "null"};
+                        writeDataLineByLine("resources/metaFile.csv", y);
+                    }
+                } else {
+                    throw new DBAppException("cannot create a column with type " + x[1]);
+                }
             }
+
         }
     }
 
@@ -620,7 +628,7 @@ public class Table implements Serializable {
         }
     }
 
-    private Page deserializePage(String pageName) {
+    public Page deserializePage(String pageName) {
         Page p = new Page();
         String fileName = pageName + ".bin";
         ObjectInputStream in = null;
@@ -655,7 +663,7 @@ public class Table implements Serializable {
         return data;
     }
 
-    public Vector<Tuple> getSelectDataIndex(String columnName, String operator, Object value) {
+    public Vector<Tuple> getSelectDataIndex(String columnName, String operator, Object value) throws DBAppException {
         // Get only the relevant data using the binary plus tree index.
         Vector<Tuple> data = new Vector<Tuple>();
         BPTree tree = deserializeTree(TableName + "," + columnName + ".bin");
@@ -762,6 +770,10 @@ public class Table implements Serializable {
                 Vector<Tuple> data22 = getSelectDataIndex(columnName, "<", value);
                 data = RecordOperators.orRecords(data11, data22);
                 break;
+            default :
+                serializeTree(tree);
+                throw new DBAppException("Operator '"+ operator +"' not supported");
+
         }
 
         return data;

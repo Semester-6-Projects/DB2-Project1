@@ -1,3 +1,0 @@
-"Student","id","java.lang.Integer","True","idIndex","B+tree"
-"Student","name","java.lang.String","False","nameIndex","B+tree"
-"Student","gpa","java.lang.double","False","gpaIndex","B+tree"
