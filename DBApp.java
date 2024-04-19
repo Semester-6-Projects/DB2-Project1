@@ -650,7 +650,21 @@ public class DBApp {
         }
 
         // Case 2 : A binary tree does not exist for the column.
-        // Get all the data from the table and iterate through it.
+
+        // If the column does not have an index, but it is the clustering key, the data would be sorted
+        // and we can use binary search to find the data. Clustering key is primary key so it is unique.
+
+        if (arrSQLTerm._strColumnName.equals(t.getClusteringKeyColumn())) {
+            Tuple tuple = t.getTuple(arrSQLTerm._objValue + "");
+            if (tuple.getData().size() > 0) {
+                results.add(tuple);
+            }
+            serializeTable(t);
+            return results;
+        }
+
+
+        // Get all the data from the table and iterate through it. (In case it is not the clustering key)
         Vector<Tuple> allRows = t.getAllData();
         for (Tuple tuple : allRows) {
             Object value = tuple.getData().get(t.getColOrder().indexOf(arrSQLTerm._strColumnName));
