@@ -664,33 +664,53 @@ public class Table implements Serializable {
         }
     }
 
+    public Tuple binarySearchTuples(Vector<Tuple> tuples, Object value) {
+        int start = 0;
+        int end = tuples.size() - 1;
+        while (start <= end) {
+            int mid = (start + end) / 2;
+            Tuple midTuple = tuples.get(mid);
+            Object midValue = midTuple.getData().get(colOrder.indexOf(ClusteringKeyColumn));
+            if (midValue.equals(value)) {
+                return midTuple;
+            } else if (((Comparable) midValue).compareTo((Comparable) value) < 0) {
+                start = mid + 1;
+            } else {
+                end = mid - 1;
+            }
+        }
+        return null;
+    }
+
     public Tuple getTuple(String clusteringKeyValue) {
         int index = colOrder.indexOf(ClusteringKeyColumn);
-        Tuple tu = new Tuple();
+        Tuple resultTuple = new Tuple();
         String fileName = TableName + "," + ClusteringKeyColumn + ".bin";
         File check = new File(fileName);
         if (check.exists()) {
             BPTree tree = deserializeTree(fileName);
             Ref r = tree.search(clusteringKeyValue);
             Page p = deserializePage(r.getFileName());
-            tu = p.getTuples().get(r.getIndexInPage());
+            resultTuple = p.getTuples().get(r.getIndexInPage());
             serializePage(p);
             serializeTree(tree);
-            return tu;
+
         } else {
-            for (int i = 0; i < Pages.size(); i++) {
-                Page p = deserializePage(Pages.get(i).getPageName());
-                for (int j = 0; j < p.getTuples().size() - 1; j++) {
-                    if (p.getTuples().get(j).getData().get(index).equals(clusteringKeyValue)) {
-                        Tuple tuple = p.getTuples().get(j);
-                        serializePage(p);
-                        return tuple;
-                    }
-                }
-                serializePage(p);
-            }
+            // Search for the tuple using binary search
+
+            // Get the page where the tuple is located
+            String pageName = binarySearch(Pages, 0, Pages.size() - 1, clusteringKeyValue);
+            Page p = deserializePage(pageName);
+
+            // Get the tuples in the page (O(1)) operation
+            Vector<Tuple> tuples = p.getTuples();
+            serializePage(p);
+
+            // binary search within the tuples to find the tuple with the clustering key value
+            resultTuple = binarySearchTuples(tuples, clusteringKeyValue);
+
         }
-        return tu;
+        return resultTuple;
     }
 
     private void serializePage(Page p) {
