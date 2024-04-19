@@ -17,30 +17,31 @@ public class DBApp {
             dbApp.init();
 
             Hashtable htblColNameType = new Hashtable();
+            Hashtable htblColNameType2 = new Hashtable();
             htblColNameType.put("id", "java.lang.Integer");
             htblColNameType.put("name", "java.lang.String");
             htblColNameType.put("gpa", "java.lang.Double");
             //htblColNameType.put("gpad", "java.lang.Double");
             dbApp.createTable(strTableName, "id", htblColNameType);
-           // dbApp.createIndex(strTableName, "id", "idIndex");
+            //dbApp.createIndex(strTableName, "id", "idIndex");
 
             Hashtable htblColNameValue = new Hashtable();
             htblColNameValue.put("gpa", Double.valueOf(0.88));
-            htblColNameValue.put("id", Integer.valueOf(3));
-            htblColNameValue.put("name", new String("Ahmed Noor"));
+            htblColNameValue.put("id", Integer.valueOf(333));
+            htblColNameValue.put("name", new String("Ahmed Noor2"));
             dbApp.insertIntoTable(strTableName, htblColNameValue);
-           // dbApp.createIndex(strTableName, "gpa", "gpaIndex");
+            //dbApp.createIndex(strTableName, "gpa", "gpaIndex");
             //dbApp.createIndex(strTableName, "name", "nameIndex");
 
             htblColNameValue.clear();
-            htblColNameValue.put("id", Integer.valueOf(7));
-            htblColNameValue.put("name", new String("Amy "));
+            htblColNameValue.put("id", Integer.valueOf(72));
+            htblColNameValue.put("name", new String("amy"));
             htblColNameValue.put("gpa", Double.valueOf(0.96));
             dbApp.insertIntoTable(strTableName, htblColNameValue);
 
             htblColNameValue.clear();
             htblColNameValue.put("id", Integer.valueOf(5));
-            htblColNameValue.put("name", new String("Dalia Noor"));
+            htblColNameValue.put("name", new String("dalia"));
             htblColNameValue.put("gpa", Integer.valueOf(1));
             dbApp.insertIntoTable(strTableName, htblColNameValue);
 
@@ -66,7 +67,7 @@ public class DBApp {
             //htblColNameValue.put("gpa", Double.valueOf(0.88));
             //htblColNameValue.put("id", Integer.valueOf(3));
             //htblColNameValue.put("name", new String("Ahmed Noorrr"));
-            //dbApp.deleteFromTable(strTableName, htblColNameValue);
+            //dbApp.deleteFromTable(strTableName, htblColNameType2);
             //dbApp.updateTable(strTableName,"1",htblColNameValue);
 //
 //            htblColNameValue.clear();
@@ -331,10 +332,10 @@ public class DBApp {
                 throw new DBAppException("Column " + columnName + " doesn't exist in table "+ strTableName);
             }
         }
-        if (t.getColOrder().size() != htblColNameValue.size()) {
-            serializeTable(t);
-            throw new DBAppException("Incorrect number of insertions");
-        }
+//        if (t.getColOrder().size() != htblColNameValue.size()) {
+//            serializeTable(t);
+//            throw new DBAppException("Incorrect number of insertions");
+//        }
         Tuple t2 = new Tuple(dataValue);
         if (t.addData(t2)) {
             serializeTable(t);
@@ -347,6 +348,7 @@ public class DBApp {
 
     private boolean checkValueMF(String columnName, String columnValue, String tableName) throws DBAppException {
         try {
+
             FileReader fr = new FileReader("resources/metaFile.csv");
             BufferedReader br = new BufferedReader(fr);
             String z = br.readLine();
@@ -378,15 +380,37 @@ public class DBApp {
                                     + "' should be java.lang.Double");
                         }
                     } else if (c.equalsIgnoreCase("java.lang.String")) {
-                        for (int i = 0; i < columnValue.length(); i++) {
-                            if (((char) (columnValue.charAt(i)) >= '0') && ((char) (columnValue.charAt(i)) <= '9')) {
+                        try {
+                            int x = Integer.parseInt(columnValue);
+
+                            br.close();
+                            fr.close();
+                            throw new DBAppException("Mismatch data type, for column '" + columnName
+                                    + "' should be java.lang.String");
+                        }catch (DBAppException d){
+                            throw new DBAppException("Mismatch data type, for column '" + columnName
+                                    + "' should be java.lang.String");
+                        }
+                        catch (Exception e) {
+                            try {
+                                Double d = Double.parseDouble(columnValue);
+
+                                br.close();
+                                fr.close();
+                                throw new DBAppException("Mismatch data type, for column '" + columnName
+                                        + "' should be java.lang.String");
+                            }catch (DBAppException d){
                                 throw new DBAppException("Mismatch data type, for column '" + columnName
                                         + "' should be java.lang.String");
                             }
+                            catch (Exception ee) {
+
+                                br.close();
+                                fr.close();
+                                return true;
+                            }
+
                         }
-                        br.close();
-                        fr.close();
-                        return true;
                     }
                 }
                 z = br.readLine();
@@ -417,10 +441,10 @@ public class DBApp {
         } else {
             t = deserializeTable(strTableName);
         }
-        if(t.getPages().size()==0){
-            serializeTable(t);
-            throw new DBAppException("Table is empty");
-        }
+//        if(t.getPages().size()==0){
+//            serializeTable(t);
+//            throw new DBAppException("Table is empty");
+//        }
         if (htblColNameValue.containsKey(t.getClusteringKeyColumn())) {
             serializeTable(t);
             throw new DBAppException("Cannot update primary key");
@@ -429,7 +453,7 @@ public class DBApp {
         String clusteringKey = t.getClusteringKeyColumn();
         if (checkValueMF(clusteringKey, strClusteringKeyValue, strTableName)) {
             Hashtable<String, Object> htblColNameValue2 = new Hashtable<String, Object>();
-            String checkType = Validators.dataType(clusteringKey,strClusteringKeyValue, strTableName);
+            String checkType = Validators.dataType(clusteringKey, strTableName);
             if(checkType.equals("int")){
                 int x = Integer.valueOf(Integer.parseInt(strClusteringKeyValue));
                 htblColNameValue2.put(clusteringKey, x);
@@ -492,10 +516,32 @@ public class DBApp {
     // htblColNameValue enteries are ANDED together
     public void deleteFromTable(String strTableName,
                                 Hashtable<String, Object> htblColNameValue) throws DBAppException {
-        // init the table
+
+        Table table = new Table();
+        if (!(tableNames.contains(strTableName))) {
+            throw new DBAppException("Table doesn't exist");
+        } else {
+             table = deserializeTable(strTableName);
+        }
         SQLTerm[] arrSQLTerms;
         if(htblColNameValue.size()==0){
-            throw new DBAppException("Please select values to be deleted");
+               int size = table.getPages().size();
+            for (int i = 0; i <size ; i++) {
+                File f = new File(table.getPages().get(0).getPageName() + ".bin");
+                table.getPages().remove(0);
+                f.delete();
+            }
+            for (int i = 0; i < table.getColOrder().size(); i++) {
+                String fileName = strTableName + "," + table.getColOrder().get(i) + ".bin";
+                File check = new File(fileName);
+                if(check.exists()){
+                    File f = new File(fileName);
+                    f.delete();
+                    table.createIndexHelper(strTableName,table.getColOrder().get(i));
+                }
+
+            }
+            return;
         }
         arrSQLTerms = new SQLTerm[htblColNameValue.size()];
         // open the hashtable
@@ -521,25 +567,22 @@ public class DBApp {
                 strarrOperators[i] = "AND";
             }
         }
-        Table table = deserializeTable(strTableName);
-        if(table.getPages().size()==0){
-            serializeTable(table);
-            throw new DBAppException("Table is empty");
-        }
+
+
 
         Iterator resultSet = selectFromTable(arrSQLTerms, strarrOperators);
-        if (!resultSet.hasNext()) {
-            serializeTable(table);
-            throw new DBAppException("Tuples not found");
-        }
+//        if (!resultSet.hasNext()) {
+//            serializeTable(table);
+//            throw new DBAppException("Tuples not found");
+//        }
         if (resultSet != null){
             //System.out.println(resultSet.hasNext());
             while (resultSet.hasNext()) {
                 Tuple tuple = (Tuple) resultSet.next();
                 table.deleteData(tuple);
                 //System.out.println("pagee");
-                serializeTable(table);
             }
+            serializeTable(table);
         }
 
     }
@@ -634,10 +677,10 @@ public class DBApp {
 
         // Deserialize the table.
         Table t = deserializeTable(arrSQLTerm._strTableName);
-        if(t.getPages().size()==0){
-            serializeTable(t);
-            throw new DBAppException("Table is empty");
-        }
+//        if(t.getPages().size()==0){
+//            serializeTable(t);
+//            throw new DBAppException("Table is empty");
+//        }
 
         // Case 1 : A binary tree exists for the column.
         String fileName = arrSQLTerm._strTableName + "," + arrSQLTerm._strColumnName + ".bin";
@@ -841,12 +884,10 @@ public class DBApp {
         // Array of Iterators to hold the results of the multiple select operations
         // Each index in the array corresponds to a select operation.
         Vector<Vector> subResults = new Vector<>();
-        if(arrSQLTerms[0]==null){
+        if(arrSQLTerms.length==0){
             throw new DBAppException("please insert terms to be selected");
         }
-        if(strarrOperators[0]==null){
-            throw new DBAppException("please insert operators");
-        }
+
 
         // Iterate through the SQLTerms array and select the relevant data.
         for (SQLTerm arrSQLTerm : arrSQLTerms) {
@@ -888,7 +929,7 @@ public class DBApp {
                         }
                     }
                     i++;
-                    System.out.println("tempResult: " + tempResult.toString());
+
                 }
 
             }
@@ -898,7 +939,7 @@ public class DBApp {
 
         }
         // Convert the result vector to an iterator and return it.
-        System.out.println("final" + tempResult);
+
         if(tempResult==null){
             return null;
         }

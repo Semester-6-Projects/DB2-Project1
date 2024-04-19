@@ -189,10 +189,31 @@ public class Table implements Serializable {
         }
 
     }
+    private Tuple correctTuple (Tuple data){
+        Tuple data2 = new Tuple();
+        for (int i = 0; i < data.getData().size(); i++) {
+            String type = Validators.dataType(colOrder.get(i),TableName);
+            String value = data.getData().get(i) +"";
+            if(type.equals("int")){
+                int x = Integer.parseInt(value);
+                data2.getData().add(x);
+            }
+            else if(type.equals("double")){
+                double x = Double.parseDouble(value);
+                data2.getData().add(x);
+            }
+            else {
+                data2.getData().add(value);
+            }
 
-    public boolean addData(Tuple data) {
-        //int max = getMax();
-        int max = 2;
+        }
+        return data2;
+    }
+
+    public boolean addData(Tuple data2)  {
+        Tuple data = correctTuple(data2);
+        int max = getMax();
+        //int max = 2;
         String fileName = TableName + "," + ClusteringKeyColumn + ".bin";
         File check = new File(fileName);
         if (Pages.size() == 0) {
@@ -221,18 +242,19 @@ public class Table implements Serializable {
         } else {
             int index = colOrder.indexOf(ClusteringKeyColumn);
             Object value = data.getData().get(index);
+            String type = Validators.dataType(ClusteringKeyColumn,TableName);
             String name = binarySearch(Pages, 0, Pages.size() - 1, value);
             Page p = deserializePage(name);
             Vector<Tuple> tuples = p.getTuples();
             for (int j = 0; j < tuples.size(); j++) {
                 Tuple a = tuples.get(j);
-                String b = (String) data.getData().get(index); // value to be inserted
-                String c = (String) a.getData().get(index); // value in page
-                if (b.compareTo(c) == 0) {
+                String b =  data.getData().get(index) + ""; // value to be inserted
+                String c =  a.getData().get(index) + ""; // value in page
+                if (checkEqual(b,c,type)) {
                     serializePage(p);
                     return false;
                 }
-                if (b.compareTo(c) < 0) {
+                if (checkLessThan(b,c,type)) {
                     if (tuples.size() < max) {
                         p.addData(data, j);
                         addInBTreeHelper(p, j, data, 2);
@@ -293,9 +315,75 @@ public class Table implements Serializable {
         return false;
     }
 
+    private boolean checkEqual (String b, String c, String type){
+        if(type.equals("int")){
+            int x = Integer.parseInt(b);
+            int y = Integer.parseInt(c);
+            if (x==y){
+                return true;
+            }
+            else {
+                return false;
+            }
+        }
+        else if(type.equals("double")){
+            double x = Double.parseDouble(b);
+            double y = Double.parseDouble(c);
+            if (x==y){
+                return true;
+            }
+            else {
+                return false;
+            }
+        }
+        else{
+            if (b.equals(c))
+            {
+            return true;
+            }
+        else {
+                return false;
+            }
+        }
+    }
+
+    private boolean checkLessThan (String b, String c, String type){
+        if(type.equals("int")){
+            int x = Integer.parseInt(b);
+            int y = Integer.parseInt(c);
+            if (x<y){
+                return true;
+            }
+            else {
+                return false;
+            }
+        }
+        else if(type.equals("double")){
+            double x = Double.parseDouble(b);
+            double y = Double.parseDouble(c);
+            if (x<y){
+                return true;
+            }
+            else {
+                return false;
+            }
+        }
+        else{
+            if (b.compareTo(c)<0)
+            {
+                return true;
+            }
+            else {
+                return false;
+            }
+        }
+    }
+
+
+
     public void addWithIndex(Tuple data, BPTreeLeafNode node) {
-        //int max = getMax();
-        int max = 2;
+        int max = getMax();
+        //int max = 2;
         if (node == null) {
             Page p = deserializePage(Pages.lastElement().getPageName());
             int index = colOrder.indexOf(ClusteringKeyColumn);
@@ -344,8 +432,8 @@ public class Table implements Serializable {
                 // System.out.print(p.toString());
                 for (int i = 0; i < Pages.size(); i++) {
                     if (r.getFileName().equals(Pages.get(i).getPageName())) {
-                        Pages.get(i).setMin(tuples.firstElement().getData().get(index));
-                        Pages.get(i).setMax(tuples.lastElement().getData().get(index));
+                        Pages.get(i).setMin(tuples.firstElement().getData().get(colIndex));
+                        Pages.get(i).setMax(tuples.lastElement().getData().get(colIndex));
                     }
                 }
                 serializePage(p);
@@ -770,10 +858,6 @@ public class Table implements Serializable {
                 Vector<Tuple> data22 = getSelectDataIndex(columnName, "<", value);
                 data = RecordOperators.orRecords(data11, data22);
                 break;
-            default :
-                serializeTree(tree);
-                throw new DBAppException("Operator '"+ operator +"' not supported");
-
         }
 
         return data;

@@ -62,7 +62,7 @@ public class Validators {
         }
         return false;
     }
-    public static String dataType(String columnName, String columnValue, String tableName) throws DBAppException {
+    public static String dataType(String columnName, String tableName)  {
         try {
             FileReader fr = new FileReader("resources/metaFile.csv");
             BufferedReader br = new BufferedReader(fr);
