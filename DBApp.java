@@ -1,6 +1,7 @@
 import java.io.*;
 import java.util.Iterator;
 import java.util.Hashtable;
+import java.util.Random;
 import java.util.Vector;
 import com.opencsv.CSVWriter;
 
@@ -10,28 +11,35 @@ public class DBApp {
     public DBApp() {
     }
 
+
     public static void main(String[] args) {
         try {
             String strTableName = "Student";
             DBApp dbApp = new DBApp();
             dbApp.init();
 
+            // testing createTable
             Hashtable htblColNameType = new Hashtable();
-            Hashtable htblColNameType2 = new Hashtable();
             htblColNameType.put("id", "java.lang.Integer");
             htblColNameType.put("name", "java.lang.String");
             htblColNameType.put("gpa", "java.lang.Double");
-            //htblColNameType.put("gpad", "java.lang.Double");
             dbApp.createTable(strTableName, "id", htblColNameType);
-            //dbApp.createIndex(strTableName, "id", "idIndex");
+            dbApp.createIndex(strTableName,"id","idIndex");
+            dbApp.createIndex(strTableName,"gpa","gpaIndex");
+            dbApp.createIndex(strTableName,"name","nameIndex");
 
+            // Testing Creating Indices
+
+//            dbApp.createIndex(strTableName, "id", "idIndex");
+//            dbApp.createIndex(strTableName, "gpa", "gpaIndex");
+//            dbApp.createIndex(strTableName, "name", "nameIndex");
+
+            // Testing Inserting into Table
             Hashtable htblColNameValue = new Hashtable();
             htblColNameValue.put("gpa", Double.valueOf(0.88));
             htblColNameValue.put("id", Integer.valueOf(333));
             htblColNameValue.put("name", new String("Ahmed Noor2"));
             dbApp.insertIntoTable(strTableName, htblColNameValue);
-            //dbApp.createIndex(strTableName, "gpa", "gpaIndex");
-            //dbApp.createIndex(strTableName, "name", "nameIndex");
 
             htblColNameValue.clear();
             htblColNameValue.put("id", Integer.valueOf(72));
@@ -63,76 +71,58 @@ public class DBApp {
             htblColNameValue.put("gpa", Double.valueOf(0.88));
             dbApp.insertIntoTable(strTableName, htblColNameValue);
 
-            htblColNameValue.clear();
-            //htblColNameValue.put("gpa", Double.valueOf(0.88));
-            //htblColNameValue.put("id", Integer.valueOf(3));
-            //htblColNameValue.put("name", new String("Ahmed Noorrr"));
-            //dbApp.deleteFromTable(strTableName, htblColNameType2);
-            //dbApp.updateTable(strTableName,"1",htblColNameValue);
-//
-//            htblColNameValue.clear();
-//            htblColNameValue.put("id", Integer.valueOf(5));
-//            htblColNameValue.put("name", new String("Dalia Noor"));
-//            htblColNameValue.put("gpa", Double.valueOf(1.25));
-//            dbApp.deleteFromTable(strTableName, htblColNameValue);
-//
+            // Add randomised values
+            for (int i = 0; i < 100; i++) {
+                htblColNameValue.clear();
+                Random rand = new Random();
+                htblColNameValue.put("id", rand.nextInt(100000000));
+                htblColNameValue.put("name", new String("Name" + i));
+                htblColNameValue.put("gpa", 0.7 + (5.0 - 0.7) * rand.nextDouble());
+                dbApp.insertIntoTable(strTableName, htblColNameValue);
+            }
+
+
             Table t = dbApp.deserializeTable(tableNames.get(0));
-            for (int i = 0; i <t.getPageCount(); i++) {
+            for (int i = 0; i < t.getPageCount(); i++) {
                 System.out.println(t.deserializePage(t.getPages().get(i).getPageName()));
             }
 
-//            htblColNameValue.clear();
-//            htblColNameValue.put("name", new String("Dalia Noor"));
-//            htblColNameValue.put("gpa", Double.valueOf(1.25));
-            //dbApp.updateTable(strTableName,"1", htblColNameValue);
-
 
             SQLTerm[] arrSQLTerms;
-            arrSQLTerms = new SQLTerm[4];
-
-//            arrSQLTerms[2] = new SQLTerm();
-//            arrSQLTerms[2]._strTableName = "Student";
-//            arrSQLTerms[2]._strColumnName = "id";
-//            arrSQLTerms[2]._strOperator = "=";
-//            arrSQLTerms[2]._objValue = Integer.valueOf(9);
+            arrSQLTerms = new SQLTerm[3];
 
             arrSQLTerms[0] = new SQLTerm();
             arrSQLTerms[0]._strTableName = "Student";
-            arrSQLTerms[0]._strColumnName = "name";
+            arrSQLTerms[0]._strColumnName = "gpa";
             arrSQLTerms[0]._strOperator = "=";
-            arrSQLTerms[0]._objValue = "amy";
-//
+            arrSQLTerms[0]._objValue = Double.valueOf(0.88);
+
             arrSQLTerms[1] = new SQLTerm();
-            arrSQLTerms[1]._strTableName = "Ahmed";
+            arrSQLTerms[1]._strTableName = "Student";
             arrSQLTerms[1]._strColumnName = "name";
             arrSQLTerms[1]._strOperator = "<=";
             arrSQLTerms[1]._objValue = "Zaky Noor";
 
-            String[] strarrOperators = new String[5];
-            //strarrOperators[0] = null;
+            arrSQLTerms[2] = new SQLTerm();
+            arrSQLTerms[2]._strTableName = "Student";
+            arrSQLTerms[2]._strColumnName = "id";
+            arrSQLTerms[2]._strOperator = "=";
+            arrSQLTerms[2]._objValue = Integer.valueOf(9);
+
+            String[] strarrOperators = new String[2];
             strarrOperators[0] = "AND";
-            //strarrOperators[1] = "or";
+            strarrOperators[1] = "or";
 
-            // select * from Student where name = "John Noor" or gpa = 1.5;
             Iterator resultSet = dbApp.selectFromTable(arrSQLTerms, strarrOperators);
-//
-//            // printing the sql
-//            for (SQLTerm term : arrSQLTerms) {
-//                System.out.println("Table Name: " + term._strTableName);
-//                System.out.println("Column Name: " + term._strColumnName);
-//                System.out.println("Operator: " + term._strOperator);
-//                System.out.println("Value: " + term._objValue);
-//                System.out.println("-------------------");
-//            }
-//
-
             System.out.println("Result set:");
-            if(resultSet!=null){
-            while (resultSet.hasNext()) {
-                System.out.println(resultSet.next());
-     }}
-//            else
-//                System.out.println("no results");
+            if (resultSet != null) {
+                while (resultSet.hasNext()) {
+                    System.out.println(resultSet.next());
+                }
+            } else
+                System.out.println("no results");
+
+
         } catch (Exception exp) {
             exp.printStackTrace();
         }
@@ -323,8 +313,20 @@ public class DBApp {
             if (checkValueMF(columnName, columnValue, strTableName)) {
                 for (int k = 0; k < t.getColOrder().size(); k++) {
                     if (t.getColOrder().get(k).equals(columnName)) {
-                        dataValue.add(k, columnValue);
-                        break;
+                        String type = Validators.dataType(strTableName,columnName);
+                        if(type.equals("int")){
+                            dataValue.add(k, Integer.parseInt(columnValue));
+                            break;
+                        }
+                        else if(type.equals("double")){
+                            dataValue.add(k, Double.parseDouble(columnValue));
+                            break;
+                        }
+                        else {
+                            dataValue.add(k, columnValue);
+                            break;
+                        }
+
                     }
                 }
             } else {
@@ -896,12 +898,12 @@ public class DBApp {
 
         // Iterate through the SQLTerms array and select the relevant data.
         for (SQLTerm arrSQLTerm : arrSQLTerms) {
-            System.out.println(arrSQLTerm._strTableName);
-            if(!(arrSQLTerm._strTableName.equals(tableName))){
-                throw new DBAppException("Select statement asks for tuples from different tables, join isnt supported");
-            }
+
             // Initialize the vector for the current select operation.
             if (arrSQLTerm != null) {
+                if(!(arrSQLTerm._strTableName.equals(tableName))){
+                    throw new DBAppException("Select statement asks for tuples from different tables, join isnt supported");
+                }
                 subResults.add(getSubResult(arrSQLTerm));
             }
         }

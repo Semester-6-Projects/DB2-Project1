@@ -755,7 +755,7 @@ public class Table implements Serializable {
         // Get only the relevant data using the binary plus tree index.
         Vector<Tuple> data = new Vector<Tuple>();
         BPTree tree = deserializeTree(TableName + "," + columnName + ".bin");
-        value = value + "";
+        //value = value + "";
 
         switch (operator) {
             case "=":
