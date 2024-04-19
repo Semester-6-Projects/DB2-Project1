@@ -28,8 +28,8 @@ public class DBApp {
             // Testing Creating Indices
 
 //            dbApp.createIndex(strTableName, "id", "idIndex");
-//            dbApp.createIndex(strTableName, "gpa", "gpaIndex");
-//            dbApp.createIndex(strTableName, "name", "nameIndex");
+            dbApp.createIndex(strTableName, "gpa", "gpaIndex");
+            dbApp.createIndex(strTableName, "name", "nameIndex");
 
             // Testing Inserting into Table
             Hashtable htblColNameValue = new Hashtable();
@@ -68,13 +68,13 @@ public class DBApp {
             htblColNameValue.put("gpa", Double.valueOf(0.88));
             dbApp.insertIntoTable(strTableName, htblColNameValue);
 
-            htblColNameValue.clear();
             // Add randomised values
-            for (int i = 0; i < 10000; i++) {
+            for (int i = 0; i < 100; i++) {
+                htblColNameValue.clear();
                 Random rand = new Random();
                 htblColNameValue.put("id", rand.nextInt(100000000));
                 htblColNameValue.put("name", new String("Name" + i));
-                htblColNameValue.put("gpa", rand.nextDouble());
+                htblColNameValue.put("gpa", 0.7 + (5.0 - 0.7) * rand.nextDouble());
                 dbApp.insertIntoTable(strTableName, htblColNameValue);
             }
 
@@ -107,12 +107,9 @@ public class DBApp {
             arrSQLTerms[2]._objValue = Integer.valueOf(9);
 
             String[] strarrOperators = new String[2];
-            //strarrOperators[0] = null;
             strarrOperators[0] = "AND";
             strarrOperators[1] = "or";
 
-
-            // select * from Student where name = "John Noor" or gpa = 1.5;
             Iterator resultSet = dbApp.selectFromTable(arrSQLTerms, strarrOperators);
             System.out.println("Result set:");
             if (resultSet != null) {
