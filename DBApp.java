@@ -1,6 +1,7 @@
 import java.io.*;
 import java.util.Iterator;
 import java.util.Hashtable;
+import java.util.Random;
 import java.util.Vector;
 import java.util.Random;
 
@@ -11,6 +12,7 @@ public class DBApp {
 
     public DBApp() {
     }
+
 
     public static void main(String[] args) {
         try {
@@ -28,8 +30,8 @@ public class DBApp {
             // Testing Creating Indices
 
 //            dbApp.createIndex(strTableName, "id", "idIndex");
-            dbApp.createIndex(strTableName, "gpa", "gpaIndex");
-            dbApp.createIndex(strTableName, "name", "nameIndex");
+//            dbApp.createIndex(strTableName, "gpa", "gpaIndex");
+//            dbApp.createIndex(strTableName, "name", "nameIndex");
 
             // Testing Inserting into Table
             Hashtable htblColNameValue = new Hashtable();
@@ -310,8 +312,20 @@ public class DBApp {
             if (checkValueMF(columnName, columnValue, strTableName)) {
                 for (int k = 0; k < t.getColOrder().size(); k++) {
                     if (t.getColOrder().get(k).equals(columnName)) {
-                        dataValue.add(k, columnValue);
-                        break;
+                        String type = Validators.dataType(strTableName,columnName);
+                        if(type.equals("int")){
+                            dataValue.add(k, Integer.parseInt(columnValue));
+                            break;
+                        }
+                        else if(type.equals("double")){
+                            dataValue.add(k, Double.parseDouble(columnValue));
+                            break;
+                        }
+                        else {
+                            dataValue.add(k, columnValue);
+                            break;
+                        }
+
                     }
                 }
             } else {
@@ -875,8 +889,12 @@ public class DBApp {
 
         // Iterate through the SQLTerms array and select the relevant data.
         for (SQLTerm arrSQLTerm : arrSQLTerms) {
+
             // Initialize the vector for the current select operation.
             if (arrSQLTerm != null) {
+                if(!(arrSQLTerm._strTableName.equals(tableName))){
+                    throw new DBAppException("Select statement asks for tuples from different tables, join isnt supported");
+                }
                 subResults.add(getSubResult(arrSQLTerm));
             }
         }
