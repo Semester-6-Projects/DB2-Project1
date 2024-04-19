@@ -694,8 +694,10 @@ public class DBApp {
 
         // Case 2 : A binary tree does not exist for the column.
 
-        // If the column does not have an index, but it is the clustering key, the data would be sorted
-        // and we can use binary search to find the data. Clustering key is primary key so it is unique.
+        /*
+         * If the column does not have an index, but it is the clustering key, the data would be sorted
+         * and we can use binary search to find the data. Clustering key is primary key so it is unique.
+         */
 
         if (arrSQLTerm._strColumnName.equals(t.getClusteringKeyColumn())) {
             Tuple tuple = t.getTuple(arrSQLTerm._objValue + "");
