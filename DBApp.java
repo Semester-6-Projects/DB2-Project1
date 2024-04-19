@@ -98,12 +98,12 @@ public class DBApp {
 
             arrSQLTerms[0] = new SQLTerm();
             arrSQLTerms[0]._strTableName = "Student";
-            arrSQLTerms[0]._strColumnName = "gpa";
+            arrSQLTerms[0]._strColumnName = "name";
             arrSQLTerms[0]._strOperator = "=";
-            arrSQLTerms[0]._objValue = Double.valueOf(0.88);
-
+            arrSQLTerms[0]._objValue = "amy";
+//
             arrSQLTerms[1] = new SQLTerm();
-            arrSQLTerms[1]._strTableName = "Student";
+            arrSQLTerms[1]._strTableName = "Ahmed";
             arrSQLTerms[1]._strColumnName = "name";
             arrSQLTerms[1]._strOperator = "<=";
             arrSQLTerms[1]._objValue = "Zaky Noor";
@@ -111,10 +111,10 @@ public class DBApp {
             String[] strarrOperators = new String[5];
             //strarrOperators[0] = null;
             strarrOperators[0] = "AND";
-            strarrOperators[1] = "or";
+            //strarrOperators[1] = "or";
 
             // select * from Student where name = "John Noor" or gpa = 1.5;
-//            Iterator resultSet = dbApp.selectFromTable(arrSQLTerms, strarrOperators);
+            Iterator resultSet = dbApp.selectFromTable(arrSQLTerms, strarrOperators);
 //
 //            // printing the sql
 //            for (SQLTerm term : arrSQLTerms) {
@@ -125,12 +125,12 @@ public class DBApp {
 //                System.out.println("-------------------");
 //            }
 //
-//
-//            System.out.println("Result set:");
-//            if(resultSet!=null){
-//            while (resultSet.hasNext()) {
-//                System.out.println(resultSet.next());
-//     }}
+
+            System.out.println("Result set:");
+            if(resultSet!=null){
+            while (resultSet.hasNext()) {
+                System.out.println(resultSet.next());
+     }}
 //            else
 //                System.out.println("no results");
         } catch (Exception exp) {
@@ -884,13 +884,22 @@ public class DBApp {
         // Array of Iterators to hold the results of the multiple select operations
         // Each index in the array corresponds to a select operation.
         Vector<Vector> subResults = new Vector<>();
-        if(arrSQLTerms.length==0){
-            throw new DBAppException("please insert terms to be selected");
-        }
+        String tableName = arrSQLTerms[0]._strTableName;
 
+        if(arrSQLTerms[0]._strColumnName.equals("") || arrSQLTerms[0]._strOperator.equals("") || arrSQLTerms[0]._objValue.equals("")
+        ||arrSQLTerms[0]._strColumnName==null || arrSQLTerms[0]._strOperator == null || arrSQLTerms[0]._objValue==null){
+            Table t = deserializeTable(tableName);
+            Vector<Tuple> results = t.getAllData();
+            serializeTable(t);
+            return results.iterator();
+        }
 
         // Iterate through the SQLTerms array and select the relevant data.
         for (SQLTerm arrSQLTerm : arrSQLTerms) {
+            System.out.println(arrSQLTerm._strTableName);
+            if(!(arrSQLTerm._strTableName.equals(tableName))){
+                throw new DBAppException("Select statement asks for tuples from different tables, join isnt supported");
+            }
             // Initialize the vector for the current select operation.
             if (arrSQLTerm != null) {
                 subResults.add(getSubResult(arrSQLTerm));
