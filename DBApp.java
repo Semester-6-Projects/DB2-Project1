@@ -29,9 +29,11 @@ public class DBApp {
 
             // Testing Creating Indices
 
+//            System.out.println("Creating Indices");
 //            dbApp.createIndex(strTableName, "id", "idIndex");
 //            dbApp.createIndex(strTableName, "gpa", "gpaIndex");
 //            dbApp.createIndex(strTableName, "name", "nameIndex");
+//            System.out.println("Indices Created");
 
             // Testing Inserting into Table
             Hashtable htblColNameValue = new Hashtable();
@@ -71,7 +73,8 @@ public class DBApp {
             dbApp.insertIntoTable(strTableName, htblColNameValue);
 
             // Add randomised values
-            for (int i = 0; i < 100; i++) {
+            for (int i = 0; i < 500; i++) {
+                System.out.println("Inserting Random row:" + i);
                 htblColNameValue.clear();
                 Random rand = new Random();
                 htblColNameValue.put("id", rand.nextInt(100000000));
@@ -81,12 +84,19 @@ public class DBApp {
             }
 
 
-            Table t = dbApp.deserializeTable(tableNames.get(0));
-            for (int i = 0; i < t.getPageCount(); i++) {
-                System.out.println(t.deserializePage(t.getPages().get(i).getPageName()));
+            // Print data for all tables
+            for (String tableName : tableNames) {
+                Table table = dbApp.deserializeTable(tableName);
+                System.out.println("Table: " + tableName);
+                for (int i = 0; i < table.getPageCount(); i++) {
+                    String pageName = table.getPages().get(i).getPageName();
+                    System.out.println(pageName);
+                    System.out.println(table.deserializePage(pageName));
+                }
             }
 
 
+            // Testing Select
             SQLTerm[] arrSQLTerms;
             arrSQLTerms = new SQLTerm[3];
 
@@ -112,7 +122,13 @@ public class DBApp {
             strarrOperators[0] = "AND";
             strarrOperators[1] = "or";
 
+            // Get Start time
+            long startTime = System.currentTimeMillis();
             Iterator resultSet = dbApp.selectFromTable(arrSQLTerms, strarrOperators);
+            // Get End time and print the time taken
+            long endTime = System.currentTimeMillis();
+            System.out.println("Time taken: " + (endTime - startTime) + "ms");
+
             System.out.println("Result set:");
             if (resultSet != null) {
                 while (resultSet.hasNext()) {
@@ -121,6 +137,21 @@ public class DBApp {
             } else
                 System.out.println("no results");
 
+            // Testing Update
+            Hashtable<String, Object> htblColNameValueUpdate = new Hashtable<String, Object>();
+            htblColNameValueUpdate.put("name", "Zaky Omar");
+            dbApp.updateTable(strTableName, "9", htblColNameValueUpdate);
+
+            // Print data for all tables
+            for (String tableName : tableNames) {
+                Table table = dbApp.deserializeTable(tableName);
+                System.out.println("Table: " + tableName);
+                for (int i = 0; i < table.getPageCount(); i++) {
+                    String pageName = table.getPages().get(i).getPageName();
+                    System.out.println(pageName);
+                    System.out.println(table.deserializePage(pageName));
+                }
+            }
 
         } catch (Exception exp) {
             exp.printStackTrace();
