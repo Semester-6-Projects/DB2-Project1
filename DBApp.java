@@ -756,7 +756,7 @@ public class DBApp {
          * binary search to find the data. Clustering key is primary key so it is unique.
          */
 
-        if (arrSQLTerm._strColumnName.equals(t.getClusteringKeyColumn())) {
+        if (arrSQLTerm._strColumnName.equals(t.getClusteringKeyColumn()) && arrSQLTerm._strOperator.equals("=")) {
             Tuple tuple = t.getTuple(arrSQLTerm._objValue + "");
             //System.out.println("tuple: " + tuple);
             if (tuple.getData().size() > 0) {
@@ -934,7 +934,7 @@ public class DBApp {
 
         }
         serializeTable(t);
-        //System.out.println("sub results" + results);
+//        System.out.println("sub results" + results);
         return results;
     }
 
@@ -974,7 +974,7 @@ public class DBApp {
         if (subResults.size() != 0) {
             // Initialize Temp result vector as the first vector in the subResults array.
             tempResult = subResults.get(0);
-            if (strarrOperators[0] == null) {
+            if (strarrOperators.length == 0) {
                 //System.out.println(tempResult);
                 return tempResult.iterator();
             }
