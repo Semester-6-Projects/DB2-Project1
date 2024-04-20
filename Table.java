@@ -8,7 +8,7 @@ import com.opencsv.CSVWriter;
 public class Table implements Serializable {
     private String TableName = "";
     private String ClusteringKeyColumn;
-    private int pageCount;
+    private int pageCount = 0;
     private Vector<PageInfo> Pages = new Vector<PageInfo>();
     private Vector<String> colOrder = new Vector<String>();
 
@@ -213,12 +213,12 @@ public class Table implements Serializable {
     public boolean addData(Tuple data2)  {
         Tuple data = correctTuple(data2);
         int max = getMax();
-        //int max = 2;
+        //int max = 20;
         String fileName = TableName + "," + ClusteringKeyColumn + ".bin";
         File check = new File(fileName);
         if (Pages.size() == 0) {
             pageCount++;
-            String pageName = TableName + (Pages.size() + 1);
+            String pageName = TableName + (pageCount);
             Page p = new Page(pageName, data);
             addInBTreeHelper(p, 0, data, 1);
             PageInfo pi = new PageInfo(pageName, data.getData().get(colOrder.indexOf(ClusteringKeyColumn)),
@@ -383,7 +383,7 @@ public class Table implements Serializable {
 
     public void addWithIndex(Tuple data, BPTreeLeafNode node) {
         int max = getMax();
-        //int max = 2;
+        //int max = 20;
         if (node == null) {
             Page p = deserializePage(Pages.lastElement().getPageName());
             int index = colOrder.indexOf(ClusteringKeyColumn);
@@ -446,8 +446,8 @@ public class Table implements Serializable {
                 // System.out.print(p.toString());
                 for (int i = 0; i < Pages.size(); i++) {
                     if (r.getFileName().equals(Pages.get(i).getPageName())) {
-                        Pages.get(i).setMin(tuples.firstElement().getData().get(index));
-                        Pages.get(i).setMax(tuples.lastElement().getData().get(index));
+                        Pages.get(i).setMin(tuples.firstElement().getData().get(colIndex));
+                        Pages.get(i).setMax(tuples.lastElement().getData().get(colIndex));
                     }
                 }
                 serializePage(p);
@@ -472,8 +472,8 @@ public class Table implements Serializable {
                         p.addData(data, index + 1);
                         addInBTreeHelper(p, index + 1, data, 1);
                         // System.out.print(p.toString());
-                        Pages.lastElement().setMin(tuples.firstElement().getData().get(index));
-                        Pages.lastElement().setMax(tuples.lastElement().getData().get(index));
+                        Pages.lastElement().setMin(tuples.firstElement().getData().get(colIndex));
+                        Pages.lastElement().setMax(tuples.lastElement().getData().get(colIndex));
                         serializePage(p);
                         return;
                     }
@@ -664,14 +664,14 @@ public class Table implements Serializable {
         }
     }
 
-    public Tuple getTuple(String clusteringKeyValue) {
+    public Tuple getTuple(Object clusteringKeyValue) {
         int index = colOrder.indexOf(ClusteringKeyColumn);
         Tuple tu = new Tuple();
         String fileName = TableName + "," + ClusteringKeyColumn + ".bin";
         File check = new File(fileName);
         if (check.exists()) {
             BPTree tree = deserializeTree(fileName);
-            Ref r = tree.search(clusteringKeyValue);
+            Ref r = tree.search((Comparable) clusteringKeyValue);
             Page p = deserializePage(r.getFileName());
             tu = p.getTuples().get(r.getIndexInPage());
             serializePage(p);
@@ -680,8 +680,9 @@ public class Table implements Serializable {
         } else {
             for (int i = 0; i < Pages.size(); i++) {
                 Page p = deserializePage(Pages.get(i).getPageName());
-                for (int j = 0; j < p.getTuples().size() - 1; j++) {
-                    if (p.getTuples().get(j).getData().get(index).equals(clusteringKeyValue)) {
+                for (int j = 0; j < p.getTuples().size() ; j++) {
+                    String x = p.getTuples().get(j).getData().get(index) + "";
+                    if (x.equals(clusteringKeyValue)) {
                         Tuple tuple = p.getTuples().get(j);
                         serializePage(p);
                         return tuple;
@@ -693,7 +694,7 @@ public class Table implements Serializable {
         return tu;
     }
 
-    private void serializePage(Page p) {
+    public void serializePage(Page p) {
         String pageName = p.getPageName() + ".bin";
         File file = new File(pageName);
         ObjectOutputStream os = null;
