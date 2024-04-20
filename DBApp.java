@@ -3,6 +3,8 @@ import java.util.Iterator;
 import java.util.Hashtable;
 import java.util.Random;
 import java.util.Vector;
+import java.util.Random;
+
 import com.opencsv.CSVWriter;
 
 public class DBApp {
@@ -25,9 +27,6 @@ public class DBApp {
             htblColNameType.put("name", "java.lang.String");
             htblColNameType.put("gpa", "java.lang.Double");
             dbApp.createTable(strTableName, "id", htblColNameType);
-            dbApp.createIndex(strTableName,"id","idIndex");
-            dbApp.createIndex(strTableName,"gpa","gpaIndex");
-            dbApp.createIndex(strTableName,"name","nameIndex");
 
             htblColNameType.clear();
             htblColNameType.put("id", "java.lang.Integer");
@@ -292,7 +291,7 @@ public class DBApp {
         Table t = deserializeTable(strTableName);
         if (!(t.getColOrder().contains(strColName))) {
             serializeTable(t);
-            throw new DBAppException("Column " + strColName + " doesn't exist in table "+strTableName);
+            throw new DBAppException("Column " + strColName + " doesn't exist in table " + strTableName);
         } else {
             try {
                 FileWriter outfile = new FileWriter("resources/metaFile2.csv", true);
@@ -314,10 +313,10 @@ public class DBApp {
                     String e = mfile[4].substring(1, mfile[4].length() - 1).trim();
                     String f = mfile[5].substring(1, mfile[5].length() - 1).trim();
                     if (a.equalsIgnoreCase(strTableName) && b.equalsIgnoreCase(strColName)) {
-                        String[] y = { strTableName, strColName, c, d, strIndexName, "B+tree" };
+                        String[] y = {strTableName, strColName, c, d, strIndexName, "B+tree"};
                         writeInCSV("resources/metaFile2.csv", y);
                     } else {
-                        String[] y = { a, b, c, d, e, f };
+                        String[] y = {a, b, c, d, e, f};
                         writeInCSV("resources/metaFile2.csv", y);
                     }
                     z = br.readLine();
@@ -341,13 +340,13 @@ public class DBApp {
     public void insertIntoTable(String strTableName,
                                 Hashtable<String, Object> htblColNameValue) throws DBAppException {
         if (!(tableNames.contains(strTableName))) {
-            throw new DBAppException("Cannot insert into table " + strTableName+ ", it doesn't exist");
+            throw new DBAppException("Cannot insert into table " + strTableName + ", it doesn't exist");
         }
 
         Table t = deserializeTable(strTableName);
-        if(htblColNameValue.size()!=t.getColOrder().size()){
+        if (htblColNameValue.size() != t.getColOrder().size()) {
             serializeTable(t);
-            throw new DBAppException("Incorrect number of insertions.Should be "+ t.getColOrder().size());
+            throw new DBAppException("Incorrect number of insertions.Should be " + t.getColOrder().size());
         }
         Vector<Object> dataValue = new Vector<Object>();
         String hash = htblColNameValue.toString();
@@ -378,7 +377,7 @@ public class DBApp {
                 }
             } else {
                 serializeTable(t);
-                throw new DBAppException("Column " + columnName + " doesn't exist in table "+ strTableName);
+                throw new DBAppException("Column " + columnName + " doesn't exist in table " + strTableName);
             }
         }
 //        if (t.getColOrder().size() != htblColNameValue.size()) {
@@ -436,11 +435,10 @@ public class DBApp {
                             fr.close();
                             throw new DBAppException("Mismatch data type, for column '" + columnName
                                     + "' should be java.lang.String");
-                        }catch (DBAppException d){
+                        } catch (DBAppException d) {
                             throw new DBAppException("Mismatch data type, for column '" + columnName
                                     + "' should be java.lang.String");
-                        }
-                        catch (Exception e) {
+                        } catch (Exception e) {
                             try {
                                 Double d = Double.parseDouble(columnValue);
 
@@ -448,11 +446,10 @@ public class DBApp {
                                 fr.close();
                                 throw new DBAppException("Mismatch data type, for column '" + columnName
                                         + "' should be java.lang.String");
-                            }catch (DBAppException d){
+                            } catch (DBAppException d) {
                                 throw new DBAppException("Mismatch data type, for column '" + columnName
                                         + "' should be java.lang.String");
-                            }
-                            catch (Exception ee) {
+                            } catch (Exception ee) {
 
                                 br.close();
                                 fr.close();
@@ -516,15 +513,13 @@ public class DBApp {
         if (checkValueMF(clusteringKey, strClusteringKeyValue, strTableName)) {
             Hashtable<String, Object> htblColNameValue2 = new Hashtable<String, Object>();
             String checkType = Validators.dataType(clusteringKey, strTableName);
-            if(checkType.equals("int")){
+            if (checkType.equals("int")) {
                 int x = Integer.valueOf(Integer.parseInt(strClusteringKeyValue));
                 htblColNameValue2.put(clusteringKey, x);
-            }
-            else if(checkType.equals("double")){
+            } else if (checkType.equals("double")) {
                 double y = Double.valueOf(Double.parseDouble(strClusteringKeyValue));
                 htblColNameValue2.put(clusteringKey, y);
-            }
-            else {
+            } else {
                 htblColNameValue2.put(clusteringKey, strClusteringKeyValue);
             }
             String type = Validators.dataType(clusteringKey,strTableName);
@@ -543,7 +538,7 @@ public class DBApp {
                 serializeTable(t);
                 throw new DBAppException("Tuple does not exist");
             }
-            if (htblColNameValue.size()==0) {
+            if (htblColNameValue.size() == 0) {
                 serializeTable(t);
                 throw new DBAppException("Please select the values to be updated");
             }
@@ -594,23 +589,31 @@ public class DBApp {
         if (!(tableNames.contains(strTableName))) {
             throw new DBAppException("Table doesn't exist");
         } else {
-             table = deserializeTable(strTableName);
+            table = deserializeTable(strTableName);
         }
         SQLTerm[] arrSQLTerms;
+<<<<<<< HEAD
         if(htblColNameValue.size()==0){
                int size = table.getPages().size();
             for (int i = 0; i <size ; i++) {
                 File f = new File(table.getPages().get(i).getPageName() + ".bin");
+=======
+        if (htblColNameValue.size() == 0) {
+            int size = table.getPages().size();
+            for (int i = 0; i < size; i++) {
+                File f = new File(table.getPages().get(0).getPageName() + ".bin");
+                table.getPages().remove(0);
+>>>>>>> 3a4d5149553d2ca47960d83428725987f0a63598
                 f.delete();
             }
             table.getPages().clear();
             for (int i = 0; i < table.getColOrder().size(); i++) {
                 String fileName = strTableName + "," + table.getColOrder().get(i) + ".bin";
                 File check = new File(fileName);
-                if(check.exists()){
+                if (check.exists()) {
                     File f = new File(fileName);
                     f.delete();
-                    table.createIndexHelper(strTableName,table.getColOrder().get(i));
+                    table.createIndexHelper(strTableName, table.getColOrder().get(i));
                 }
 
             }
@@ -652,13 +655,12 @@ public class DBApp {
         }
 
 
-
         Iterator resultSet = selectFromTable(arrSQLTerms, strarrOperators);
 //        if (!resultSet.hasNext()) {
 //            serializeTable(table);
 //            throw new DBAppException("Tuples not found");
 //        }
-        if (resultSet != null){
+        if (resultSet != null) {
             //System.out.println(resultSet.hasNext());
             while (resultSet.hasNext()) {
                 Tuple tuple = (Tuple) resultSet.next();
@@ -748,11 +750,11 @@ public class DBApp {
         Vector<Tuple> results = new Vector<Tuple>();
         // Check if the table exists in the database
 
-       if(! Validators.checkTableExistsMF(arrSQLTerm._strTableName)){
-           throw new DBAppException("Table '"+arrSQLTerm._strTableName+"' not found");
-       }
-        if(!Validators.checkColumnExistsMF(arrSQLTerm._strColumnName, arrSQLTerm._strTableName)){
-            throw new DBAppException("Column'"+arrSQLTerm._strColumnName+"' not found");
+        if (!Validators.checkTableExistsMF(arrSQLTerm._strTableName)) {
+            throw new DBAppException("Table '" + arrSQLTerm._strTableName + "' not found");
+        }
+        if (!Validators.checkColumnExistsMF(arrSQLTerm._strColumnName, arrSQLTerm._strTableName)) {
+            throw new DBAppException("Column'" + arrSQLTerm._strColumnName + "' not found");
         }
         // Check data types with meta data file.
         String columnValue = arrSQLTerm._objValue + "";
@@ -777,8 +779,10 @@ public class DBApp {
 
         // Case 2 : A binary tree does not exist for the column.
 
-        // If the column does not have an index, but it is the clustering key, the data would be sorted
-        // and we can use binary search to find the data. Clustering key is primary key so it is unique.
+        /*
+         * If the column does not have an index, but it is the clustering key, the data would be sorted, and we can use
+         * binary search to find the data. Clustering key is primary key so it is unique.
+         */
 
         if (arrSQLTerm._strColumnName.equals(t.getClusteringKeyColumn())) {
             Tuple tuple = t.getTuple(arrSQLTerm._objValue + "");
@@ -801,7 +805,7 @@ public class DBApp {
                 throw new DBAppException("Data type mismatch");
             }
             //System.out.println(columnType);
-            columnType=columnType.substring(1, columnType.length() - 1);
+            columnType = columnType.substring(1, columnType.length() - 1);
 
 
             switch (columnType.toLowerCase()) {
@@ -851,7 +855,7 @@ public class DBApp {
                         }
                         default -> {
                             serializeTable(t);
-                            throw new DBAppException("Operator "+arrSQLTerm._strOperator+" not supported");
+                            throw new DBAppException("Operator " + arrSQLTerm._strOperator + " not supported");
                         }
                     }
                 }
@@ -899,7 +903,7 @@ public class DBApp {
                         }
                         default -> {
                             serializeTable(t);
-                            throw new DBAppException("Operator '"+arrSQLTerm._strOperator+"' not supported");
+                            throw new DBAppException("Operator '" + arrSQLTerm._strOperator + "' not supported");
                         }
                     }
                 }
@@ -947,7 +951,7 @@ public class DBApp {
                         }
                         default -> {
                             serializeTable(t);
-                            throw new DBAppException("Operator '"+arrSQLTerm._strOperator+"' not supported");
+                            throw new DBAppException("Operator '" + arrSQLTerm._strOperator + "' not supported");
                         }
 
                     }
@@ -968,16 +972,12 @@ public class DBApp {
         // Array of Iterators to hold the results of the multiple select operations
         // Each index in the array corresponds to a select operation.
         Vector<Vector> subResults = new Vector<>();
-        String tableName = arrSQLTerms[0]._strTableName;
-
-        if(arrSQLTerms[0]._strColumnName.equals("") || arrSQLTerms[0]._strOperator.equals("") || arrSQLTerms[0]._objValue.equals("")
-        ||arrSQLTerms[0]._strColumnName==null || arrSQLTerms[0]._strOperator == null || arrSQLTerms[0]._objValue==null){
-            Table t = deserializeTable(tableName);
-            Vector<Tuple> results = t.getAllData();
-            serializeTable(t);
-            return results.iterator();
+        if (arrSQLTerms.length == 0) {
+            throw new DBAppException("please insert terms to be selected");
         }
 
+
+        String tableName = arrSQLTerms[0]._strTableName;
         // Iterate through the SQLTerms array and select the relevant data.
         for (SQLTerm arrSQLTerm : arrSQLTerms) {
 
@@ -998,10 +998,10 @@ public class DBApp {
          * Each operator will be applied to the previous result and the current
          * iterator.
          */
-        Vector<Tuple> tempResult =  null ;
-        if(subResults.size()!=0) {
+        Vector<Tuple> tempResult = null;
+        if (subResults.size() != 0) {
             // Initialize Temp result vector as the first vector in the subResults array.
-             tempResult = subResults.get(0);
+            tempResult = subResults.get(0);
             if (strarrOperators[0] == null) {
                 //System.out.println(tempResult);
                 return tempResult.iterator();
@@ -1011,7 +1011,7 @@ public class DBApp {
                 // Initialize the result as a vector.
                 if (strarrOperator != null) {
                     Vector<Tuple> result = new Vector<Tuple>();
-                    if(i==subResults.size()){
+                    if (i == subResults.size()) {
                         throw new DBAppException("Incorrect number of SQLTerms ");
                     }
 
@@ -1028,16 +1028,16 @@ public class DBApp {
                 }
 
             }
-            if(i!=subResults.size()){
+            if (i != subResults.size()) {
                 throw new DBAppException("Incorrect number of operators");
             }
 
         }
         // Convert the result vector to an iterator and return it.
 
-        if(tempResult==null){
+        if (tempResult == null) {
             return null;
         }
-            return tempResult.iterator();
+        return tempResult.iterator();
     }
 }

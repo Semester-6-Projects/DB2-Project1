@@ -664,20 +664,45 @@ public class Table implements Serializable {
         }
     }
 
+<<<<<<< HEAD
     public Tuple getTuple(Object clusteringKeyValue) {
         int index = colOrder.indexOf(ClusteringKeyColumn);
         Tuple tu = new Tuple();
+=======
+    public Tuple binarySearchTuples(Vector<Tuple> tuples, Object value) {
+        int start = 0;
+        int end = tuples.size() - 1;
+        while (start <= end) {
+            int mid = (start + end) / 2;
+            Tuple midTuple = tuples.get(mid);
+            Object midValue = midTuple.getData().get(colOrder.indexOf(ClusteringKeyColumn));
+            if (midValue.equals(value)) {
+                return midTuple;
+            } else if (((Comparable) midValue).compareTo((Comparable) value) < 0) {
+                start = mid + 1;
+            } else {
+                end = mid - 1;
+            }
+        }
+        return null;
+    }
+
+    public Tuple getTuple(String clusteringKeyValue) {
+        Tuple resultTuple = new Tuple();
+>>>>>>> 3a4d5149553d2ca47960d83428725987f0a63598
         String fileName = TableName + "," + ClusteringKeyColumn + ".bin";
         File check = new File(fileName);
+
         if (check.exists()) {
             BPTree tree = deserializeTree(fileName);
             Ref r = tree.search((Comparable) clusteringKeyValue);
             Page p = deserializePage(r.getFileName());
-            tu = p.getTuples().get(r.getIndexInPage());
+            resultTuple = p.getTuples().get(r.getIndexInPage());
             serializePage(p);
             serializeTree(tree);
-            return tu;
+
         } else {
+<<<<<<< HEAD
             for (int i = 0; i < Pages.size(); i++) {
                 Page p = deserializePage(Pages.get(i).getPageName());
                 for (int j = 0; j < p.getTuples().size() ; j++) {
@@ -689,9 +714,49 @@ public class Table implements Serializable {
                     }
                 }
                 serializePage(p);
+=======
+            // Search for the tuple using binary search
+
+            // Get the page where the tuple is located
+            String columnType = Validators.dataType(ClusteringKeyColumn, TableName);
+
+            // binary search based on the clustering key type
+            String pageName = "";
+            switch (columnType) {
+                case "int":
+                    pageName = binarySearch(Pages, 0, Pages.size() - 1,
+                            Integer.parseInt(clusteringKeyValue));
+                    break;
+                case "double":
+                    pageName = binarySearch(Pages, 0, Pages.size() - 1,
+                            Double.parseDouble(clusteringKeyValue));
+                    break;
+                case "string":
+                    pageName = binarySearch(Pages, 0, Pages.size() - 1, clusteringKeyValue);
+                    break;
+>>>>>>> 3a4d5149553d2ca47960d83428725987f0a63598
             }
+            Page p = deserializePage(pageName);
+
+            // Get the tuples in the page (O(1)) operation
+            Vector<Tuple> tuples = p.getTuples();
+            serializePage(p);
+
+            // binary search within the tuples to find the tuple with the clustering key value
+            switch (columnType) {
+                case "int":
+                    resultTuple = binarySearchTuples(tuples, Integer.parseInt(clusteringKeyValue));
+                    break;
+                case "double":
+                    resultTuple = binarySearchTuples(tuples, Double.parseDouble(clusteringKeyValue));
+                    break;
+                case "string":
+                    resultTuple = binarySearchTuples(tuples, clusteringKeyValue);
+                    break;
+            }
+
         }
-        return tu;
+        return resultTuple;
     }
 
     public void serializePage(Page p) {
