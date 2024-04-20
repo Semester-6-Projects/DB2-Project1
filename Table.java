@@ -18,8 +18,8 @@ public class Table implements Serializable {
 
     public Table(String strTableName,
                  String strClusteringKeyColumn,
-                 Hashtable<String, String> htblColNameType) throws DBAppException{
-        if(htblColNameType.size()==0){
+                 Hashtable<String, String> htblColNameType) throws DBAppException {
+        if (htblColNameType.size() == 0) {
             throw new DBAppException("Please insert the columns and their types");
         }
         this.TableName = strTableName;
@@ -30,10 +30,9 @@ public class Table implements Serializable {
         for (int i = hash3.length - 1; i >= 0; i--) {
             String[] x = hash3[i].split("=");
             String xtrimmed = x[0].trim();
-            if(colOrder.contains(xtrimmed)) {
+            if (colOrder.contains(xtrimmed)) {
                 throw new DBAppException("Can not have 2 columns with the same name");
-            }
-            else{
+            } else {
                 colOrder.add(xtrimmed);
                 if (x[1].equalsIgnoreCase("java.lang.Integer") || x[1].equalsIgnoreCase("java.lang.Double")
                         || x[1].equalsIgnoreCase("java.lang.String")) {
@@ -189,20 +188,19 @@ public class Table implements Serializable {
         }
 
     }
-    private Tuple correctTuple (Tuple data){
+
+    private Tuple correctTuple(Tuple data) {
         Tuple data2 = new Tuple();
         for (int i = 0; i < data.getData().size(); i++) {
-            String type = Validators.dataType(colOrder.get(i),TableName);
-            String value = data.getData().get(i) +"";
-            if(type.equals("int")){
+            String type = Validators.dataType(colOrder.get(i), TableName);
+            String value = data.getData().get(i) + "";
+            if (type.equals("int")) {
                 int x = Integer.parseInt(value);
                 data2.getData().add(x);
-            }
-            else if(type.equals("double")){
+            } else if (type.equals("double")) {
                 double x = Double.parseDouble(value);
                 data2.getData().add(x);
-            }
-            else {
+            } else {
                 data2.getData().add(value);
             }
 
@@ -210,7 +208,7 @@ public class Table implements Serializable {
         return data2;
     }
 
-    public boolean addData(Tuple data2)  {
+    public boolean addData(Tuple data2) {
         Tuple data = correctTuple(data2);
         int max = getMax();
         //int max = 20;
@@ -242,19 +240,19 @@ public class Table implements Serializable {
         } else {
             int index = colOrder.indexOf(ClusteringKeyColumn);
             Object value = data.getData().get(index);
-            String type = Validators.dataType(ClusteringKeyColumn,TableName);
+            String type = Validators.dataType(ClusteringKeyColumn, TableName);
             String name = binarySearch(Pages, 0, Pages.size() - 1, value);
             Page p = deserializePage(name);
             Vector<Tuple> tuples = p.getTuples();
             for (int j = 0; j < tuples.size(); j++) {
                 Tuple a = tuples.get(j);
-                String b =  data.getData().get(index) + ""; // value to be inserted
-                String c =  a.getData().get(index) + ""; // value in page
-                if (checkEqual(b,c,type)) {
+                String b = data.getData().get(index) + ""; // value to be inserted
+                String c = a.getData().get(index) + ""; // value in page
+                if (checkEqual(b, c, type)) {
                     serializePage(p);
                     return false;
                 }
-                if (checkLessThan(b,c,type)) {
+                if (checkLessThan(b, c, type)) {
                     if (tuples.size() < max) {
                         p.addData(data, j);
                         addInBTreeHelper(p, j, data, 2);
@@ -315,70 +313,57 @@ public class Table implements Serializable {
         return false;
     }
 
-    private boolean checkEqual (String b, String c, String type){
-        if(type.equals("int")){
+    private boolean checkEqual(String b, String c, String type) {
+        if (type.equals("int")) {
             int x = Integer.parseInt(b);
             int y = Integer.parseInt(c);
-            if (x==y){
+            if (x == y) {
                 return true;
-            }
-            else {
+            } else {
                 return false;
             }
-        }
-        else if(type.equals("double")){
+        } else if (type.equals("double")) {
             double x = Double.parseDouble(b);
             double y = Double.parseDouble(c);
-            if (x==y){
+            if (x == y) {
                 return true;
-            }
-            else {
+            } else {
                 return false;
             }
-        }
-        else{
-            if (b.equals(c))
-            {
-            return true;
-            }
-        else {
+        } else {
+            if (b.equals(c)) {
+                return true;
+            } else {
                 return false;
             }
         }
     }
 
-    private boolean checkLessThan (String b, String c, String type){
-        if(type.equals("int")){
+    private boolean checkLessThan(String b, String c, String type) {
+        if (type.equals("int")) {
             int x = Integer.parseInt(b);
             int y = Integer.parseInt(c);
-            if (x<y){
+            if (x < y) {
                 return true;
-            }
-            else {
+            } else {
                 return false;
             }
-        }
-        else if(type.equals("double")){
+        } else if (type.equals("double")) {
             double x = Double.parseDouble(b);
             double y = Double.parseDouble(c);
-            if (x<y){
+            if (x < y) {
                 return true;
-            }
-            else {
+            } else {
                 return false;
             }
-        }
-        else{
-            if (b.compareTo(c)<0)
-            {
+        } else {
+            if (b.compareTo(c) < 0) {
                 return true;
-            }
-            else {
+            } else {
                 return false;
             }
         }
     }
-
 
 
     public void addWithIndex(Tuple data, BPTreeLeafNode node) {
@@ -602,7 +587,7 @@ public class Table implements Serializable {
             for (int i = 0; i < tuples.size(); i++) {
                 value = value + "";
                 String value2 = tuples.get(i).getData().get(index) + "";
-                if (value2.equals(value)){
+                if (value2.equals(value)) {
                     boolean deleted = p.removeDataIndex(i);
                     if (deleted) {
                         // serialise the page after deleting from it
@@ -613,7 +598,7 @@ public class Table implements Serializable {
                             File tCheck = new File(fName);
                             if (tCheck.exists()) {
                                 BPTree tt = deserializeTree(fName);
-                                Ref r = new Ref(p.getPageName(),i);
+                                Ref r = new Ref(p.getPageName(), i);
                                 tt.delete((Comparable) data.getData().get(k), r);
 
                                 for (int j = r.getIndexInPage(); j < p.getTuples().size(); j++) {
@@ -664,11 +649,6 @@ public class Table implements Serializable {
         }
     }
 
-<<<<<<< HEAD
-    public Tuple getTuple(Object clusteringKeyValue) {
-        int index = colOrder.indexOf(ClusteringKeyColumn);
-        Tuple tu = new Tuple();
-=======
     public Tuple binarySearchTuples(Vector<Tuple> tuples, Object value) {
         int start = 0;
         int end = tuples.size() - 1;
@@ -687,9 +667,9 @@ public class Table implements Serializable {
         return null;
     }
 
-    public Tuple getTuple(String clusteringKeyValue) {
+    public Tuple getTuple(Object clusteringKeyValue) {
         Tuple resultTuple = new Tuple();
->>>>>>> 3a4d5149553d2ca47960d83428725987f0a63598
+
         String fileName = TableName + "," + ClusteringKeyColumn + ".bin";
         File check = new File(fileName);
 
@@ -702,19 +682,7 @@ public class Table implements Serializable {
             serializeTree(tree);
 
         } else {
-<<<<<<< HEAD
-            for (int i = 0; i < Pages.size(); i++) {
-                Page p = deserializePage(Pages.get(i).getPageName());
-                for (int j = 0; j < p.getTuples().size() ; j++) {
-                    String x = p.getTuples().get(j).getData().get(index) + "";
-                    if (x.equals(clusteringKeyValue)) {
-                        Tuple tuple = p.getTuples().get(j);
-                        serializePage(p);
-                        return tuple;
-                    }
-                }
-                serializePage(p);
-=======
+
             // Search for the tuple using binary search
 
             // Get the page where the tuple is located
@@ -725,16 +693,15 @@ public class Table implements Serializable {
             switch (columnType) {
                 case "int":
                     pageName = binarySearch(Pages, 0, Pages.size() - 1,
-                            Integer.parseInt(clusteringKeyValue));
+                            Integer.parseInt(clusteringKeyValue + ""));
                     break;
                 case "double":
                     pageName = binarySearch(Pages, 0, Pages.size() - 1,
-                            Double.parseDouble(clusteringKeyValue));
+                            Double.parseDouble(clusteringKeyValue + ""));
                     break;
                 case "string":
-                    pageName = binarySearch(Pages, 0, Pages.size() - 1, clusteringKeyValue);
+                    pageName = binarySearch(Pages, 0, Pages.size() - 1, clusteringKeyValue + "");
                     break;
->>>>>>> 3a4d5149553d2ca47960d83428725987f0a63598
             }
             Page p = deserializePage(pageName);
 
@@ -745,10 +712,10 @@ public class Table implements Serializable {
             // binary search within the tuples to find the tuple with the clustering key value
             switch (columnType) {
                 case "int":
-                    resultTuple = binarySearchTuples(tuples, Integer.parseInt(clusteringKeyValue));
+                    resultTuple = binarySearchTuples(tuples, Integer.parseInt(clusteringKeyValue + ""));
                     break;
                 case "double":
-                    resultTuple = binarySearchTuples(tuples, Double.parseDouble(clusteringKeyValue));
+                    resultTuple = binarySearchTuples(tuples, Double.parseDouble(clusteringKeyValue + ""));
                     break;
                 case "string":
                     resultTuple = binarySearchTuples(tuples, clusteringKeyValue);

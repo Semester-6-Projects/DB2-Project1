@@ -17,7 +17,6 @@ public class DBApp {
     public static void main(String[] args) {
         try {
             String strTableName = "Student";
-            String strTableName2 = "TAs";
             DBApp dbApp = new DBApp();
             dbApp.init();
 
@@ -27,16 +26,6 @@ public class DBApp {
             htblColNameType.put("name", "java.lang.String");
             htblColNameType.put("gpa", "java.lang.Double");
             dbApp.createTable(strTableName, "id", htblColNameType);
-
-            htblColNameType.clear();
-            htblColNameType.put("id", "java.lang.Integer");
-            htblColNameType.put("name", "java.lang.String");
-            htblColNameType.put("gpa", "java.lang.Double");
-            dbApp.createTable(strTableName2, "id", htblColNameType);
-            dbApp.createIndex(strTableName2,"id","idIndex");
-            dbApp.createIndex(strTableName2,"gpa","gpaIndex");
-            dbApp.createIndex(strTableName2,"name","nameIndex");
-
 
             // Testing Creating Indices
 
@@ -48,24 +37,24 @@ public class DBApp {
             Hashtable htblColNameValue = new Hashtable();
             htblColNameValue.put("gpa", Double.valueOf(0.88));
             htblColNameValue.put("id", Integer.valueOf(333));
-            htblColNameValue.put("name", new String("Zaky Noor"));
+            htblColNameValue.put("name", new String("Ahmed Noor2"));
             dbApp.insertIntoTable(strTableName, htblColNameValue);
 
             htblColNameValue.clear();
             htblColNameValue.put("id", Integer.valueOf(72));
-            htblColNameValue.put("name", new String("Zaky Noor"));
+            htblColNameValue.put("name", new String("amy"));
             htblColNameValue.put("gpa", Double.valueOf(0.96));
             dbApp.insertIntoTable(strTableName, htblColNameValue);
 
             htblColNameValue.clear();
             htblColNameValue.put("id", Integer.valueOf(5));
-            htblColNameValue.put("name", new String("Zaky Noor"));
+            htblColNameValue.put("name", new String("dalia"));
             htblColNameValue.put("gpa", Integer.valueOf(1));
             dbApp.insertIntoTable(strTableName, htblColNameValue);
 
             htblColNameValue.clear();
             htblColNameValue.put("id", Integer.valueOf(2));
-            htblColNameValue.put("name", new String("Zaky Noor"));
+            htblColNameValue.put("name", new String("John Noor"));
             htblColNameValue.put("gpa", Double.valueOf(1.5));
             dbApp.insertIntoTable(strTableName, htblColNameValue);
 
@@ -77,60 +66,25 @@ public class DBApp {
 
             htblColNameValue.clear();
             htblColNameValue.put("id", Integer.valueOf(9));
-            htblColNameValue.put("name", new String("amy"));
-            htblColNameValue.put("gpa", Double.valueOf(0.89));
+            htblColNameValue.put("name", new String("Zeinar"));
+            htblColNameValue.put("gpa", Double.valueOf(0.88));
             dbApp.insertIntoTable(strTableName, htblColNameValue);
 
-
-            htblColNameValue.clear();
-            htblColNameValue.put("id", Integer.valueOf(72));
-            htblColNameValue.put("name", new String("Zaky Noor"));
-            htblColNameValue.put("gpa", Double.valueOf(0.96));
-            dbApp.insertIntoTable(strTableName2, htblColNameValue);
-
-            htblColNameValue.clear();
-            htblColNameValue.put("id", Integer.valueOf(5));
-            htblColNameValue.put("name", new String("Zaky Noor"));
-            htblColNameValue.put("gpa", Integer.valueOf(1));
-            dbApp.insertIntoTable(strTableName2, htblColNameValue);
-
-            htblColNameValue.clear();
-            htblColNameValue.put("id", Integer.valueOf(2));
-            htblColNameValue.put("name", new String("Zaky Noor"));
-            htblColNameValue.put("gpa", Double.valueOf(1.5));
-            dbApp.insertIntoTable(strTableName2, htblColNameValue);
-
-//             Add randomised values
-            for (int i = 0; i < 21; i++) {
+            // Add randomised values
+            for (int i = 0; i < 100; i++) {
                 htblColNameValue.clear();
                 Random rand = new Random();
-                htblColNameValue.put("id", rand.nextInt(500000000));
+                htblColNameValue.put("id", rand.nextInt(100000000));
                 htblColNameValue.put("name", new String("Name" + i));
                 htblColNameValue.put("gpa", 0.7 + (5.0 - 0.7) * rand.nextDouble());
                 dbApp.insertIntoTable(strTableName, htblColNameValue);
             }
 
 
-
-            htblColNameValue.clear();
-            htblColNameValue.put("name", new String("Zaky Noor"));
-            htblColNameValue.put("gpa", new String("ahmed"));
-            //dbApp.updateTable(strTableName, "9", htblColNameValue);
-            //dbApp.deleteFromTable(strTableName, htblColNameValue);
-
-            htblColNameValue.clear();
-            htblColNameValue.put("name", new String("amy"));
-            htblColNameValue.put("gpa", Double.valueOf(0.88));
-            //dbApp.deleteFromTable(strTableName, htblColNameValue);
-
-
-
-//            Table t = dbApp.deserializeTable(tableNames.get(0));
-//            for (int i = 0; i < t.getPages().size(); i++) {
-//                Page p = t.deserializePage(t.getPages().get(i).getPageName());
-//                System.out.println(p);
-//                t.serializePage(p);
-//            }
+            Table t = dbApp.deserializeTable(tableNames.get(0));
+            for (int i = 0; i < t.getPageCount(); i++) {
+                System.out.println(t.deserializePage(t.getPages().get(i).getPageName()));
+            }
 
 
             SQLTerm[] arrSQLTerms;
@@ -139,34 +93,33 @@ public class DBApp {
             arrSQLTerms[0] = new SQLTerm();
             arrSQLTerms[0]._strTableName = "Student";
             arrSQLTerms[0]._strColumnName = "gpa";
-            arrSQLTerms[0]._strOperator = ">";
+            arrSQLTerms[0]._strOperator = "=";
             arrSQLTerms[0]._objValue = Double.valueOf(0.88);
 
             arrSQLTerms[1] = new SQLTerm();
             arrSQLTerms[1]._strTableName = "Student";
             arrSQLTerms[1]._strColumnName = "name";
-            arrSQLTerms[1]._strOperator = "!=";
+            arrSQLTerms[1]._strOperator = "<=";
             arrSQLTerms[1]._objValue = "Zaky Noor";
 
             arrSQLTerms[2] = new SQLTerm();
             arrSQLTerms[2]._strTableName = "Student";
             arrSQLTerms[2]._strColumnName = "id";
-            arrSQLTerms[2]._strOperator = ">=";
+            arrSQLTerms[2]._strOperator = "=";
             arrSQLTerms[2]._objValue = Integer.valueOf(9);
 
             String[] strarrOperators = new String[2];
             strarrOperators[0] = "AND";
             strarrOperators[1] = "or";
-            //strarrOperators[2] = "xor";
 
-//            Iterator resultSet = dbApp.selectFromTable(arrSQLTerms, strarrOperators);
-//            System.out.println("Result set:");
-//            if (resultSet != null) {
-//                while (resultSet.hasNext()) {
-//                    System.out.println(resultSet.next());
-//                }
-//            } else
-//                System.out.println("no results");
+            Iterator resultSet = dbApp.selectFromTable(arrSQLTerms, strarrOperators);
+            System.out.println("Result set:");
+            if (resultSet != null) {
+                while (resultSet.hasNext()) {
+                    System.out.println(resultSet.next());
+                }
+            } else
+                System.out.println("no results");
 
 
         } catch (Exception exp) {
@@ -359,16 +312,14 @@ public class DBApp {
             if (checkValueMF(columnName, columnValue, strTableName)) {
                 for (int k = 0; k < t.getColOrder().size(); k++) {
                     if (t.getColOrder().get(k).equals(columnName)) {
-                        String type = Validators.dataType(columnName,strTableName);
-                        if(type.equals("int")){
+                        String type = Validators.dataType(columnName, strTableName);
+                        if (type.equals("int")) {
                             dataValue.add(k, Integer.parseInt(columnValue));
                             break;
-                        }
-                        else if(type.equals("double")){
+                        } else if (type.equals("double")) {
                             dataValue.add(k, Double.parseDouble(columnValue));
                             break;
-                        }
-                        else {
+                        } else {
                             dataValue.add(k, columnValue);
                             break;
                         }
@@ -490,7 +441,7 @@ public class DBApp {
             if (checkValueMF(columnName, columnValue, strTableName)) {
 
             } else {
-                throw new DBAppException("Column " + columnName + " doesn't exist in table "+ strTableName);
+                throw new DBAppException("Column " + columnName + " doesn't exist in table " + strTableName);
             }
         }
 
@@ -522,15 +473,13 @@ public class DBApp {
             } else {
                 htblColNameValue2.put(clusteringKey, strClusteringKeyValue);
             }
-            String type = Validators.dataType(clusteringKey,strTableName);
+            String type = Validators.dataType(clusteringKey, strTableName);
             Tuple tu = new Tuple();
-            if(type.equals("int")){
+            if (type.equals("int")) {
                 tu = t.getTuple(Integer.parseInt(strClusteringKeyValue));
-            }
-            else if(type.equals("double")){
+            } else if (type.equals("double")) {
                 tu = t.getTuple(Double.parseDouble(strClusteringKeyValue));
-            }
-            else {
+            } else {
                 tu = t.getTuple(strClusteringKeyValue);
             }
 
@@ -592,18 +541,12 @@ public class DBApp {
             table = deserializeTable(strTableName);
         }
         SQLTerm[] arrSQLTerms;
-<<<<<<< HEAD
-        if(htblColNameValue.size()==0){
-               int size = table.getPages().size();
-            for (int i = 0; i <size ; i++) {
-                File f = new File(table.getPages().get(i).getPageName() + ".bin");
-=======
         if (htblColNameValue.size() == 0) {
             int size = table.getPages().size();
             for (int i = 0; i < size; i++) {
                 File f = new File(table.getPages().get(0).getPageName() + ".bin");
                 table.getPages().remove(0);
->>>>>>> 3a4d5149553d2ca47960d83428725987f0a63598
+
                 f.delete();
             }
             table.getPages().clear();
@@ -635,14 +578,12 @@ public class DBApp {
             arrSQLTerms[i]._strTableName = strTableName;
             arrSQLTerms[i]._strColumnName = name;
             arrSQLTerms[i]._strOperator = "=";
-            String type = Validators.dataType(name,strTableName);
-            if(type.equals("int")){
+            String type = Validators.dataType(name, strTableName);
+            if (type.equals("int")) {
                 arrSQLTerms[i]._objValue = Integer.parseInt(data);
-            }
-            else if(type.equals("double")){
+            } else if (type.equals("double")) {
                 arrSQLTerms[i]._objValue = Double.parseDouble(data);
-            }
-            else {
+            } else {
                 arrSQLTerms[i]._objValue = data;
             }
         }
@@ -984,7 +925,7 @@ public class DBApp {
             // Initialize the vector for the current select operation.
             if (arrSQLTerm != null) {
                 //System.out.println("!=null");
-                if(!(arrSQLTerm._strTableName.equals(tableName))){
+                if (!(arrSQLTerm._strTableName.equals(tableName))) {
                     throw new DBAppException("Select statement asks for tuples from different tables, join isn't supported");
                 }
                 subResults.add(getSubResult(arrSQLTerm));
