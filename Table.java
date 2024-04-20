@@ -168,7 +168,6 @@ public class Table implements Serializable {
     private String binarySearch(Vector<PageInfo> pageInfos, int start, int end, Object value) {
         if (end >= start) {
             int mid = (end + start) / 2;
-
             // If the element is present at the middle itself
             PageInfo w = pageInfos.get(mid);
             if (((Comparable) value).compareTo((Comparable) w.getMin()) >= 0
@@ -178,15 +177,18 @@ public class Table implements Serializable {
             // If element is smaller than mid, then it can only be present in right subarray
             if (((Comparable) value).compareTo((Comparable) w.getMax()) > 0)
                 return binarySearch(pageInfos, mid + 1, end, value);
-
             // Else the element can only be present in left subarray
             return binarySearch(pageInfos, start, mid - 1, value);
-        } else if (((Comparable) pageInfos.firstElement().getMin()).compareTo((Comparable) value) > 0) {
+        }
+        else if (((Comparable) pageInfos.firstElement().getMin()).compareTo((Comparable) value) > 0) {
             return pageInfos.firstElement().getPageName();
-        } else {
+        } else if (((Comparable) pageInfos.lastElement().getMax()).compareTo((Comparable) value) < 0) {
             return pageInfos.lastElement().getPageName();
         }
+        else{
+            return pageInfos.get(start).getPageName();
 
+        }
     }
 
     private Tuple correctTuple(Tuple data) {
@@ -210,8 +212,8 @@ public class Table implements Serializable {
 
     public boolean addData(Tuple data2) {
         Tuple data = correctTuple(data2);
-        int max = getMax();
-        //int max = 20;
+//        int max = getMax();
+        int max = 100;
         String fileName = TableName + "," + ClusteringKeyColumn + ".bin";
         File check = new File(fileName);
         if (Pages.size() == 0) {
@@ -243,6 +245,8 @@ public class Table implements Serializable {
             String type = Validators.dataType(ClusteringKeyColumn, TableName);
             String name = binarySearch(Pages, 0, Pages.size() - 1, value);
             Page p = deserializePage(name);
+//            System.out.println("page: " + name);
+//            System.out.println("value" + value);
             Vector<Tuple> tuples = p.getTuples();
             for (int j = 0; j < tuples.size(); j++) {
                 Tuple a = tuples.get(j);
@@ -261,6 +265,9 @@ public class Table implements Serializable {
                             if (name.equals(Pages.get(i).getPageName())) {
                                 Pages.get(i).setMin(tuples.firstElement().getData().get(index));
                                 Pages.get(i).setMax(tuples.lastElement().getData().get(index));
+//                                System.out.println("awel if");
+//                                System.out.println("min" + tuples.firstElement().getData().get(index));
+//                                System.out.println("max" + tuples.lastElement().getData().get(index));
                             }
                         }
                         serializePage(p);
@@ -275,6 +282,9 @@ public class Table implements Serializable {
                             if (name.equals(Pages.get(i).getPageName())) {
                                 Pages.get(i).setMin(tuples.firstElement().getData().get(index));
                                 Pages.get(i).setMax(tuples.lastElement().getData().get(index));
+//                                System.out.println("tany if");
+//                                System.out.println("min" + tuples.firstElement().getData().get(index));
+//                                System.out.println("max" + tuples.lastElement().getData().get(index));
                             }
                         }
                         serializePage(p);
@@ -285,15 +295,15 @@ public class Table implements Serializable {
                     if (j == tuples.size() - 1) {
                         if (tuples.size() == max) {
                             pageCount++;
-                            String pageName = TableName + (Pages.size() + 1);
+                            String pageName = TableName + (pageCount);
                             Page x = new Page(pageName, data);
                             PageInfo pi = new PageInfo(pageName,
                                     data.getData().get(colOrder.indexOf(ClusteringKeyColumn)),
                                     data.getData().get(colOrder.indexOf(ClusteringKeyColumn)));
                             Pages.add(pi);
                             addInBTreeHelper(x, 0, data, 1);
-                            // System.out.println(p.toString());
-                            // System.out.println(x.toString());
+//                             System.out.println(p.toString());
+//                             System.out.println(x.toString());
                             serializePage(x);
                             serializePage(p);
                             return true;
@@ -303,6 +313,9 @@ public class Table implements Serializable {
                             // System.out.print(p.toString());
                             Pages.lastElement().setMin(tuples.firstElement().getData().get(index));
                             Pages.lastElement().setMax(tuples.lastElement().getData().get(index));
+//                            System.out.println("else");
+//                            System.out.println("min" + tuples.firstElement().getData().get(index));
+//                            System.out.println("max" + tuples.lastElement().getData().get(index));
                             serializePage(p);
                             return true;
                         }
@@ -367,15 +380,15 @@ public class Table implements Serializable {
 
 
     public void addWithIndex(Tuple data, BPTreeLeafNode node) {
-        int max = getMax();
-        //int max = 20;
+//        int max = getMax();
+        int max = 100;
         if (node == null) {
             Page p = deserializePage(Pages.lastElement().getPageName());
             int index = colOrder.indexOf(ClusteringKeyColumn);
             Vector<Tuple> tuples = p.getTuples();
             if (tuples.size() == max) {
                 pageCount++;
-                String pageName = TableName + (Pages.size() + 1);
+                String pageName = TableName + (pageCount);
                 Page x = new Page(pageName, data);
                 PageInfo pi = new PageInfo(pageName, data.getData().get(index), data.getData().get(index));
                 Pages.add(pi);
@@ -442,7 +455,7 @@ public class Table implements Serializable {
                 if (index == tuples.size() - 1) {
                     if (tuples.size() == max) {
                         pageCount++;
-                        String pageName = TableName + (Pages.size() + 1);
+                        String pageName = TableName + (pageCount);
                         Page x = new Page(pageName, data);
                         PageInfo pi = new PageInfo(pageName, data.getData().get(colOrder.indexOf(ClusteringKeyColumn)),
                                 data.getData().get(colOrder.indexOf(ClusteringKeyColumn)));

@@ -37,51 +37,51 @@ public class DBApp {
 
             // Testing Inserting into Table
             Hashtable htblColNameValue = new Hashtable();
-            htblColNameValue.put("gpa", Double.valueOf(0.88));
-            htblColNameValue.put("id", Integer.valueOf(333));
-            htblColNameValue.put("name", new String("Ahmed Noor2"));
-            dbApp.insertIntoTable(strTableName, htblColNameValue);
-
-            htblColNameValue.clear();
-            htblColNameValue.put("id", Integer.valueOf(72));
-            htblColNameValue.put("name", new String("amy"));
-            htblColNameValue.put("gpa", Double.valueOf(0.96));
-            dbApp.insertIntoTable(strTableName, htblColNameValue);
-
-            htblColNameValue.clear();
-            htblColNameValue.put("id", Integer.valueOf(5));
-            htblColNameValue.put("name", new String("dalia"));
-            htblColNameValue.put("gpa", Integer.valueOf(1));
-            dbApp.insertIntoTable(strTableName, htblColNameValue);
-
-            htblColNameValue.clear();
-            htblColNameValue.put("id", Integer.valueOf(2));
-            htblColNameValue.put("name", new String("John Noor"));
-            htblColNameValue.put("gpa", Double.valueOf(1.5));
-            dbApp.insertIntoTable(strTableName, htblColNameValue);
-
-            htblColNameValue.clear();
-            htblColNameValue.put("id", Integer.valueOf(1));
-            htblColNameValue.put("name", new String("Zaky Noor"));
-            htblColNameValue.put("gpa", Double.valueOf(0.88));
-            dbApp.insertIntoTable(strTableName, htblColNameValue);
-
-            htblColNameValue.clear();
-            htblColNameValue.put("id", Integer.valueOf(9));
-            htblColNameValue.put("name", new String("Zeinar"));
-            htblColNameValue.put("gpa", Double.valueOf(0.88));
-            dbApp.insertIntoTable(strTableName, htblColNameValue);
+//            htblColNameValue.put("gpa", Double.valueOf(0.88));
+//            htblColNameValue.put("id", Integer.valueOf(333));
+//            htblColNameValue.put("name", new String("Ahmed Noor2"));
+//            dbApp.insertIntoTable(strTableName, htblColNameValue);
+//
+//            htblColNameValue.clear();
+//            htblColNameValue.put("id", Integer.valueOf(72));
+//            htblColNameValue.put("name", new String("amy"));
+//            htblColNameValue.put("gpa", Double.valueOf(0.96));
+//            dbApp.insertIntoTable(strTableName, htblColNameValue);
+//
+//            htblColNameValue.clear();
+//            htblColNameValue.put("id", Integer.valueOf(5));
+//            htblColNameValue.put("name", new String("dalia"));
+//            htblColNameValue.put("gpa", Integer.valueOf(1));
+//            dbApp.insertIntoTable(strTableName, htblColNameValue);
+//
+//            htblColNameValue.clear();
+//            htblColNameValue.put("id", Integer.valueOf(2));
+//            htblColNameValue.put("name", new String("John Noor"));
+//            htblColNameValue.put("gpa", Double.valueOf(1.5));
+//            dbApp.insertIntoTable(strTableName, htblColNameValue);
+//
+//            htblColNameValue.clear();
+//            htblColNameValue.put("id", Integer.valueOf(1));
+//            htblColNameValue.put("name", new String("Zaky Noor"));
+//            htblColNameValue.put("gpa", Double.valueOf(0.88));
+//            dbApp.insertIntoTable(strTableName, htblColNameValue);
+//
+//            htblColNameValue.clear();
+//            htblColNameValue.put("id", Integer.valueOf(9));
+//            htblColNameValue.put("name", new String("Zeinar"));
+//            htblColNameValue.put("gpa", Double.valueOf(0.88));
+//            dbApp.insertIntoTable(strTableName, htblColNameValue);
 
             // Add randomised values
-            for (int i = 0; i < 500; i++) {
-                System.out.println("Inserting Random row:" + i);
-                htblColNameValue.clear();
-                Random rand = new Random();
-                htblColNameValue.put("id", rand.nextInt(100000000));
-                htblColNameValue.put("name", new String("Name" + i));
-                htblColNameValue.put("gpa", 0.7 + (5.0 - 0.7) * rand.nextDouble());
-                dbApp.insertIntoTable(strTableName, htblColNameValue);
-            }
+//            for (int i = 0; i < 500; i++) {
+//                //System.out.println("Inserting Random row:" + i);
+//                htblColNameValue.clear();
+//                Random rand = new Random();
+//                htblColNameValue.put("id", rand.nextInt(500000000));
+//                htblColNameValue.put("name", new String("Name" + i));
+//                htblColNameValue.put("gpa", 0.7 + (5.0 - 0.7) * rand.nextDouble());
+//                dbApp.insertIntoTable(strTableName, htblColNameValue);
+//            }
 
 
             // Print data for all tables
@@ -123,35 +123,35 @@ public class DBApp {
             strarrOperators[1] = "or";
 
             // Get Start time
-            long startTime = System.currentTimeMillis();
-            Iterator resultSet = dbApp.selectFromTable(arrSQLTerms, strarrOperators);
-            // Get End time and print the time taken
-            long endTime = System.currentTimeMillis();
-            System.out.println("Time taken: " + (endTime - startTime) + "ms");
-
-            System.out.println("Result set:");
-            if (resultSet != null) {
-                while (resultSet.hasNext()) {
-                    System.out.println(resultSet.next());
-                }
-            } else
-                System.out.println("no results");
-
-            // Testing Update
-            Hashtable<String, Object> htblColNameValueUpdate = new Hashtable<String, Object>();
-            htblColNameValueUpdate.put("name", "Zaky Omar");
-            dbApp.updateTable(strTableName, "9", htblColNameValueUpdate);
-
-            // Print data for all tables
-            for (String tableName : tableNames) {
-                Table table = dbApp.deserializeTable(tableName);
-                System.out.println("Table: " + tableName);
-                for (int i = 0; i < table.getPageCount(); i++) {
-                    String pageName = table.getPages().get(i).getPageName();
-                    System.out.println(pageName);
-                    System.out.println(table.deserializePage(pageName));
-                }
-            }
+//            long startTime = System.currentTimeMillis();
+//            Iterator resultSet = dbApp.selectFromTable(arrSQLTerms, strarrOperators);
+//            // Get End time and print the time taken
+//            long endTime = System.currentTimeMillis();
+//            System.out.println("Time taken: " + (endTime - startTime) + "ms");
+//
+//            System.out.println("Result set:");
+//            if (resultSet != null) {
+//                while (resultSet.hasNext()) {
+//                    System.out.println(resultSet.next());
+//                }
+//            } else
+//                System.out.println("no results");
+//
+//            // Testing Update
+//            Hashtable<String, Object> htblColNameValueUpdate = new Hashtable<String, Object>();
+//            htblColNameValueUpdate.put("name", "Zaky Omar");
+//            dbApp.updateTable(strTableName, "9", htblColNameValueUpdate);
+//
+//            // Print data for all tables
+//            for (String tableName : tableNames) {
+//                Table table = dbApp.deserializeTable(tableName);
+//                System.out.println("Table: " + tableName);
+//                for (int i = 0; i < table.getPageCount(); i++) {
+//                    String pageName = table.getPages().get(i).getPageName();
+//                    System.out.println(pageName);
+//                    System.out.println(table.deserializePage(pageName));
+//                }
+//            }
 
         } catch (Exception exp) {
             exp.printStackTrace();
