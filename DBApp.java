@@ -73,27 +73,27 @@ public class DBApp {
 //            dbApp.insertIntoTable(strTableName, htblColNameValue);
 
             // Add randomised values
-//            for (int i = 0; i < 500; i++) {
-//                //System.out.println("Inserting Random row:" + i);
-//                htblColNameValue.clear();
-//                Random rand = new Random();
-//                htblColNameValue.put("id", rand.nextInt(500000000));
-//                htblColNameValue.put("name", new String("Name" + i));
-//                htblColNameValue.put("gpa", 0.7 + (5.0 - 0.7) * rand.nextDouble());
-//                dbApp.insertIntoTable(strTableName, htblColNameValue);
-//            }
+            for (int i = 0; i < 30; i++) {
+                //System.out.println("Inserting Random row:" + i);
+                htblColNameValue.clear();
+                Random rand = new Random();
+                htblColNameValue.put("id", i);
+                htblColNameValue.put("name", new String("Name" + i));
+                htblColNameValue.put("gpa", 0.7 + (5.0 - 0.7) * rand.nextDouble());
+                dbApp.insertIntoTable(strTableName, htblColNameValue);
+            }
 
 
             // Print data for all tables
-            for (String tableName : tableNames) {
-                Table table = dbApp.deserializeTable(tableName);
-                System.out.println("Table: " + tableName);
-                for (int i = 0; i < table.getPageCount(); i++) {
-                    String pageName = table.getPages().get(i).getPageName();
-                    System.out.println(pageName);
-                    System.out.println(table.deserializePage(pageName));
-                }
-            }
+//            for (String tableName : tableNames) {
+//                Table table = dbApp.deserializeTable(tableName);
+//                System.out.println("Table: " + tableName);
+//                for (int i = 0; i < table.getPageCount(); i++) {
+//                    String pageName = table.getPages().get(i).getPageName();
+//                    System.out.println(pageName);
+//                    System.out.println(table.deserializePage(pageName));
+//                }
+//            }
 
 
             // Testing Select
@@ -102,40 +102,40 @@ public class DBApp {
 
             arrSQLTerms[0] = new SQLTerm();
             arrSQLTerms[0]._strTableName = "Student";
-            arrSQLTerms[0]._strColumnName = "gpa";
-            arrSQLTerms[0]._strOperator = "=";
-            arrSQLTerms[0]._objValue = Double.valueOf(0.88);
+            arrSQLTerms[0]._strColumnName = "name";
+            arrSQLTerms[0]._strOperator = ">";
+            arrSQLTerms[0]._objValue = "name2";
 
             arrSQLTerms[1] = new SQLTerm();
             arrSQLTerms[1]._strTableName = "Student";
-            arrSQLTerms[1]._strColumnName = "name";
+            arrSQLTerms[1]._strColumnName = "id";
             arrSQLTerms[1]._strOperator = "<=";
-            arrSQLTerms[1]._objValue = "Zaky Noor";
+            arrSQLTerms[1]._objValue = "500";
 
-            arrSQLTerms[2] = new SQLTerm();
-            arrSQLTerms[2]._strTableName = "Student";
-            arrSQLTerms[2]._strColumnName = "id";
-            arrSQLTerms[2]._strOperator = "=";
-            arrSQLTerms[2]._objValue = Integer.valueOf(9);
+//            arrSQLTerms[2] = new SQLTerm();
+//            arrSQLTerms[2]._strTableName = "Student";
+//            arrSQLTerms[2]._strColumnName = "id";
+//            arrSQLTerms[2]._strOperator = "=";
+//            arrSQLTerms[2]._objValue = Integer.valueOf(9);
 
             String[] strarrOperators = new String[2];
             strarrOperators[0] = "AND";
-            strarrOperators[1] = "or";
+//            strarrOperators[1] = "or";
 
             // Get Start time
 //            long startTime = System.currentTimeMillis();
-//            Iterator resultSet = dbApp.selectFromTable(arrSQLTerms, strarrOperators);
+            Iterator resultSet = dbApp.selectFromTable(arrSQLTerms, strarrOperators);
 //            // Get End time and print the time taken
 //            long endTime = System.currentTimeMillis();
 //            System.out.println("Time taken: " + (endTime - startTime) + "ms");
 //
-//            System.out.println("Result set:");
-//            if (resultSet != null) {
-//                while (resultSet.hasNext()) {
-//                    System.out.println(resultSet.next());
-//                }
-//            } else
-//                System.out.println("no results");
+            System.out.println("Result set:");
+            if (resultSet != null) {
+                while (resultSet.hasNext()) {
+                    System.out.println(resultSet.next());
+                }
+            } else
+                System.out.println("no results");
 //
 //            // Testing Update
 //            Hashtable<String, Object> htblColNameValueUpdate = new Hashtable<String, Object>();
@@ -948,11 +948,9 @@ public class DBApp {
             throw new DBAppException("please insert terms to be selected");
         }
 
-
         String tableName = arrSQLTerms[0]._strTableName;
         // Iterate through the SQLTerms array and select the relevant data.
         for (SQLTerm arrSQLTerm : arrSQLTerms) {
-
             // Initialize the vector for the current select operation.
             if (arrSQLTerm != null) {
                 //System.out.println("!=null");
