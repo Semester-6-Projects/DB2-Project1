@@ -683,10 +683,10 @@ public class Table implements Serializable {
     }
 
     public Tuple getTuple(String clusteringKeyValue) {
-        int index = colOrder.indexOf(ClusteringKeyColumn);
         Tuple resultTuple = new Tuple();
         String fileName = TableName + "," + ClusteringKeyColumn + ".bin";
         File check = new File(fileName);
+
         if (check.exists()) {
             BPTree tree = deserializeTree(fileName);
             Ref r = tree.search(clusteringKeyValue);
@@ -699,7 +699,23 @@ public class Table implements Serializable {
             // Search for the tuple using binary search
 
             // Get the page where the tuple is located
-            String pageName = binarySearch(Pages, 0, Pages.size() - 1, clusteringKeyValue);
+            String columnType = Validators.dataType(ClusteringKeyColumn, TableName);
+
+            // binary search based on the clustering key type
+            String pageName = "";
+            switch (columnType) {
+                case "int":
+                    pageName = binarySearch(Pages, 0, Pages.size() - 1,
+                            Integer.parseInt(clusteringKeyValue));
+                    break;
+                case "double":
+                    pageName = binarySearch(Pages, 0, Pages.size() - 1,
+                            Double.parseDouble(clusteringKeyValue));
+                    break;
+                case "string":
+                    pageName = binarySearch(Pages, 0, Pages.size() - 1, clusteringKeyValue);
+                    break;
+            }
             Page p = deserializePage(pageName);
 
             // Get the tuples in the page (O(1)) operation
@@ -707,7 +723,17 @@ public class Table implements Serializable {
             serializePage(p);
 
             // binary search within the tuples to find the tuple with the clustering key value
-            resultTuple = binarySearchTuples(tuples, clusteringKeyValue);
+            switch (columnType) {
+                case "int":
+                    resultTuple = binarySearchTuples(tuples, Integer.parseInt(clusteringKeyValue));
+                    break;
+                case "double":
+                    resultTuple = binarySearchTuples(tuples, Double.parseDouble(clusteringKeyValue));
+                    break;
+                case "string":
+                    resultTuple = binarySearchTuples(tuples, clusteringKeyValue);
+                    break;
+            }
 
         }
         return resultTuple;
