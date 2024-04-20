@@ -1,0 +1,1 @@
+select * from T where x = 20
