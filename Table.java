@@ -179,13 +179,11 @@ public class Table implements Serializable {
                 return binarySearch(pageInfos, mid + 1, end, value);
             // Else the element can only be present in left subarray
             return binarySearch(pageInfos, start, mid - 1, value);
-        }
-        else if (((Comparable) pageInfos.firstElement().getMin()).compareTo((Comparable) value) > 0) {
+        } else if (((Comparable) pageInfos.firstElement().getMin()).compareTo((Comparable) value) > 0) {
             return pageInfos.firstElement().getPageName();
         } else if (((Comparable) pageInfos.lastElement().getMax()).compareTo((Comparable) value) < 0) {
             return pageInfos.lastElement().getPageName();
-        }
-        else{
+        } else {
             return pageInfos.get(start).getPageName();
 
         }
@@ -212,8 +210,8 @@ public class Table implements Serializable {
 
     public boolean addData(Tuple data2) {
         Tuple data = correctTuple(data2);
-//        int max = getMax();
-        int max = 100;
+        int max = getMax();
+//        int max = 100;
         String fileName = TableName + "," + ClusteringKeyColumn + ".bin";
         File check = new File(fileName);
         if (Pages.size() == 0) {
@@ -380,8 +378,8 @@ public class Table implements Serializable {
 
 
     public void addWithIndex(Tuple data, BPTreeLeafNode node) {
-//        int max = getMax();
-        int max = 100;
+        int max = getMax();
+//        int max = 100;
         if (node == null) {
             Page p = deserializePage(Pages.lastElement().getPageName());
             int index = colOrder.indexOf(ClusteringKeyColumn);
