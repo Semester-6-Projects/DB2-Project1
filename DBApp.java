@@ -887,6 +887,7 @@ public class DBApp {
         }
 
 
+        String tableName = arrSQLTerms[0]._strTableName;
         // Iterate through the SQLTerms array and select the relevant data.
         for (SQLTerm arrSQLTerm : arrSQLTerms) {
 
